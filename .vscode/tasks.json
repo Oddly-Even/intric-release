@@ -5,12 +5,14 @@
             "label": "🚀 Start Backend",
             "type": "shell",
             "command": "cd backend && poetry run start",
+            "isBackground": true,
             "presentation": {
                 "reveal": "always",
-                "panel": "new",
-                "group": "develop"
+                "panel": "shared",
+                "group": "backend"
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": ["🔄 Initialize Backend DB"]
         },
         {
             "label": "🔄 Initialize Backend DB",
@@ -18,8 +20,8 @@
             "command": "cd backend && poetry run python init_db.py",
             "presentation": {
                 "reveal": "always",
-                "panel": "new",
-                "group": "develop"
+                "panel": "shared",
+                "group": "backend"
             },
             "problemMatcher": []
         },
@@ -27,10 +29,11 @@
             "label": "💻 Start Frontend",
             "type": "shell",
             "command": "cd frontend && pnpm run dev",
+            "isBackground": true,
             "presentation": {
                 "reveal": "always",
-                "panel": "new",
-                "group": "develop"
+                "panel": "shared",
+                "group": "frontend"
             },
             "problemMatcher": []
         }
