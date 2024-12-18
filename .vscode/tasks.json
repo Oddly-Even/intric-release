@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Start Backend",
+            "type": "shell",
+            "command": "cd backend && poetry run start",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "group": "develop"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🔄 Initialize Backend DB",
+            "type": "shell",
+            "command": "cd backend && poetry run python init_db.py",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "group": "develop"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "💻 Start Frontend",
+            "type": "shell",
+            "command": "cd frontend && pnpm run dev",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "group": "develop"
+            },
+            "problemMatcher": []
+        }
+    ]
+} 
