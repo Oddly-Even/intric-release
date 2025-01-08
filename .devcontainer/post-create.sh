@@ -13,7 +13,7 @@ sudo apt-get install -y libmagic1 ffmpeg
 pip install --no-cache-dir poetry
 
 cd /workspace/backend
-
+poetry config virtualenvs.in-project true
 poetry install
 
 # Install Node.js dependencies
