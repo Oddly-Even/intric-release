@@ -21,9 +21,15 @@
 	"postStartCommand": "bash .devcontainer/post-start.sh",
 	"customizations": {
 		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff"
+			],
 			"settings": {
 				"python.defaultInterpreterPath": "/workspace/backend/.venv/bin/python",
-				"python.terminal.activateEnvironment": true
+				"python.terminal.activateEnvironment": true,
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff"
+				}
 			}
 		}
 	},
