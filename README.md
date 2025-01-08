@@ -4,7 +4,7 @@
 
 intric is an easy-to-use platform for building and using AI-powered assistants and tools. Take advantage of AI today instead of tomorrow.
 
-[Local Development](./development.md) • [Contribution](./development.md#contribution-guidelines) **(coming soon)**
+[Local Development](./docs/development.md) • [Contribution](./docs/development.md#contribution-guidelines) **(coming soon)**
 
 </div>
 
