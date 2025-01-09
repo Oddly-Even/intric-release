@@ -459,17 +459,3 @@ class Container(containers.DeclarativeContainer):
 
         # Worker
         crawler = providers.Factory(Crawler)
-
-    def space_service(self) -> SpaceService:
-        """Get the space service."""
-        repo = SpaceRepository(self.session)
-        user_repo = UsersRepository(self.session)
-        ai_models_service = self.ai_models_service()
-        security_level_service = self.security_level_service()
-        return SpaceService(
-            repo=repo,
-            user=self.user,
-            user_repo=user_repo,
-            ai_models_service=ai_models_service,
-            security_level_service=security_level_service,
-        )
