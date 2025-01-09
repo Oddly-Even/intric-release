@@ -6,9 +6,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from instorage.main.container.container import Container
+from instorage.securitylevels.security_level_factory import get_security_level_service
+from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.server import protocol
-from instorage.server.dependencies.container import get_container
 from instorage.server.protocol import responses
 from instorage.securitylevels.api.security_level_models import (
     CreateSecurityLevelRequest,
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/security-levels", tags=["Security Levels"])
 )
 async def create_security_level(
     request: CreateSecurityLevelRequest,
-    container: Container = Depends(get_container(with_user=True)),
+    service: SecurityLevelService = Depends(get_security_level_service),
 ) -> SecurityLevelPublic:
     """Create a new security level.
     
@@ -41,8 +41,6 @@ async def create_security_level(
         400: If the request is invalid.
         409: If a security level with the same name already exists.
     """
-    service = container.security_level_service()
-
     security_level = await service.create_security_level(
         name=request.name,
         description=request.description,
@@ -57,7 +55,7 @@ async def create_security_level(
     responses=responses.get_responses([403]),
 )
 async def list_security_levels(
-    container: Container = Depends(get_container(with_user=True)),
+    service: SecurityLevelService = Depends(get_security_level_service),
 ) -> list[SecurityLevelPublic]:
     """List all security levels ordered by value.
     
@@ -67,8 +65,6 @@ async def list_security_levels(
     Raises:
         403: If the user doesn't have permission to list security levels.
     """
-    service = container.security_level_service()
-
     security_levels = await service.list_security_levels()
     return [SecurityLevelPublic.model_validate(sl) for sl in security_levels]
 
@@ -80,7 +76,7 @@ async def list_security_levels(
 )
 async def get_security_level(
     id: UUID,
-    container: Container = Depends(get_container(with_user=True)),
+    service: SecurityLevelService = Depends(get_security_level_service),
 ) -> SecurityLevelPublic:
     """Get a security level by ID.
     
@@ -94,8 +90,6 @@ async def get_security_level(
         403: If the user doesn't have permission to view the security level.
         404: If the security level doesn't exist.
     """
-    service = container.security_level_service()
-
     security_level = await service.get_security_level(id)
     return SecurityLevelPublic.model_validate(security_level)
 
@@ -108,7 +102,7 @@ async def get_security_level(
 async def update_security_level(
     id: UUID,
     request: UpdateSecurityLevelRequest,
-    container: Container = Depends(get_container(with_user=True)),
+    service: SecurityLevelService = Depends(get_security_level_service),
 ) -> SecurityLevelPublic:
     """Update a security level.
     
@@ -125,8 +119,6 @@ async def update_security_level(
         404: If the security level doesn't exist.
         409: If updating the name would create a duplicate.
     """
-    service = container.security_level_service()
-
     security_level = await service.update_security_level(
         id=id,
         name=request.name,
@@ -143,7 +135,7 @@ async def update_security_level(
 )
 async def delete_security_level(
     id: UUID,
-    container: Container = Depends(get_container(with_user=True)),
+    service: SecurityLevelService = Depends(get_security_level_service),
 ) -> None:
     """Delete a security level.
     
@@ -155,5 +147,4 @@ async def delete_security_level(
         404: If the security level doesn't exist.
         409: If the security level is in use by any spaces or models.
     """
-    service = container.security_level_service()
     await service.delete_security_level(id) 
