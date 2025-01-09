@@ -10,6 +10,7 @@ PERMISSIONS_WITH_DESCRIPTION = {
     Permission.SERVICES: "Management of Services. Create, Update, and Delete Services.",
     Permission.COLLECTIONS: "Management of Collections. Create, Update, and Delete Collections.",
     Permission.WEBSITES: "Management of Websites. Create, Update, and Delete Websites",
+    Permission.SECURITY_LEVELS: "Management of Security Levels. Create, Update, and Delete Security Levels.",
     Permission.INSIGHTS: "See Insights about your Organization.",
     Permission.AI: "More in-depth AI configuration.",
     Permission.EDITOR: "Edit any Assistant / Service / Collection that you have access to.",

@@ -22,6 +22,7 @@ from instorage.main.models import (
     ResourcePermissionsMixin,
     partial_model,
 )
+from instorage.securitylevels.api.security_level_models import SecurityLevelSparse
 from instorage.services.service import ServiceSparse
 from instorage.users.user import UserSparse
 from instorage.websites.crawl_dependencies.crawl_models import CrawlRunPublic, CrawlType
@@ -35,6 +36,7 @@ class SpaceRole(str, Enum):
 
 class CreateRequest(BaseModel):
     name: str
+    security_level_id: Optional[UUID] = None
 
 
 class TransferRequest(BaseModel):
@@ -63,6 +65,7 @@ class CreateSpaceRequest(CreateRequest):
 class UpdateSpaceRequest(BaseModel):
     name: str
     description: str
+    security_level_id: Optional[UUID]
 
     embedding_models: list[ModelId]
     completion_models: list[ModelId]
@@ -82,6 +85,7 @@ class SpaceSparse(InDB):
     name: str
     description: Optional[str]
     personal: bool
+    security_level: Optional[SecurityLevelSparse]
 
 
 class SpaceDashboard(ResourcePermissionsMixin, SpaceSparse):
@@ -90,7 +94,6 @@ class SpaceDashboard(ResourcePermissionsMixin, SpaceSparse):
 
 class SpacePublic(SpaceDashboard):
     embedding_models: list[EmbeddingModelSparse]
-
     completion_models: list[CompletionModelSparse]
     knowledge: Knowledge
     members: PaginatedPermissions[SpaceMember]

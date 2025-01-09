@@ -146,6 +146,7 @@ class SpaceAssembler:
             id=space.id,
             name=space.name,
             description=space.description,
+            security_level=space.security_level,
             embedding_models=space.embedding_models,
             completion_models=space.completion_models,
             applications=applications,

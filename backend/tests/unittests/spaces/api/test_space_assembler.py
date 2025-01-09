@@ -63,6 +63,7 @@ def space():
         user_id=None,
         tenant_id=TEST_UUID,
         description=None,
+        security_level=None,
         embedding_models=[],
         completion_models=[],
         assistants=[],
@@ -138,6 +139,7 @@ def test_from_space_to_model(space_assembler: SpaceAssembler):
         name=test_name,
         description=None,
         personal=False,
+        security_level=None,
         embedding_models=[embedding_model],
         completion_models=[completion_model],
         applications=Applications(
@@ -182,6 +184,7 @@ def test_from_space_to_model(space_assembler: SpaceAssembler):
         id=TEST_UUID,
         user_id=None,
         description=None,
+        security_level=None,
         embedding_models=[embedding_model],
         completion_models=[completion_model],
         assistants=[assistant],

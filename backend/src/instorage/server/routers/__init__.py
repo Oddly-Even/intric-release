@@ -26,6 +26,7 @@ from instorage.spaces.api.space_router import router as space_router
 from instorage.user_groups.user_groups_router import router as user_groups_router
 from instorage.users.user_router import router as users_router
 from instorage.websites.website_router import router as website_router
+from instorage.securitylevels.api.security_level_router import router as security_level_router
 
 router = APIRouter()
 
@@ -51,6 +52,7 @@ router.include_router(
 )
 router.include_router(files_router, prefix="/files", tags=["files"])
 router.include_router(limit_router, prefix="/limits", tags=["limits"])
+router.include_router(security_level_router, prefix="/security-levels", tags=["security-levels"])
 router.include_router(space_router, prefix="/spaces", tags=["spaces"])
 router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 router.include_router(website_router, prefix="/websites", tags=["websites"])

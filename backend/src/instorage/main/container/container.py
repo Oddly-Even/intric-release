@@ -1,4 +1,5 @@
 from dependency_injector import containers, providers
+from typing import Optional
 
 from instorage.admin.admin_service import AdminService
 from instorage.admin.quota_service import QuotaService
@@ -101,6 +102,8 @@ from instorage.websites.website_service import WebsiteService
 from instorage.worker.task_manager import TaskManager
 from instorage.workflows.assistant_guard_runner import AssistantGuardRunner
 from instorage.workflows.step_repo import StepRepository
+from instorage.securitylevels.security_level_repo import SecurityLevelRepository
+from instorage.securitylevels.security_level_service import SecurityLevelService
 
 if get_settings().using_intric_proprietary:
     from instorage_prop.crawler.crawl_repo import CrawlRepository
@@ -164,6 +167,10 @@ class Container(containers.DeclarativeContainer):
         SpaceRepository, factory=space_factory, session=session
     )
     module_repo = providers.Factory(ModuleRepository, session=session)
+    security_level_repo = providers.Factory(
+        SecurityLevelRepository,
+        session=session,
+    )
 
     # Completion model adapters
     openai_model_adapter = providers.Factory(OpenAIModelAdapter, model=completion_model)
@@ -354,6 +361,11 @@ class Container(containers.DeclarativeContainer):
         protocol=file_protocol,
     )
     limit_service = providers.Factory(LimitService)
+    security_level_service = providers.Factory(
+        SecurityLevelService,
+        user=user,
+        repo=security_level_repo,
+    )
 
     # Completion
     context_builder = providers.Factory(ContextBuilder)
@@ -447,3 +459,17 @@ class Container(containers.DeclarativeContainer):
 
         # Worker
         crawler = providers.Factory(Crawler)
+
+    def space_service(self) -> SpaceService:
+        """Get the space service."""
+        repo = SpaceRepository(self.session)
+        user_repo = UsersRepository(self.session)
+        ai_models_service = self.ai_models_service()
+        security_level_service = self.security_level_service()
+        return SpaceService(
+            repo=repo,
+            user=self.user,
+            user_repo=user_repo,
+            ai_models_service=ai_models_service,
+            security_level_service=security_level_service,
+        )
