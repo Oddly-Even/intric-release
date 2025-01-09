@@ -42,6 +42,7 @@ class SpaceRepository:
             .selectinload(Websites.latest_crawl)
             .selectinload(CrawlRuns.job),
             selectinload(Spaces.websites).selectinload(Websites.embedding_model),
+            selectinload(Spaces.security_level),
         ]
 
     async def _get_groups(self, space_id: UUID):
@@ -184,7 +185,11 @@ class SpaceRepository:
     async def update(self, space: Space) -> Space:
         query = (
             sa.update(Spaces)
-            .values(name=space.name, description=space.description)
+            .values(
+                name=space.name,
+                description=space.description,
+                security_level_id=space.security_level.id if space.security_level else None
+            )
             .where(Spaces.id == space.id)
             .returning(Spaces)
         )

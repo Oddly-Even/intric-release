@@ -8,6 +8,7 @@ from instorage.database.tables.ai_models_table import CompletionModels, Embeddin
 from instorage.database.tables.base_class import BaseCrossReference, BasePublic
 from instorage.database.tables.tenant_table import Tenants
 from instorage.database.tables.users_table import Users
+from instorage.database.tables.security_levels_table import SecurityLevels
 
 if TYPE_CHECKING:
     from instorage.database.tables.assistant_table import Assistants
@@ -25,8 +26,12 @@ class Spaces(BasePublic):
     user_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey(Users.id, ondelete="CASCADE"), unique=True
     )
+    security_level_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityLevels.id, ondelete="SET NULL")
+    )
 
     # Relationships
+    security_level: Mapped[Optional[SecurityLevels]] = relationship()
     embedding_models: Mapped[list[EmbeddingModels]] = relationship(
         secondary="spaces_embedding_models", order_by=EmbeddingModels.created_at
     )

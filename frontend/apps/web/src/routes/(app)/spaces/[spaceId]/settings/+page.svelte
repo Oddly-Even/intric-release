@@ -7,12 +7,17 @@
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { Button, Dialog, Input } from "@intric/ui";
-  import SelectEmbeddingModels from "./SelectEmbeddingModels.svelte";
+  import SelectModels from "$lib/features/ai-models/components/SelectModels.svelte";
   import EditNameAndDescription from "./EditNameAndDescription.svelte";
-  import SelectCompletionModels from "./SelectCompletionModels.svelte";
+  import SelectSecurityLevel from "./SelectSecurityLevel.svelte";
   import { Page } from "$lib/components/layout";
+  import type { SecurityLevel, CompletionModel, EmbeddingModel } from "@intric/intric-js";
 
-  export let data;
+  export let data: {
+    securityLevels: SecurityLevel[],
+    completionModels: CompletionModel[],
+    embeddingModels: EmbeddingModel[]
+  };
 
   const spaces = getSpacesManager();
   const currentSpace = spaces.state.currentSpace;
@@ -22,6 +27,7 @@
   let isDeleting = false;
   let showStillDeletingMessage = false;
   let deletionMessageTimeout: ReturnType<typeof setTimeout>;
+
   async function deleteSpace() {
     if (deleteConfirmation === "") return;
     if (deleteConfirmation !== $currentSpace.name) {
@@ -63,6 +69,17 @@
       </div>
     </section>
 
+    {#if $currentSpace.permissions?.includes("edit")}
+      <section>
+        <h2
+          class="sticky top-0 col-span-2 border-b border-black/5 bg-white/85 pb-3 pl-2 pt-3 font-mono text-sm backdrop-blur-sm"
+        >
+          Security
+        </h2>
+        <SelectSecurityLevel securityLevels={data.securityLevels} embeddingModels={data.embeddingModels} completionModels={data.completionModels} />
+      </section>
+    {/if}
+
     <section class="relative">
       <h2
         class="sticky top-0 z-10 col-span-2 border-b border-black/5 bg-white/85 pb-3 pl-2 pt-3 font-mono text-sm backdrop-blur-sm"
@@ -71,13 +88,21 @@
       </h2>
 
       <div class="relative flex flex-col gap-8 py-5 pr-6 lg:gap-12">
-        <SelectCompletionModels
+        <SelectModels
           selectableModels={data.completionModels.filter((model) => model.can_access)}
-        ></SelectCompletionModels>
+          securityLevels={data.securityLevels}
+          modelType="completion"
+          title="Completion Models"
+          description="Choose which completion models will be available to the applications in this space."
+        />
 
-        <SelectEmbeddingModels
+        <SelectModels
           selectableModels={data.embeddingModels.filter((model) => model.can_access)}
-        ></SelectEmbeddingModels>
+          securityLevels={data.securityLevels}
+          modelType="embedding"
+          title="Embedding Models"
+          description="Choose which embedding models will be available to embed data in this space."
+        />
       </div>
     </section>
 

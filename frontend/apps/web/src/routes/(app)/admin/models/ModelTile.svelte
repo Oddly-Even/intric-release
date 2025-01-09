@@ -5,14 +5,16 @@
 -->
 
 <script lang="ts">
-  import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import ModelEnableSwitch from "./ModelEnableSwitch.svelte";
+  import ModelSecurityLevelSelect from "./ModelSecurityLevelSelect.svelte";
   import { Label } from "@intric/ui";
   import { getLabels } from "$lib/features/ai-models/components/ModelLabels.svelte";
   import ModelNameAndVendor from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
 
   export let model: CompletionModel | EmbeddingModel;
   export let modeltype: "completion" | "embedding";
+  export let securityLevels: SecurityLevel[];
 
   let labels = getLabels(model);
 </script>
@@ -46,9 +48,15 @@
     </div>
   </div>
   <div>
-    <div class="flex h-full items-center justify-between px-5 py-4">
-      <p>Enabled</p>
-      <ModelEnableSwitch {model} {modeltype} />
+    <div class="flex h-full flex-col gap-2 px-5 py-4">
+      <div class="flex items-center justify-between">
+        <p>Enabled</p>
+        <ModelEnableSwitch {model} {modeltype} />
+      </div>
+      <div class="flex items-center justify-between">
+        <p>Security Level</p>
+        <ModelSecurityLevelSelect {model} {modeltype} {securityLevels} />
+      </div>
     </div>
   </div>
 </div>

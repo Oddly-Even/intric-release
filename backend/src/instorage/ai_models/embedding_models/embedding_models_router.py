@@ -11,6 +11,7 @@ from instorage.ai_models.ai_models_service import AIModelsService
 from instorage.ai_models.embedding_models.embedding_model import (
     EmbeddingModelPublic,
     EmbeddingModelUpdateFlags,
+    EmbeddingModelSecurityLevelUpdate,
 )
 from instorage.main.models import PaginatedResponse
 from instorage.server import protocol
@@ -42,3 +43,29 @@ async def enable_embedding_model(
     service: AIModelsService = Depends(get_ai_models_service),
 ):
     return await service.enable_embedding_model(embedding_model_id=id, data=data)
+
+
+@router.put(
+    "/{id}/security-level",
+    response_model=EmbeddingModelPublic,
+    responses=responses.get_responses([404]),
+)
+async def set_embedding_model_security_level(
+    id: UUID,
+    data: EmbeddingModelSecurityLevelUpdate,
+    service: AIModelsService = Depends(get_ai_models_service),
+):
+    return await service.set_embedding_model_security_level(
+        embedding_model_id=id, data=data
+    )
+
+
+@router.delete(
+    "/{id}/security-level",
+    response_model=EmbeddingModelPublic,
+)
+async def unset_embedding_model_security_level(
+    id: UUID,
+    service: AIModelsService = Depends(get_ai_models_service),
+):
+    return await service.unset_embedding_model_security_level(embedding_model_id=id)

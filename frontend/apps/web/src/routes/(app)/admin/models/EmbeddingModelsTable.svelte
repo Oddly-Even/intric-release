@@ -5,10 +5,11 @@
 -->
 
 <script lang="ts">
-  import type { EmbeddingModel } from "@intric/intric-js";
+  import type { EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import ModelEnableSwitch from "./ModelEnableSwitch.svelte";
+  import ModelSecurityLevelSelect from "./ModelSecurityLevelSelect.svelte";
   import {
     default as ModelLabels,
     getLabels
@@ -19,6 +20,8 @@
   } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
 
   export let embeddingModels: EmbeddingModel[];
+  export let securityLevels: SecurityLevel[];
+
   const table = Table.createWithResource(embeddingModels);
 
   const viewModel = table.createViewModel([
@@ -57,10 +60,18 @@
     }),
     table.column({
       accessor: (model) => model,
+      header: "Security Level",
+      cell: (item) =>
+        createRender(ModelSecurityLevelSelect, {
+          model: item.value,
+          modeltype: "embedding",
+          securityLevels
+        })
+    }),
+    table.column({
+      accessor: (model) => model,
       header: "Labels",
-      cell: (item) => {
-        return createRender(ModelLabels, { model: item.value });
-      },
+      cell: (item) => createRender(ModelLabels, { model: item.value }),
       plugins: {
         sort: {
           disable: true
@@ -77,12 +88,12 @@
     }),
     table.columnCard({
       value: (item) => item.name,
-      cell: (item) => {
-        return createRender(ModelTile, {
+      cell: (item) =>
+        createRender(ModelTile, {
           model: item.value,
-          modeltype: "completion"
-        });
-      }
+          modeltype: "embedding",
+          securityLevels
+        })
     })
   ]);
 

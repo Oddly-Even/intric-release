@@ -11,7 +11,9 @@ from instorage.main.exceptions import (
 )
 from instorage.spaces.api.space_models import SpaceRole
 from instorage.spaces.space_service import SpaceService
-from tests.fixtures import TEST_USER
+from tests.fixtures import TEST_USER, TEST_UUID, TEST_TENANT
+from instorage.securitylevels.security_level import SecurityLevel
+from instorage.spaces.space import Space
 
 
 @pytest.fixture
@@ -21,6 +23,7 @@ async def service():
         factory=MagicMock(),
         user_repo=AsyncMock(),
         ai_models_service=AsyncMock(),
+        security_level_service=AsyncMock(),
         user=TEST_USER,
     )
 
@@ -185,3 +188,92 @@ async def test_get_spaces_and_personal_space_returns_personal_space_first(
     spaces = await service.get_spaces(include_personal=True)
 
     assert spaces == [personal_space] + other_spaces
+
+
+@pytest.fixture
+def security_level():
+    return SecurityLevel(
+        id=TEST_UUID,
+        tenant_id=TEST_TENANT.id,
+        name="test_level",
+        description="Test security level",
+        value=100,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
+    )
+
+
+@pytest.fixture
+def higher_security_level():
+    return SecurityLevel(
+        id=uuid4(),
+        tenant_id=TEST_TENANT.id,
+        name="high_level",
+        description="High security level",
+        value=200,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
+    )
+
+
+async def test_update_space_security_level(
+    service: SpaceService, security_level: SecurityLevel
+):
+    """Test updating a space's security level."""
+    space = MagicMock()
+    space.can_edit.return_value = True
+
+    service.get_space = AsyncMock(return_value=space)
+    service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
+    service.ai_models_service.get_completion_models = AsyncMock(return_value=[])
+    service.ai_models_service.get_embedding_models = AsyncMock(return_value=[])
+
+    await service.update_space(
+        id=TEST_UUID,
+        security_level_id=security_level.id,
+    )
+
+    # Check that update was called with the security level
+    space.update.assert_called_once_with(
+        name=None,
+        description=None,
+        completion_models=[],
+        embedding_models=[],
+        security_level=security_level,
+    )
+
+async def test_update_space_with_inaccessible_models_raises_unauthorized(service: SpaceService):
+    """
+    Test that validates that the behavior of updating a space with inaccessible models raises UnauthorizedException.
+    TODO: Verify that this is not a bug. When a model is deactivated on the organization and still activated on a space, the space can not toggle any of the other models.
+    """
+    # Create a real Space instance
+    space = Space(
+        id=TEST_UUID,
+        tenant_id=TEST_UUID,
+        user_id=None,
+        name="Test Space",
+        description=None,
+        embedding_models=[],
+        completion_models=[],
+        assistants=[],
+        services=[],
+        websites=[],
+        groups=[],
+        members={TEST_USER.id: MagicMock(role=SpaceRole.ADMIN)},
+    )
+
+    # Create a mix of accessible and inaccessible models
+    accessible_model = MagicMock(can_access=True, id=uuid4())
+    inaccessible_model = MagicMock(can_access=False, id=uuid4())
+    models = [accessible_model, inaccessible_model]
+
+    service.get_space = AsyncMock(return_value=space)
+    service.ai_models_service.get_completion_models = AsyncMock(return_value=models)
+
+    # Verify that attempting to update with inaccessible models raises UnauthorizedException
+    with pytest.raises(UnauthorizedException):
+        await service.update_space(
+            id=TEST_UUID,
+            completion_model_ids=[accessible_model.id, inaccessible_model.id]
+        )

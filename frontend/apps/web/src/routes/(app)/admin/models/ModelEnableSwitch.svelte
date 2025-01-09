@@ -9,14 +9,19 @@
   import { getIntric } from "$lib/core/Intric";
   import { Input, Tooltip } from "@intric/ui";
 
-  export let model: { id: string; is_org_enabled?: boolean; is_locked?: boolean };
+  export let model: {
+    id: string;
+    is_org_enabled?: boolean;
+    is_locked?: boolean;
+    security_level_id?: string | null;
+  };
   export let modeltype: "completion" | "embedding";
 
   const intric = getIntric();
 
   async function updateCompletionModel(
     completionModel: { id: string },
-    update: { is_org_enabled: boolean }
+    update: { is_org_enabled?: boolean; security_level_id?: string | null }
   ) {
     try {
       await intric.models.update({ completionModel, update });
@@ -29,7 +34,7 @@
 
   async function updateEmbeddingModel(
     embeddingModel: { id: string },
-    update: { is_org_enabled: boolean }
+    update: { is_org_enabled?: boolean; security_level_id?: string | null }
   ) {
     try {
       await intric.models.update({ embeddingModel, update });
@@ -41,23 +46,33 @@
   }
 
   async function updateModel({ next }: { next: boolean }) {
-    if (modeltype == "completion") {
-      await updateCompletionModel({ id: model.id }, { is_org_enabled: next });
+    const update = {
+      is_org_enabled: next ?? false,
+      security_level_id: model.security_level_id
+    };
+
+    if (modeltype === "completion") {
+      await updateCompletionModel({ id: model.id }, update);
+    } else if (modeltype === "embedding") {
+      await updateEmbeddingModel({ id: model.id }, update);
     } else {
-      await updateEmbeddingModel({ id: model.id }, { is_org_enabled: next });
+      throw new Error("Invalid model type");
     }
   }
 
   $: tooltip = model.is_locked
     ? "EU-hosted models are available on request"
-    : model.is_org_enabled
+    : model.is_org_enabled ?? false
       ? "Toggle to disable model"
       : "Toggle to enable model";
 </script>
 
 <div class="-ml-3 flex items-center gap-4">
   <Tooltip text={tooltip}>
-    <Input.Switch sideEffect={updateModel} value={model.is_org_enabled} disabled={model.is_locked}
-    ></Input.Switch>
+    <Input.Switch 
+      sideEffect={updateModel} 
+      value={model.is_org_enabled ?? false} 
+      disabled={model.is_locked}
+    />
   </Tooltip>
-</div>
+</div> 

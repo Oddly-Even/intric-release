@@ -21,7 +21,7 @@ import { xhr } from "./xhr";
  */
 
 export function createClient(args) {
-  const version = "1.60.0"; // # Client version auto-updates when running the updater, do not edit this line.
+  const version = "DEV"; // # Client version auto-updates when running the updater, do not edit this line.
   const baseUrl = args.baseUrl;
   const _fetch = args.fetch ?? fetch;
 

@@ -39,6 +39,8 @@ export type WebsiteSparse = components["schemas"]["WebsiteSparse"];
 export type ModelCreatorOrg = components["schemas"]["Orgs"];
 export type Space = components["schemas"]["SpacePublic"];
 export type SpaceSparse = components["schemas"]["SpaceSparse"];
+export type SecurityLevel = components["schemas"]["SecurityLevelPublic"];
+export type SpaceUpdateDryRunResponse = components["schemas"]["SpaceUpdateDryRunResponse"];
 
 export type AnalyticsData = {
   assistants: {

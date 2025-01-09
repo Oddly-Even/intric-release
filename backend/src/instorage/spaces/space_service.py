@@ -2,22 +2,43 @@
 #
 # Licensed under the MIT License.
 
+from dataclasses import dataclass
+from typing import Optional
 from uuid import UUID
 
 from instorage.ai_models.ai_models_service import AIModelsService
-from instorage.ai_models.completion_models.completion_model import CompletionModelPublic
-from instorage.ai_models.embedding_models.embedding_model import EmbeddingModelPublic
+from instorage.ai_models.completion_models.completion_model import CompletionModelPublic, CompletionModelSparse
+from instorage.ai_models.embedding_models.embedding_model import EmbeddingModelPublic, EmbeddingModelSparse
 from instorage.main.exceptions import (
     BadRequestException,
     NotFoundException,
     UnauthorizedException,
 )
+from instorage.securitylevels.security_level import SecurityLevel
+from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.spaces.api.space_models import SpaceMember, SpaceRole
 from instorage.spaces.space import Space
 from instorage.spaces.space_factory import SpaceFactory
 from instorage.spaces.space_repo import SpaceRepository
 from instorage.users.user import UserInDB
 from instorage.users.user_repo import UsersRepository
+
+
+@dataclass
+class SpaceUpdateAnalysis:
+    """Analysis of the impact of updating a space's properties."""
+
+    def __init__(
+        self,
+        current_security_level: Optional[SecurityLevel],
+        new_security_level: Optional[SecurityLevel],
+        unavailable_completion_models: list[CompletionModelSparse],
+        unavailable_embedding_models: list[EmbeddingModelSparse],
+    ):
+        self.current_security_level = current_security_level
+        self.new_security_level = new_security_level
+        self.unavailable_completion_models = unavailable_completion_models
+        self.unavailable_embedding_models = unavailable_embedding_models
 
 
 class SpaceService:
@@ -28,6 +49,7 @@ class SpaceService:
         repo: SpaceRepository,
         user_repo: UsersRepository,
         ai_models_service: AIModelsService,
+        security_level_service: SecurityLevelService,
     ):
         self.user = user
         self.factory = factory
@@ -35,6 +57,7 @@ class SpaceService:
         self.user_repo = user_repo
 
         self.ai_models_service = ai_models_service
+        self.security_level_service = security_level_service
 
     async def _get_space(self, id: UUID) -> Space:
         space = await self.repo.get(id)
@@ -109,37 +132,64 @@ class SpaceService:
 
         return space
 
+    async def _get_filtered_model_ids(
+        self,
+        current_models: list[CompletionModelSparse | EmbeddingModelSparse],
+        unavailable_models: list[CompletionModelSparse | EmbeddingModelSparse]
+    ) -> list[UUID]:
+        """Helper to get IDs of models that will remain available."""
+        unavailable_ids = {model.id for model in unavailable_models}
+        return [model.id for model in current_models if model.id not in unavailable_ids]
+
     async def update_space(
         self,
         id: UUID,
-        name: str = None,
-        description: str = None,
-        embedding_model_ids: list[UUID] = None,
-        completion_model_ids: list[UUID] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        embedding_model_ids: Optional[list[UUID]] = None,
+        completion_model_ids: Optional[list[UUID]] = None,
+        security_level_id: Optional[UUID] = None,
     ) -> Space:
+        """Update a space."""
         space = await self.get_space(id)
         if not space.can_edit(self.user):
-            raise UnauthorizedException("User does not have permission to edit space")
+            raise UnauthorizedException("User has no permission to edit space")
 
-        completion_models = None
+        update_kwargs = {
+            "name": name,
+            "description": description,
+            "security_level": None if security_level_id is None else await self.security_level_service.get_security_level(security_level_id)
+        }
+
+        # If security level is changing, analyze impact on models
+        if security_level_id is not None and (space.security_level is None or security_level_id != space.security_level.id):
+            analysis = await self.analyze_update(id, security_level_id)
+
+            # If no explicit model IDs provided, filter out incompatible models
+            if completion_model_ids is None:
+                completion_model_ids = await self._get_filtered_model_ids(
+                    space.completion_models,
+                    analysis.unavailable_completion_models
+                )
+            if embedding_model_ids is None:
+                embedding_model_ids = await self._get_filtered_model_ids(
+                    space.embedding_models,
+                    analysis.unavailable_embedding_models
+                )
+
+        # Fetch and set models if IDs are provided (either explicitly or from filtering)
         if completion_model_ids is not None:
-            completion_models = await self.ai_models_service.get_completion_models(
-                id_list=completion_model_ids
+            # Get full Public models
+            update_kwargs["completion_models"] = await self.ai_models_service.get_completion_models(
+                id_list=completion_model_ids,
             )
-
-        embedding_models = None
         if embedding_model_ids is not None:
-            embedding_models = await self.ai_models_service.get_embedding_models(
-                id_list=embedding_model_ids
+            # Get full Public models
+            update_kwargs["embedding_models"] = await self.ai_models_service.get_embedding_models(
+                id_list=embedding_model_ids,
             )
 
-        space.update(
-            name=name,
-            description=description,
-            completion_models=completion_models,
-            embedding_models=embedding_models,
-        )
-
+        space.update(**update_kwargs)
         return await self.repo.update(space)
 
     async def delete_space(self, id: UUID):
@@ -231,3 +281,55 @@ class SpaceService:
             personal_space = await self.create_personal_space()
 
         return await self._add_models_to_personal_space(personal_space)
+
+    async def _get_unavailable_models_for_security_level(
+        self,
+        models: list[CompletionModelSparse | EmbeddingModelSparse],
+        new_security_level: Optional[SecurityLevel],
+        get_full_model_fn
+    ) -> list[CompletionModelSparse | EmbeddingModelSparse]:
+        """Helper to find models that will become unavailable with new security level."""
+        unavailable = []
+        for model in models:
+            full_model = await get_full_model_fn(model.id, include_non_accessible=True)
+            if not full_model.security_level or (
+                new_security_level
+                and full_model.security_level.value < new_security_level.value
+            ):
+                unavailable.append(model)
+        return unavailable
+
+    async def analyze_update(
+        self,
+        id: UUID,
+        security_level_id: Optional[UUID] = None,
+    ) -> SpaceUpdateAnalysis:
+        """
+        Analyze the impact of updating a space's properties without actually applying the changes.
+        Currently supports:
+        - Security level changes: Shows which models would be affected
+        """
+        space = await self._get_space(id)
+        new_security_level = None
+        if security_level_id is not None:
+            new_security_level = await self.security_level_service.get_security_level(security_level_id)
+
+        # Check which models will be affected
+        unavailable_completion_models = await self._get_unavailable_models_for_security_level(
+            space.completion_models,
+            new_security_level,
+            self.ai_models_service.get_completion_model
+        )
+
+        unavailable_embedding_models = await self._get_unavailable_models_for_security_level(
+            space.embedding_models,
+            new_security_level,
+            self.ai_models_service.get_embedding_model
+        )
+
+        return SpaceUpdateAnalysis(
+            current_security_level=space.security_level,
+            new_security_level=new_security_level,
+            unavailable_completion_models=unavailable_completion_models,
+            unavailable_embedding_models=unavailable_embedding_models,
+        )

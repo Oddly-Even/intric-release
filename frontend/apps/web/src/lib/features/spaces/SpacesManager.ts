@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -86,6 +86,7 @@ function SpacesManager(data: SpacesManagerParams) {
     space?: { id: string } | undefined
   ) {
     const { id } = space ?? get(currentSpace);
+
     try {
       const updatedSpace = await intric.spaces.update({ space: { id }, update });
       userSpaces.update((spaces) => {
@@ -102,6 +103,19 @@ function SpacesManager(data: SpacesManagerParams) {
       return updatedSpace;
     } catch (e) {
       alert(`Error updating space ${id}`);
+      console.error(e);
+    }
+  }
+
+  async function updateSpaceDryrun(
+    update: Parameters<typeof intric.spaces.updateDryrun>[0]["update"],
+    space?: { id: string } | undefined
+  ) {
+    const { id } = space ?? get(currentSpace);
+    try {
+      const updatedSpace = await intric.spaces.updateDryrun({ space: { id }, update });
+      return updatedSpace;
+    } catch (e) {
       console.error(e);
     }
   }
@@ -131,6 +145,7 @@ function SpacesManager(data: SpacesManagerParams) {
     refreshCurrentSpace,
     createSpace,
     updateSpace,
+    updateSpaceDryrun,
     deleteSpace,
     watchPageData
   });

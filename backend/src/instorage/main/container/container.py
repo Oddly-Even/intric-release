@@ -1,4 +1,5 @@
 from dependency_injector import containers, providers
+from typing import Optional
 
 from instorage.admin.admin_service import AdminService
 from instorage.admin.quota_service import QuotaService
@@ -101,6 +102,9 @@ from instorage.websites.website_service import WebsiteService
 from instorage.worker.task_manager import TaskManager
 from instorage.workflows.assistant_guard_runner import AssistantGuardRunner
 from instorage.workflows.step_repo import StepRepository
+from instorage.securitylevels.security_level_repo import SecurityLevelRepository
+from instorage.securitylevels.security_level_service import SecurityLevelService
+from instorage.securitylevels.api.security_level_assembler import SecurityLevelAssembler
 
 if get_settings().using_intric_proprietary:
     from instorage_prop.crawler.crawl_repo import CrawlRepository
@@ -131,6 +135,7 @@ class Container(containers.DeclarativeContainer):
     # Assemblers
     space_assembler = providers.Factory(SpaceAssembler, user=user)
     assistant_assembler = providers.Factory(AssistantAssembler, user=user)
+    security_level_assembler = providers.Factory(SecurityLevelAssembler, user=user)
 
     # Repositories
     user_repo = providers.Factory(UsersRepository, session=session)
@@ -164,6 +169,10 @@ class Container(containers.DeclarativeContainer):
         SpaceRepository, factory=space_factory, session=session
     )
     module_repo = providers.Factory(ModuleRepository, session=session)
+    security_level_repo = providers.Factory(
+        SecurityLevelRepository,
+        session=session,
+    )
 
     # Completion model adapters
     openai_model_adapter = providers.Factory(OpenAIModelAdapter, model=completion_model)
@@ -209,12 +218,18 @@ class Container(containers.DeclarativeContainer):
     image_extractor = providers.Factory(ImageExtractor)
 
     # Services
+    security_level_service = providers.Factory(
+        SecurityLevelService,
+        user=user,
+        repo=security_level_repo,
+    )
     ai_models_service = providers.Factory(
         AIModelsService,
         user=user,
         embedding_model_repo=embedding_model_repo,
         completion_model_repo=completion_model_repo,
         tenant_repo=tenant_repo,
+        security_level_service=security_level_service,
     )
     auth_service = providers.Factory(
         AuthService,
@@ -237,6 +252,7 @@ class Container(containers.DeclarativeContainer):
         factory=space_factory,
         user_repo=user_repo,
         ai_models_service=ai_models_service,
+        security_level_service=security_level_service,
     )
     group_service = providers.Factory(
         GroupService,

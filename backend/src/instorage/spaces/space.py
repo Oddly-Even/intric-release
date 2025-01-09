@@ -4,6 +4,7 @@
 
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from uuid import UUID
 
 from instorage.ai_models.completion_models.completion_model import (
@@ -20,6 +21,7 @@ from instorage.main.config import SETTINGS
 from instorage.main.exceptions import BadRequestException, UnauthorizedException
 from instorage.modules.module import Modules
 from instorage.roles.permissions import Permission
+from instorage.securitylevels.security_level import SecurityLevel
 from instorage.services.service import ServiceSparse
 from instorage.spaces.api.space_models import SpaceMember, SpaceRole
 from instorage.users.user import UserInDB
@@ -51,6 +53,7 @@ class Space:
         members: dict[UUID, SpaceMember],
         created_at: datetime = None,
         updated_at: datetime = None,
+        security_level: Optional[SecurityLevel] = None,
     ):
         self.id = id
         self.tenant_id = tenant_id
@@ -66,6 +69,7 @@ class Space:
         self.members = members
         self.created_at = created_at
         self.updated_at = updated_at
+        self.security_level = security_level
 
     def _get_admin_ids(self):
         return [
@@ -223,8 +227,9 @@ class Space:
         self,
         name: str = None,
         description: str = None,
-        embedding_models: list[EmbeddingModelPublic] = None,
-        completion_models: list[CompletionModelPublic] = None,
+        embedding_models: list[EmbeddingModelSparse] = None,
+        completion_models: list[CompletionModelSparse] = None,
+        security_level: SecurityLevel = None,
     ):
         if name is not None:
             if self.is_personal():
@@ -255,6 +260,8 @@ class Space:
                 )
 
             self.embedding_models = embedding_models
+
+        self.security_level = security_level
 
     def add_member(self, user: SpaceMember):
         if self.is_personal():
