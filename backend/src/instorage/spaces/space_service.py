@@ -2,6 +2,7 @@
 #
 # Licensed under the MIT License.
 
+from typing import Optional
 from uuid import UUID
 
 from instorage.ai_models.ai_models_service import AIModelsService
@@ -12,6 +13,8 @@ from instorage.main.exceptions import (
     NotFoundException,
     UnauthorizedException,
 )
+from instorage.securitylevels.security_level import SecurityLevel
+from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.spaces.api.space_models import SpaceMember, SpaceRole
 from instorage.spaces.space import Space
 from instorage.spaces.space_factory import SpaceFactory
@@ -28,6 +31,7 @@ class SpaceService:
         repo: SpaceRepository,
         user_repo: UsersRepository,
         ai_models_service: AIModelsService,
+        security_level_service: SecurityLevelService,
     ):
         self.user = user
         self.factory = factory
@@ -35,6 +39,7 @@ class SpaceService:
         self.user_repo = user_repo
 
         self.ai_models_service = ai_models_service
+        self.security_level_service = security_level_service
 
     async def _get_space(self, id: UUID) -> Space:
         space = await self.repo.get(id)
@@ -112,14 +117,23 @@ class SpaceService:
     async def update_space(
         self,
         id: UUID,
-        name: str = None,
-        description: str = None,
-        embedding_model_ids: list[UUID] = None,
-        completion_model_ids: list[UUID] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        embedding_model_ids: Optional[list[UUID]] = None,
+        completion_model_ids: Optional[list[UUID]] = None,
+        security_level_id: Optional[UUID] = None,
     ) -> Space:
+        """Update a space."""
         space = await self.get_space(id)
+
         if not space.can_edit(self.user):
-            raise UnauthorizedException("User does not have permission to edit space")
+            raise UnauthorizedException("User has no permission to edit space")
+
+        # Handle security level change
+        if security_level_id is not None:
+            if security_level_id != space.security_level_id:
+                new_security_level = await self.security_level_service.get_security_level(security_level_id)
+                await self._validate_and_update_security_level(space, new_security_level)
 
         completion_models = None
         if completion_model_ids is not None:
@@ -140,7 +154,49 @@ class SpaceService:
             embedding_models=embedding_models,
         )
 
-        return await self.repo.update(space)
+        await self.repo.save(space)
+        return space
+
+    async def _validate_and_update_security_level(
+        self, 
+        space: Space, 
+        new_security_level: SecurityLevel
+    ) -> None:
+        """Validate and update the security level of a space."""
+        # Check if any models would be invalidated by the new security level
+        invalid_models = []
+        
+        for model in space.embedding_models:
+            if model.security_level and model.security_level.value > new_security_level.value:
+                invalid_models.append(model.name)
+                
+        for model in space.completion_models:
+            if model.security_level and model.security_level.value > new_security_level.value:
+                invalid_models.append(model.name)
+
+        if invalid_models:
+            raise BadRequestException(
+                f"Cannot change security level because the following models would be invalidated: {', '.join(invalid_models)}"
+            )
+
+        # Check if any assistants would be invalidated
+        for assistant in space.assistants:
+            if assistant.completion_model and assistant.completion_model.security_level:
+                if assistant.completion_model.security_level.value > new_security_level.value:
+                    raise BadRequestException(
+                        f"Cannot change security level because assistant '{assistant.name}' uses model '{assistant.completion_model.name}' which requires a higher security level"
+                    )
+
+        # Check if any groups would be invalidated
+        for group in space.groups:
+            if group.embedding_model and group.embedding_model.security_level:
+                if group.embedding_model.security_level.value > new_security_level.value:
+                    raise BadRequestException(
+                        f"Cannot change security level because group '{group.name}' uses model '{group.embedding_model.name}' which requires a higher security level"
+                    )
+
+        # If all validations pass, update the security level
+        space.security_level = new_security_level
 
     async def delete_space(self, id: UUID):
         space = await self.get_space(id)
