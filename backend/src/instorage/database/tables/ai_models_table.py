@@ -2,10 +2,11 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from instorage.database.tables.base_class import BaseCrossReference, BasePublic
 from instorage.database.tables.tenant_table import Tenants
+from instorage.database.tables.security_levels_table import SecurityLevels
 
 
 class CompletionModels(BasePublic):
@@ -24,6 +25,15 @@ class CompletionModels(BasePublic):
     deployment_name: Mapped[Optional[str]] = mapped_column()
     org: Mapped[Optional[str]] = mapped_column()
     vision: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security level relationship
+    security_level_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
+        nullable=True
+    )
+    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
+        back_populates="completion_models"
+    )
 
 
 class CompletionModelSettings(BaseCrossReference):
@@ -49,6 +59,15 @@ class EmbeddingModels(BasePublic):
     hosting: Mapped[str] = mapped_column()
     description: Mapped[Optional[str]] = mapped_column()
     org: Mapped[Optional[str]] = mapped_column()
+
+    # Security level relationship
+    security_level_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
+        nullable=True
+    )
+    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
+        back_populates="embedding_models"
+    )
 
 
 class EmbeddingModelSettings(BaseCrossReference):
