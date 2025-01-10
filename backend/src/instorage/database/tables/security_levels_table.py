@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class SecurityLevels(BasePublic):
     """Table for storing security levels."""
-    
+
     # Core fields
     name: Mapped[str] = mapped_column(unique=True)
     description: Mapped[Optional[str]] = mapped_column()
@@ -30,4 +30,4 @@ class SecurityLevels(BasePublic):
     embedding_models: Mapped[list["EmbeddingModels"]] = relationship(
         back_populates="security_level",
         order_by="EmbeddingModels.created_at"
-    ) 
+    )

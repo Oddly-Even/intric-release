@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -35,4 +35,4 @@ class SecurityLevel(SecurityLevelBase):
     created_at: datetime | None = None
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
-    model_config = ConfigDict(from_attributes=True) 
+    model_config = ConfigDict(from_attributes=True)

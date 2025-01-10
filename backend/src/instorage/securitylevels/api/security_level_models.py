@@ -1,5 +1,8 @@
+# Copyright (c) 2025 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
+
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -35,4 +38,4 @@ class SecurityLevelSparse(InDB):
 
 class SecurityLevelPublic(SecurityLevelSparse):
     """Complete security level information including relationships."""
-    pass  # We'll add relationships to AI models later when implementing that part 
+    pass  # We'll add relationships to AI models later when implementing that part

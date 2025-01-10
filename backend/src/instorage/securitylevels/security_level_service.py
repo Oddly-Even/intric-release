@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -46,7 +46,7 @@ class SecurityLevelService:
             description=description,
             value=value,
         )
-        
+
         # Save to database
         return await self.repo.create(security_level)
 
@@ -103,4 +103,4 @@ class SecurityLevelService:
 
     async def get_highest_security_level(self) -> Optional[int]:
         """Get the highest security level value."""
-        return await self.repo.get_highest_value() 
+        return await self.repo.get_highest_value()

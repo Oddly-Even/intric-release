@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -26,7 +26,7 @@ def service():
 
     user = MagicMock()
     user.permissions = []  # Default to no permissions
-    
+
     return SecurityLevelService(
         repo=repo,
         user=user,

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -17,4 +17,4 @@ def get_security_level_service_from_assistant_api_key(
         get_container(with_user_from_assistant_api_key=True)
     ),
 ):
-    return container.security_level_service() 
+    return container.security_level_service()

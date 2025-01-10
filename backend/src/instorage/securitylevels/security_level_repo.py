@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Sundsvalls Kommun
+# Copyright (c) 2025 Sundsvalls Kommun
 #
 # Licensed under the MIT License.
 
@@ -60,4 +60,4 @@ class SecurityLevelRepository:
         stmt = sa.select(SecurityLevels.value).order_by(SecurityLevels.value.desc())
         result = await self.session.execute(stmt)
         value = result.scalar_one_or_none()
-        return value 
+        return value

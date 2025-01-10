@@ -1,3 +1,7 @@
+# Copyright (c) 2025 Sundsvalls Kommun
+#
+# Licensed under the MIT License.
+
 """create_security_levels_table
 
 Revision ID: de35b1f40da3
