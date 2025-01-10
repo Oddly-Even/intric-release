@@ -227,6 +227,11 @@ class Container(containers.DeclarativeContainer):
         AuthService,
         api_key_repo=api_key_repo,
     )
+    security_level_service = providers.Factory(
+        SecurityLevelService,
+        user=user,
+        repo=security_level_repo,
+    )
     user_service = providers.Factory(
         UserService,
         user_repo=user_repo,
@@ -244,6 +249,7 @@ class Container(containers.DeclarativeContainer):
         factory=space_factory,
         user_repo=user_repo,
         ai_models_service=ai_models_service,
+        security_level_service=security_level_service,
     )
     group_service = providers.Factory(
         GroupService,
@@ -361,11 +367,6 @@ class Container(containers.DeclarativeContainer):
         protocol=file_protocol,
     )
     limit_service = providers.Factory(LimitService)
-    security_level_service = providers.Factory(
-        SecurityLevelService,
-        user=user,
-        repo=security_level_repo,
-    )
 
     # Completion
     context_builder = providers.Factory(ContextBuilder)
