@@ -15,7 +15,7 @@ from instorage.securitylevels.api.security_level_models import (
     UpdateSecurityLevelRequest,
 )
 
-router = APIRouter(prefix="/security-levels", tags=["Security Levels"])
+router = APIRouter()
 
 
 @router.post(
