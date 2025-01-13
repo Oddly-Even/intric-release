@@ -15,6 +15,7 @@ import { initUserGroups } from "./endpoints/user-groups";
 import { initUser } from "./endpoints/users";
 import { initVersion } from "./endpoints/version";
 import { initWebsites } from "./endpoints/websites";
+import { initSecurityLevels } from "./endpoints/security-levels";
 
 /**
  * Create an Intric.js object to interact with the intric backend.
@@ -44,6 +45,7 @@ export function createIntric(args) {
     limits: initLimits(client),
     websites: initWebsites(client),
     spaces: initSpaces(client),
+    securityLevels: initSecurityLevels(client),
     client
   };
 }

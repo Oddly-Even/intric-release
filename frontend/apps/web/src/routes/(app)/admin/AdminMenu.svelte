@@ -13,6 +13,7 @@
   import IconThumb from "$lib/components/icons/IconThumb.svelte";
   import IconCPU from "$lib/components/icons/IconCPU.svelte";
   import Bulb from "$lib/components/icons/Bulb.svelte";
+  import IconKey from "$lib/components/icons/IconKey.svelte";
 
   let currentRoute = "";
   $: currentRoute = $page.url.pathname;
@@ -53,7 +54,12 @@
       icon: IconThumb,
       label: "Roles",
       url: "/admin/roles"
-    }
+    },
+    {
+      icon: IconKey,
+      label: "Security Levels",
+      url: "/admin/security-levels"
+    },
   ];
 
   function isSelected(url: string, currentRoute: string) {
