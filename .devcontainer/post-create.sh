@@ -10,11 +10,11 @@ sudo apt-get update
 sudo apt-get install -y libmagic1 ffmpeg
 
 # Install Python dependencies
-pip install --no-cache-dir poetry
+python -m pip install --no-cache-dir poetry
 
 cd /workspace/backend
-poetry config virtualenvs.in-project true
-poetry install
+python -m poetry config virtualenvs.in-project true
+python -m poetry install
 
 # Install Node.js dependencies
 cd /workspace/frontend
