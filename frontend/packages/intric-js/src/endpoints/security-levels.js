@@ -44,16 +44,17 @@ export function initSecurityLevels(client) {
         method: "patch",
         params: { path: { id } },
         requestBody: { "application/json": securityLevel }
-      })
+      }),
 
-    // /**
-    //  * Delete a security level
-    //  * @param {number} id
-    //  * @returns {Promise<void>}
-    //  */
-    // deleteSecurityLevel: (id) =>
-    //   client.fetch(`/api/v1/security-levels/${id}`, {
-    //     method: "delete"
-    //   })
+    /**
+     * Delete a security level
+     * @param {string} id
+     * @returns {Promise<void>}
+     */
+    deleteSecurityLevel: (id) =>
+      client.fetch(`/api/v1/security-levels/{id}`, {
+        method: "delete",
+        params: { path: { id } }
+      })
   };
 }

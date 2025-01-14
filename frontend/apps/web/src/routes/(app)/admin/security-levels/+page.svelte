@@ -7,7 +7,7 @@
 <script lang="ts">
   import { Page } from "$lib/components/layout/index.js";
   import SecurityLevelsTable from "./SecurityLevelsTable.svelte";
-  import CreateSecurityLevel from "./CreateSecurityLevel.svelte";
+  import SecurityLevelDialog from "./SecurityLevelDialog.svelte";
   export let data;
 
 </script>
@@ -20,7 +20,7 @@
 <Page.Root>
   <Page.Header>
     <Page.Title>Security levels</Page.Title>
-    <CreateSecurityLevel></CreateSecurityLevel>
+    <SecurityLevelDialog></SecurityLevelDialog>
   </Page.Header>
   <Page.Main>
     <SecurityLevelsTable securityLevels={data.securityLevels} />

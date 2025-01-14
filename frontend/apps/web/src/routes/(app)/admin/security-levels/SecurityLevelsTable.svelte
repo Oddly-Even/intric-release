@@ -1,36 +1,25 @@
 <script lang="ts">
-    import { Table } from "@intric/ui";
-    import { onMount } from "svelte";
+    import { Button, Table } from "@intric/ui";
+    import { createRender } from "svelte-headless-table";
     import type { SecurityLevel } from "@intric/intric-js";
+    import SecurityLevelsTableRowActions from "./SecurityLevelsTableRowActions.svelte";
 
     export let securityLevels: SecurityLevel[] = [];
 
     const table = Table.createWithResource(securityLevels);
 
     const viewModel = table.createViewModel([
+        table.column({ accessor: "id", header: "ID" }),
         table.column({ accessor: "name", header: "Name" }),
         table.column({ accessor: "value", header: "Value" }),
         table.column({ accessor: "description", header: "Description" }),
+        table.columnActions({ cell: (row) => {
+          return createRender(SecurityLevelsTableRowActions, {
+            securityLevel: row.value
+          });
+        }
+        }),
     ]);
-
-    // onMount(async () => {
-    //     // TODO: Fetch security levels from API
-    //     const response = await fetch('/api/admin/security-levels');
-    //     securityLevels = await response.json();
-    //     console.log(securityLevels);
-    // });
-
-    // async function handleAddLevel() {
-    //     // TODO: Implement add security level
-    // }
-
-    // async function handleEditLevel(id: number) {
-    //     // TODO: Implement edit security level
-    // }
-
-    // async function handleDeleteLevel(id: number) {
-    //     // TODO: Implement delete security level
-    // }
 
     $: table.update(securityLevels);
 </script>
