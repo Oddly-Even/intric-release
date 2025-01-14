@@ -9,7 +9,6 @@
     const table = Table.createWithResource(securityLevels);
 
     const viewModel = table.createViewModel([
-        table.column({ accessor: "id", header: "ID" }),
         table.column({ accessor: "name", header: "Name" }),
         table.column({ accessor: "value", header: "Value" }),
         table.column({ accessor: "description", header: "Description" }),
