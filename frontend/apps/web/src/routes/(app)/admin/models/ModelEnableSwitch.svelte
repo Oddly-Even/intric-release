@@ -70,6 +70,8 @@
       await updateCompletionModel({ id: model.id }, update);
     } else if (modeltype == "embedding") {
       await updateEmbeddingModel({ id: model.id }, update);
+    } else {
+      console.error("Invalid model type");
     }
   }
 
