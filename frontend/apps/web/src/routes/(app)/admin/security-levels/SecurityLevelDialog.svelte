@@ -73,11 +73,11 @@
 <Dialog.Root alert bind:isOpen={showDialog}>
   <Dialog.Trigger asFragment let:trigger>
     <slot {trigger}>
-      <Button is={trigger} variant={securityLevel ? "primary-outlined" : "primary"}>{securityLevel ? "Update" : "Create security level"}</Button>
+      <Button is={trigger} variant={securityLevel ? "primary-outlined" : "primary"}>{securityLevel ? "Edit" : "Create security level"}</Button>
     </slot>
   </Dialog.Trigger>
   <Dialog.Content wide form>
-    <Dialog.Title>{securityLevel ? "Update" : "Create"} security level</Dialog.Title>
+    <Dialog.Title>{securityLevel ? "Edit" : "Create"} security level</Dialog.Title>
 
     <Dialog.Section>
       <Input.Text
