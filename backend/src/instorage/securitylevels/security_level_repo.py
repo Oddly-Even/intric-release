@@ -36,14 +36,25 @@ class SecurityLevelRepository:
         """Get a security level by ID."""
         return await self.delegate.get(id)
 
-    async def get_by_name(self, name: str) -> Optional[SecurityLevel]:
-        """Get a security level by name."""
-        query = sa.select(SecurityLevels).where(SecurityLevels.name == name)
+    async def get_by_name_and_tenant(
+        self, name: str, tenant_id: UUID
+    ) -> Optional[SecurityLevel]:
+        """Get a security level by name and tenant."""
+        query = sa.select(SecurityLevels).where(
+            sa.and_(
+                SecurityLevels.name == name,
+                SecurityLevels.tenant_id == tenant_id
+            )
+        )
         return await self.delegate.get_model_from_query(query)
 
-    async def list_all(self) -> list[SecurityLevel]:
-        """List all security levels ordered by value."""
-        query = sa.select(SecurityLevels).order_by(SecurityLevels.value)
+    async def list_by_tenant(self, tenant_id: UUID) -> list[SecurityLevel]:
+        """List all security levels for a tenant ordered by value."""
+        query = (
+            sa.select(SecurityLevels)
+            .where(SecurityLevels.tenant_id == tenant_id)
+            .order_by(SecurityLevels.value)
+        )
         return await self.delegate.get_models_from_query(query)
 
     async def update(self, security_level: SecurityLevelUpdate) -> SecurityLevel:
@@ -55,9 +66,13 @@ class SecurityLevelRepository:
         await self.delegate.delete(id)
         return True
 
-    async def get_highest_value(self) -> Optional[int]:
-        """Get the highest security level value."""
-        stmt = sa.select(SecurityLevels.value).order_by(SecurityLevels.value.desc())
+    async def get_highest_value_by_tenant(self, tenant_id: UUID) -> Optional[int]:
+        """Get the highest security level value for a tenant."""
+        stmt = (
+            sa.select(SecurityLevels.value)
+            .where(SecurityLevels.tenant_id == tenant_id)
+            .order_by(SecurityLevels.value.desc())
+        )
         result = await self.session.execute(stmt)
         value = result.scalar_one_or_none()
         return value

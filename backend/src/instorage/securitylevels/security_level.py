@@ -17,12 +17,14 @@ class SecurityLevelBase(BaseModel):
 
 class SecurityLevelCreate(SecurityLevelBase):
     """Model for creating a security level."""
+    tenant_id: UUID
     model_config = ConfigDict(from_attributes=True)
 
 
 class SecurityLevelUpdate(SecurityLevelBase):
     """Model for updating a security level."""
     id: UUID
+    tenant_id: UUID
     name: str | None = None
     description: str | None = None
     value: int | None = None
@@ -32,6 +34,7 @@ class SecurityLevelUpdate(SecurityLevelBase):
 class SecurityLevel(SecurityLevelBase):
     """Domain model for security levels."""
     id: UUID | None = None
+    tenant_id: UUID
     created_at: datetime | None = None
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

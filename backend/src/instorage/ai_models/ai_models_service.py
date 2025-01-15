@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from instorage.ai_models.completion_models.completion_model import (
@@ -5,6 +6,7 @@ from instorage.ai_models.completion_models.completion_model import (
     CompletionModelFamily,
     CompletionModelPublic,
     CompletionModelUpdateFlags,
+    CompletionModelSecurityLevelUpdate,
     ModelHostingLocation,
 )
 from instorage.ai_models.completion_models.completion_models_repo import (
@@ -14,6 +16,7 @@ from instorage.ai_models.embedding_models.embedding_model import (
     EmbeddingModel,
     EmbeddingModelPublic,
     EmbeddingModelUpdateFlags,
+    EmbeddingModelSecurityLevelUpdate,
 )
 from instorage.ai_models.embedding_models.embedding_models_repo import (
     EmbeddingModelsRepository,
@@ -187,6 +190,42 @@ class AIModelsService:
         await self.completion_model_repo.enable_completion_model(
             is_org_enabled=data.is_org_enabled,
             completion_model_id=completion_model_id,
+            security_level_id=data.security_level_id,
+            tenant_id=self.user.tenant_id,
+        )
+
+        model = await self.completion_model_repo.get_model(
+            completion_model_id, tenant_id=self.user.tenant_id
+        )
+        return CompletionModelPublic(
+            **model.model_dump(),
+            is_locked=self._is_locked(model),
+            can_access=self._can_access(model),
+        )
+
+    @validate_permissions(Permission.ADMIN)
+    async def set_completion_model_security_level(
+        self, completion_model_id: UUID, data: CompletionModelSecurityLevelUpdate
+    ):
+        return await self._set_completion_model_security_level(
+            completion_model_id, data.security_level_id
+        )
+
+    @validate_permissions(Permission.ADMIN)
+    async def unset_completion_model_security_level(
+        self,
+        completion_model_id: UUID,
+    ):
+        return await self._set_completion_model_security_level(
+            completion_model_id, None
+        )
+
+    async def _set_completion_model_security_level(
+        self, completion_model_id: UUID, security_level_id: Optional[UUID]
+    ) -> CompletionModelPublic:
+        await self.completion_model_repo.set_completion_model_security_level(
+            completion_model_id=completion_model_id,
+            security_level_id=security_level_id,
             tenant_id=self.user.tenant_id,
         )
 
@@ -206,6 +245,40 @@ class AIModelsService:
         await self.embedding_model_repo.enable_embedding_model(
             is_org_enabled=data.is_org_enabled,
             embedding_model_id=embedding_model_id,
+            security_level_id=data.security_level_id,
+            tenant_id=self.user.tenant_id,
+        )
+
+        model = await self.embedding_model_repo.get_model(
+            embedding_model_id, tenant_id=self.user.tenant_id
+        )
+        return EmbeddingModelPublic(
+            **model.model_dump(),
+            is_locked=self._is_locked(model),
+            can_access=self._can_access(model),
+        )
+
+    @validate_permissions(Permission.ADMIN)
+    async def set_embedding_model_security_level(
+        self, embedding_model_id: UUID, data: EmbeddingModelSecurityLevelUpdate
+    ):
+        return await self._set_embedding_model_security_level(
+            embedding_model_id, data.security_level_id
+        )
+
+    @validate_permissions(Permission.ADMIN)
+    async def unset_embedding_model_security_level(
+        self,
+        embedding_model_id: UUID,
+    ):
+        return await self._set_embedding_model_security_level(embedding_model_id, None)
+
+    async def _set_embedding_model_security_level(
+        self, embedding_model_id: UUID, security_level_id: Optional[UUID]
+    ) -> EmbeddingModelPublic:
+        await self.embedding_model_repo.set_embedding_model_security_level(
+            embedding_model_id=embedding_model_id,
+            security_level_id=security_level_id,
             tenant_id=self.user.tenant_id,
         )
 

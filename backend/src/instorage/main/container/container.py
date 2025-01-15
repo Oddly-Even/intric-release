@@ -104,6 +104,7 @@ from instorage.workflows.assistant_guard_runner import AssistantGuardRunner
 from instorage.workflows.step_repo import StepRepository
 from instorage.securitylevels.security_level_repo import SecurityLevelRepository
 from instorage.securitylevels.security_level_service import SecurityLevelService
+from instorage.securitylevels.api.security_level_assembler import SecurityLevelAssembler
 
 if get_settings().using_intric_proprietary:
     from instorage_prop.crawler.crawl_repo import CrawlRepository
@@ -134,6 +135,7 @@ class Container(containers.DeclarativeContainer):
     # Assemblers
     space_assembler = providers.Factory(SpaceAssembler, user=user)
     assistant_assembler = providers.Factory(AssistantAssembler, user=user)
+    security_level_assembler = providers.Factory(SecurityLevelAssembler, user=user)
 
     # Repositories
     user_repo = providers.Factory(UsersRepository, session=session)

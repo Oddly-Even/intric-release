@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-  import type { CompletionModel, EmbeddingModel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import ModelEnableSwitch from "./ModelEnableSwitch.svelte";
   import { Label } from "@intric/ui";
   import { getLabels } from "$lib/features/ai-models/components/ModelLabels.svelte";
@@ -13,6 +13,7 @@
 
   export let model: CompletionModel | EmbeddingModel;
   export let modeltype: "completion" | "embedding";
+  export let securityLevels: SecurityLevel[];
 
   let labels = getLabels(model);
 </script>
@@ -48,7 +49,7 @@
   <div>
     <div class="flex h-full items-center justify-between px-5 py-4">
       <p>Enabled</p>
-      <ModelEnableSwitch {model} {modeltype} />
+      <ModelEnableSwitch {model} {modeltype} {securityLevels} />
     </div>
   </div>
 </div>

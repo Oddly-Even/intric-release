@@ -11,7 +11,7 @@ from instorage.main.exceptions import (
 )
 from instorage.spaces.api.space_models import SpaceRole
 from instorage.spaces.space_service import SpaceService
-from tests.fixtures import TEST_USER, TEST_UUID
+from tests.fixtures import TEST_USER, TEST_UUID, TEST_TENANT
 from instorage.securitylevels.security_level import SecurityLevel
 
 
@@ -193,6 +193,7 @@ async def test_get_spaces_and_personal_space_returns_personal_space_first(
 def security_level():
     return SecurityLevel(
         id=TEST_UUID,
+        tenant_id=TEST_TENANT.id,
         name="test_level",
         description="Test security level",
         value=100,
@@ -205,6 +206,7 @@ def security_level():
 def higher_security_level():
     return SecurityLevel(
         id=uuid4(),
+        tenant_id=TEST_TENANT.id,
         name="high_level",
         description="High security level",
         value=200,

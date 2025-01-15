@@ -5,9 +5,10 @@
 -->
 
 <script lang="ts">
-  import type { CompletionModel } from "@intric/intric-js";
+  import type { CompletionModel, SecurityLevel } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
+  import { onMount } from "svelte";
   import ModelEnabledSwitch from "./ModelEnableSwitch.svelte";
   import {
     default as ModelLabels,
@@ -19,6 +20,8 @@
   } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
 
   export let completionModels: CompletionModel[];
+  export let securityLevels: SecurityLevel[];
+
   const table = Table.createWithResource(completionModels);
 
   const viewModel = table.createViewModel([
@@ -46,7 +49,7 @@
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnabledSwitch, { model: item.value, modeltype: "completion" });
+        return createRender(ModelEnabledSwitch, { model: item.value, modeltype: "completion", securityLevels });
       },
       plugins: {
         sort: {
@@ -81,7 +84,8 @@
       cell: (item) => {
         return createRender(ModelTile, {
           model: item.value,
-          modeltype: "completion"
+          modeltype: "completion",
+          securityLevels
         });
       }
     })

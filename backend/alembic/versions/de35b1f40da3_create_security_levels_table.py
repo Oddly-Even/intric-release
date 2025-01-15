@@ -34,6 +34,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
+            "tenant_id",
+            sa.UUID(),
+            sa.ForeignKey("tenants.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
             "created_at",
             sa.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
@@ -51,7 +57,7 @@ def upgrade() -> None:
             nullable=True,
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name"),
+        sa.UniqueConstraint("name", "tenant_id"),
     )
 
     # Add security level reference to spaces table
@@ -65,9 +71,9 @@ def upgrade() -> None:
         ),
     )
 
-    # Add security level reference to completion models table
+    # Add security level reference to completion model settings table
     op.add_column(
-        "completion_models",
+        "completion_model_settings",
         sa.Column(
             "security_level_id",
             sa.UUID(),
@@ -76,9 +82,9 @@ def upgrade() -> None:
         ),
     )
 
-    # Add security level reference to embedding models table
+    # Add security level reference to embedding model settings table
     op.add_column(
-        "embedding_models",
+        "embedding_model_settings",
         sa.Column(
             "security_level_id",
             sa.UUID(),
@@ -90,8 +96,8 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Remove security level references
-    op.drop_column("embedding_models", "security_level_id")
-    op.drop_column("completion_models", "security_level_id")
+    op.drop_column("embedding_model_settings", "security_level_id")
+    op.drop_column("completion_model_settings", "security_level_id")
     op.drop_column("spaces", "security_level_id")
 
     # Drop security levels table

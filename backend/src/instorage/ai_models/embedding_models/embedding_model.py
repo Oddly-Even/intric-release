@@ -43,10 +43,16 @@ class EmbeddingModelUpdate(EmbeddingModelBase):
 
 class EmbeddingModelUpdateFlags(BaseModel):
     is_org_enabled: Optional[bool] = False
+    security_level_id: Optional[UUID] = None
+
+
+class EmbeddingModelSecurityLevelUpdate(BaseModel):
+    security_level_id: UUID
 
 
 class EmbeddingModel(EmbeddingModelBase, InDB):
     is_org_enabled: bool = False
+    security_level_id: Optional[UUID] = None
 
 
 class EmbeddingModelPublicBase(EmbeddingModelBase, InDB):

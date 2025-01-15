@@ -11,6 +11,7 @@ from instorage.ai_models.ai_models_service import AIModelsService
 from instorage.ai_models.completion_models.completion_model import (
     CompletionModelPublic,
     CompletionModelUpdateFlags,
+    CompletionModelSecurityLevelUpdate,
 )
 from instorage.main.models import PaginatedResponse
 from instorage.server import protocol
@@ -42,3 +43,29 @@ async def enable_completion_model(
     service: AIModelsService = Depends(get_ai_models_service),
 ):
     return await service.enable_completion_model(completion_model_id=id, data=data)
+
+
+@router.put(
+    "/{id}/security-level",
+    response_model=CompletionModelPublic,
+    responses=responses.get_responses([404]),
+)
+async def set_completion_model_security_level(
+    id: UUID,
+    data: CompletionModelSecurityLevelUpdate,
+    service: AIModelsService = Depends(get_ai_models_service),
+):
+    return await service.set_completion_model_security_level(
+        completion_model_id=id, data=data
+    )
+
+
+@router.delete(
+    "/{id}/security-level",
+    response_model=CompletionModelPublic,
+)
+async def unset_completion_model_security_level(
+    id: UUID,
+    service: AIModelsService = Depends(get_ai_models_service),
+):
+    return await service.unset_completion_model_security_level(completion_model_id=id)

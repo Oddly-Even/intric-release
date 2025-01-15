@@ -26,15 +26,6 @@ class CompletionModels(BasePublic):
     org: Mapped[Optional[str]] = mapped_column()
     vision: Mapped[bool] = mapped_column(server_default="False")
 
-    # Security level relationship
-    security_level_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
-        nullable=True
-    )
-    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
-        back_populates="completion_models"
-    )
-
 
 class CompletionModelSettings(BaseCrossReference):
     tenant_id: Mapped[UUID] = mapped_column(
@@ -44,6 +35,15 @@ class CompletionModelSettings(BaseCrossReference):
         ForeignKey(CompletionModels.id, ondelete="CASCADE"), primary_key=True
     )
     is_org_enabled: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security level relationship
+    security_level_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
+        nullable=True
+    )
+    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
+        back_populates="completion_model_settings"
+    )
 
 
 class EmbeddingModels(BasePublic):
@@ -60,15 +60,6 @@ class EmbeddingModels(BasePublic):
     description: Mapped[Optional[str]] = mapped_column()
     org: Mapped[Optional[str]] = mapped_column()
 
-    # Security level relationship
-    security_level_id: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
-        nullable=True
-    )
-    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
-        back_populates="embedding_models"
-    )
-
 
 class EmbeddingModelSettings(BaseCrossReference):
     tenant_id: Mapped[UUID] = mapped_column(
@@ -78,3 +69,12 @@ class EmbeddingModelSettings(BaseCrossReference):
         ForeignKey(EmbeddingModels.id, ondelete="CASCADE"), primary_key=True
     )
     is_org_enabled: Mapped[bool] = mapped_column(server_default="False")
+
+    # Security level relationship
+    security_level_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey(SecurityLevels.id, ondelete="SET NULL"),
+        nullable=True
+    )
+    security_level: Mapped[Optional["SecurityLevels"]] = relationship(
+        back_populates="embedding_model_settings"
+    )

@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-  import type { EmbeddingModel } from "@intric/intric-js";
+  import type { EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import ModelEnableSwitch from "./ModelEnableSwitch.svelte";
@@ -19,6 +19,8 @@
   } from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
 
   export let embeddingModels: EmbeddingModel[];
+  export let securityLevels: SecurityLevel[];
+
   const table = Table.createWithResource(embeddingModels);
 
   const viewModel = table.createViewModel([
@@ -45,7 +47,7 @@
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnableSwitch, { model: item.value, modeltype: "embedding" });
+        return createRender(ModelEnableSwitch, { model: item.value, modeltype: "embedding", securityLevels });
       },
       plugins: {
         sort: {
@@ -80,7 +82,8 @@
       cell: (item) => {
         return createRender(ModelTile, {
           model: item.value,
-          modeltype: "completion"
+          modeltype: "completion",
+          securityLevels
         });
       }
     })

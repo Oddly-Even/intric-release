@@ -63,10 +63,16 @@ class CompletionModelUpdate(CompletionModelBase):
 
 class CompletionModelUpdateFlags(BaseModel):
     is_org_enabled: Optional[bool] = False
+    security_level_id: Optional[UUID] = None
+
+
+class CompletionModelSecurityLevelUpdate(BaseModel):
+    security_level_id: UUID
 
 
 class CompletionModel(CompletionModelBase, InDB):
     is_org_enabled: bool = False
+    security_level_id: Optional[UUID] = None
 
 
 class CompletionModelPublic(CompletionModel):
