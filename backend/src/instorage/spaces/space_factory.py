@@ -15,6 +15,7 @@ from instorage.services.service import ServiceSparse
 from instorage.spaces.api.space_models import SpaceMember
 from instorage.spaces.space import Space
 from instorage.websites.website_models import WebsiteSparse
+from instorage.securitylevels.api.security_level_models import SecurityLevelSparse
 
 
 class SpaceFactory:
@@ -33,6 +34,7 @@ class SpaceFactory:
             websites=[],
             groups=[],
             members={},
+            security_level=None,
         )
 
     @staticmethod
@@ -72,6 +74,10 @@ class SpaceFactory:
             WebsiteSparse.model_validate(website) for website in space_in_db.websites
         ]
 
+        security_level = None
+        if space_in_db.security_level:
+            security_level = SecurityLevelSparse.model_validate(space_in_db.security_level)
+
         return Space(
             created_at=space_in_db.created_at,
             updated_at=space_in_db.updated_at,
@@ -87,4 +93,5 @@ class SpaceFactory:
             websites=websites,
             completion_models=completion_models,
             members=members,
+            security_level=security_level,
         )

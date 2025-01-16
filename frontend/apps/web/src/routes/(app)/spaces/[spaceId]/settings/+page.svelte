@@ -10,9 +10,15 @@
   import SelectEmbeddingModels from "./SelectEmbeddingModels.svelte";
   import EditNameAndDescription from "./EditNameAndDescription.svelte";
   import SelectCompletionModels from "./SelectCompletionModels.svelte";
+  import SelectSecurityLevel from "./SelectSecurityLevel.svelte";
   import { Page } from "$lib/components/layout";
+  import type { SecurityLevel, CompletionModel, EmbeddingModel } from "@intric/intric-js";
 
-  export let data;
+  export let data: {
+    securityLevels: SecurityLevel[],
+    completionModels: CompletionModel[],
+    embeddingModels: EmbeddingModel[]
+  };
 
   const spaces = getSpacesManager();
   const currentSpace = spaces.state.currentSpace;
@@ -22,6 +28,7 @@
   let isDeleting = false;
   let showStillDeletingMessage = false;
   let deletionMessageTimeout: ReturnType<typeof setTimeout>;
+
   async function deleteSpace() {
     if (deleteConfirmation === "") return;
     if (deleteConfirmation !== $currentSpace.name) {
@@ -62,6 +69,17 @@
         <EditNameAndDescription></EditNameAndDescription>
       </div>
     </section>
+
+    {#if $currentSpace.permissions?.includes("edit")}
+      <section>
+        <h2
+          class="sticky top-0 col-span-2 border-b border-black/5 bg-white/85 pb-3 pl-2 pt-3 font-mono text-sm backdrop-blur-sm"
+        >
+          Security
+        </h2>
+        <SelectSecurityLevel securityLevels={data.securityLevels} />
+      </section>
+    {/if}
 
     <section class="relative">
       <h2

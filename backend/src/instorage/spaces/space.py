@@ -229,6 +229,7 @@ class Space:
         description: str = None,
         embedding_models: list[EmbeddingModelPublic] = None,
         completion_models: list[CompletionModelPublic] = None,
+        security_level: SecurityLevel = None,
     ):
         if name is not None:
             if self.is_personal():
@@ -259,6 +260,8 @@ class Space:
                 )
 
             self.embedding_models = embedding_models
+
+        self.security_level = security_level
 
     def add_member(self, user: SpaceMember):
         if self.is_personal():

@@ -126,14 +126,17 @@ class SpaceService:
         """Update a space."""
         space = await self.get_space(id)
 
+
         if not space.can_edit(self.user):
             raise UnauthorizedException("User has no permission to edit space")
 
         # Handle security level change
+        security_level = space.security_level
         if security_level_id is not None:
-            if security_level_id != space.security_level_id:
-                new_security_level = await self.security_level_service.get_security_level(security_level_id)
-                await self._validate_and_update_security_level(space, new_security_level)
+            if (space.security_level is None) or (security_level_id != space.security_level.id):
+                security_level = await self.security_level_service.get_security_level(security_level_id)
+        else:
+            security_level = None
 
         completion_models = None
         if completion_model_ids is not None:
@@ -152,48 +155,17 @@ class SpaceService:
             description=description,
             completion_models=completion_models,
             embedding_models=embedding_models,
+            security_level=security_level,
         )
 
-        await self.repo.save(space)
-        return space
+        return await self.repo.update(space)
 
     async def _validate_and_update_security_level(
-        self, 
-        space: Space, 
+        self,
+        space: Space,
         new_security_level: SecurityLevel
     ) -> None:
-        """Validate and update the security level of a space."""
-        # Check if any models would be invalidated by the new security level
-        invalid_models = []
-        
-        for model in space.embedding_models:
-            if model.security_level and model.security_level.value > new_security_level.value:
-                invalid_models.append(model.name)
-                
-        for model in space.completion_models:
-            if model.security_level and model.security_level.value > new_security_level.value:
-                invalid_models.append(model.name)
 
-        if invalid_models:
-            raise BadRequestException(
-                f"Cannot change security level because the following models would be invalidated: {', '.join(invalid_models)}"
-            )
-
-        # Check if any assistants would be invalidated
-        for assistant in space.assistants:
-            if assistant.completion_model and assistant.completion_model.security_level:
-                if assistant.completion_model.security_level.value > new_security_level.value:
-                    raise BadRequestException(
-                        f"Cannot change security level because assistant '{assistant.name}' uses model '{assistant.completion_model.name}' which requires a higher security level"
-                    )
-
-        # Check if any groups would be invalidated
-        for group in space.groups:
-            if group.embedding_model and group.embedding_model.security_level:
-                if group.embedding_model.security_level.value > new_security_level.value:
-                    raise BadRequestException(
-                        f"Cannot change security level because group '{group.name}' uses model '{group.embedding_model.name}' which requires a higher security level"
-                    )
 
         # If all validations pass, update the security level
         space.security_level = new_security_level

@@ -1,4 +1,4 @@
-/* 
+/*
     Copyright (c) 2024 Sundsvalls Kommun
 
     Licensed under the MIT License.
@@ -86,6 +86,7 @@ function SpacesManager(data: SpacesManagerParams) {
     space?: { id: string } | undefined
   ) {
     const { id } = space ?? get(currentSpace);
+
     try {
       const updatedSpace = await intric.spaces.update({ space: { id }, update });
       userSpaces.update((spaces) => {

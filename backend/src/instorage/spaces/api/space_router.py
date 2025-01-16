@@ -91,6 +91,7 @@ async def update_space(
         description=update_space_req.description,
         embedding_model_ids=_get_model_ids_or_none(update_space_req.embedding_models),
         completion_model_ids=_get_model_ids_or_none(update_space_req.completion_models),
+        security_level_id=update_space_req.security_level_id,
     )
 
     return assembler.from_space_to_model(space)
