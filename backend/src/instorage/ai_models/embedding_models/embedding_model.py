@@ -30,6 +30,7 @@ class EmbeddingModelBase(BaseModel):
     hosting: ModelHostingLocation
     description: Optional[str] = None
     org: Optional[Orgs] = None
+    security_level_id: Optional[UUID] = None
 
 
 class EmbeddingModelCreate(EmbeddingModelBase):
@@ -52,7 +53,6 @@ class EmbeddingModelSecurityLevelUpdate(BaseModel):
 
 class EmbeddingModel(EmbeddingModelBase, InDB):
     is_org_enabled: bool = False
-    security_level_id: Optional[UUID] = None
 
 
 class EmbeddingModelPublicBase(EmbeddingModelBase, InDB):

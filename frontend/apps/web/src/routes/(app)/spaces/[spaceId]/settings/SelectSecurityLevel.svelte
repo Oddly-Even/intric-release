@@ -68,12 +68,33 @@
       updateSecurityLevel(state.value?.id ?? null);
     }
   });
+
+  function hasIncompatibleModels(currentSecurityLevel: SecurityLevel): boolean {
+    if (!currentSecurityLevel) return false;
+
+    const hasIncompatibleCompletionModels = $currentSpace.completion_models.some(model => {
+      const modelSecurityLevel = securityLevels.find(level => level.id === model.security_level_id)?.value ?? 0;
+      return modelSecurityLevel < currentSecurityLevel.value;
+    });
+
+    const hasIncompatibleEmbeddingModels = $currentSpace.embedding_models.some(model => {
+      const modelSecurityLevel = securityLevels.find(level => level.id === model.security_level_id)?.value ?? 0;
+      return modelSecurityLevel < currentSecurityLevel.value;
+    });
+
+    return hasIncompatibleCompletionModels || hasIncompatibleEmbeddingModels;
+  }
 </script>
 
 <div class="flex flex-col gap-4 py-5 pr-6 lg:flex-row lg:gap-12">
-  <div class="pl-2 lg:w-2/5">
-    <h3 class="pb-1 text-lg font-medium">Space Security Level</h3>
+  <div class="pl-2 pr-12 lg:w-2/5">
+    <h3 class="pb-1 text-lg font-medium">Security Level</h3>
     <p class="text-stone-500">Set the security level for this space and all its resources.</p>
+    {#if securityLevel && hasIncompatibleModels(securityLevel)}
+      <p class="mt-2.5 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800">
+        <span class="font-bold">Warning:&nbsp;</span>Some AI models don't meet the selected security level and will be unavailable.
+      </p>
+    {/if}
   </div>
   <div class="flex-grow">
     <Select.Root

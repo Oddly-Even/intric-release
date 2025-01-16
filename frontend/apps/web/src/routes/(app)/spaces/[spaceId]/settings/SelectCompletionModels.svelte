@@ -67,12 +67,12 @@
           .map((id) => {
             return { id };
           });
-        await updateSpace({ completion_models: newModels, security_level_id: model.security_level_id });
+        await updateSpace({ completion_models: newModels, security_level_id: $currentSpace.security_level?.id });
       } else {
         const newModels = [...$currentlySelectedModels, model.id].map((id) => {
           return { id };
         });
-        await updateSpace({ completion_models: newModels, security_level_id: model.security_level_id });
+        await updateSpace({ completion_models: newModels, security_level_id: $currentSpace.security_level?.id });
       }
     } catch (e) {
       alert(e);
@@ -102,7 +102,7 @@
     {#each availableModels as model (model.id)}
       <div
         class="cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
-        class:opacity-30={!model.isAvailable}
+        class:opacity-50={!model.isAvailable}
       >
         <Input.Switch
           value={$currentlySelectedModels.includes(model.id)}
