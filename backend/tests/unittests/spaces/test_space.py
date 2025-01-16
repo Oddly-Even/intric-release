@@ -1,7 +1,6 @@
 from datetime import datetime
 from unittest.mock import MagicMock
 from uuid import uuid4
-from functools import wraps
 
 import pytest
 
@@ -10,16 +9,6 @@ from instorage.main.exceptions import BadRequestException, UnauthorizedException
 from instorage.modules.module import Modules
 from instorage.roles.permissions import Permission
 from instorage.spaces.space import UNAUTHORIZED_EXCEPTION_MESSAGE, Space, SpaceRole
-
-
-def only_intric_proprietary(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if not SETTINGS.using_intric_proprietary:
-            pytest.skip("Test skipped when not using intric proprietary")
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 @pytest.fixture(autouse=True)
@@ -382,7 +371,10 @@ def test_can_create_groups_in_shared_space_if_editor_or_admin(space: Space):
     assert space.can_create_groups(admin)
 
 
-@only_intric_proprietary
+@pytest.mark.skipif(
+    not SETTINGS.using_intric_proprietary,
+    reason="Test skipped when not using intric proprietary",
+)
 def test_can_create_websites_in_personal_space(space: Space):
     user = MagicMock(permissions={Permission.WEBSITES})
     space.user_id = user.id
@@ -390,7 +382,10 @@ def test_can_create_websites_in_personal_space(space: Space):
     assert space.can_create_websites(user)
 
 
-@only_intric_proprietary
+@pytest.mark.skipif(
+    not SETTINGS.using_intric_proprietary,
+    reason="Test skipped when not using intric proprietary",
+)
 def test_can_not_create_websites_in_personal_space_without_website_permission(
     space: Space,
 ):
@@ -400,7 +395,10 @@ def test_can_not_create_websites_in_personal_space_without_website_permission(
     assert not space.can_create_websites(user)
 
 
-@only_intric_proprietary
+@pytest.mark.skipif(
+    not SETTINGS.using_intric_proprietary,
+    reason="Test skipped when not using intric proprietary",
+)
 def test_can_create_websites_in_shared_space_if_editor_or_admin(space: Space):
     editor = MagicMock(id=1, role=SpaceRole.EDITOR)
     admin = MagicMock(id=2, role=SpaceRole.ADMIN)
