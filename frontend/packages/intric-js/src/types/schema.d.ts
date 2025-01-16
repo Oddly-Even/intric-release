@@ -354,6 +354,12 @@ export interface paths {
     /** Enable Completion Model */
     post: operations["enable_completion_model_api_v1_completion_models__id___post"];
   };
+  "/api/v1/completion-models/{id}/security-level": {
+    /** Set Completion Model Security Level */
+    put: operations["set_completion_model_security_level_api_v1_completion_models__id__security_level_put"];
+    /** Unset Completion Model Security Level */
+    delete: operations["unset_completion_model_security_level_api_v1_completion_models__id__security_level_delete"];
+  };
   "/api/v1/embedding-models/": {
     /** Get Embedding Models */
     get: operations["get_embedding_models_api_v1_embedding_models__get"];
@@ -361,6 +367,12 @@ export interface paths {
   "/api/v1/embedding-models/{id}/": {
     /** Enable Embedding Model */
     post: operations["enable_embedding_model_api_v1_embedding_models__id___post"];
+  };
+  "/api/v1/embedding-models/{id}/security-level": {
+    /** Set Embedding Model Security Level */
+    put: operations["set_embedding_model_security_level_api_v1_embedding_models__id__security_level_put"];
+    /** Unset Embedding Model Security Level */
+    delete: operations["unset_embedding_model_security_level_api_v1_embedding_models__id__security_level_delete"];
   };
   "/api/v1/files/": {
     /** Get Files */
@@ -379,7 +391,7 @@ export interface paths {
   "/api/v1/security-levels": {
     /**
      * List Security Levels
-     * @description List all security levels ordered by value.
+     * @description List all security levels for the current tenant ordered by value.
      *
      * Returns:
      *     List of security levels ordered by value.
@@ -390,7 +402,7 @@ export interface paths {
     get: operations["list_security_levels_api_v1_security_levels_get"];
     /**
      * Create Security Level
-     * @description Create a new security level.
+     * @description Create a new security level for the current tenant.
      *
      * Args:
      *     request: The security level creation request.
@@ -400,7 +412,7 @@ export interface paths {
      *
      * Raises:
      *     400: If the request is invalid.
-     *     409: If a security level with the same name already exists.
+     *     409: If a security level with the same name already exists for this tenant.
      */
     post: operations["create_security_level_api_v1_security_levels_post"];
   };
@@ -417,7 +429,7 @@ export interface paths {
      *
      * Raises:
      *     403: If the user doesn't have permission to view the security level.
-     *     404: If the security level doesn't exist.
+     *     404: If the security level doesn't exist or belongs to a different tenant.
      */
     get: operations["get_security_level_api_v1_security_levels__id__get"];
     /**
@@ -429,7 +441,7 @@ export interface paths {
      *
      * Raises:
      *     403: If the user doesn't have permission to delete the security level.
-     *     404: If the security level doesn't exist.
+     *     404: If the security level doesn't exist or belongs to a different tenant.
      *     409: If the security level is in use by any spaces or models.
      */
     delete: operations["delete_security_level_api_v1_security_levels__id__delete"];
@@ -447,8 +459,8 @@ export interface paths {
      * Raises:
      *     400: If the request is invalid.
      *     403: If the user doesn't have permission to update the security level.
-     *     404: If the security level doesn't exist.
-     *     409: If updating the name would create a duplicate.
+     *     404: If the security level doesn't exist or belongs to a different tenant.
+     *     409: If updating the name would create a duplicate within the tenant.
      */
     patch: operations["update_security_level_api_v1_security_levels__id__patch"];
   };
@@ -841,6 +853,8 @@ export interface components {
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
     };
     /**
      * CompletionModelFamily
@@ -887,6 +901,8 @@ export interface components {
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
       /**
        * Can Access
        * @default false
@@ -897,6 +913,14 @@ export interface components {
        * @default true
        */
       is_locked?: boolean;
+    };
+    /** CompletionModelSecurityLevelUpdate */
+    CompletionModelSecurityLevelUpdate: {
+      /**
+       * Security Level Id
+       * Format: uuid
+       */
+      security_level_id: string;
     };
     /** CompletionModelSparse */
     CompletionModelSparse: {
@@ -941,6 +965,8 @@ export interface components {
        * @default false
        */
       is_org_enabled?: boolean | null;
+      /** Security Level Id */
+      security_level_id?: string | null;
     };
     /** Counts */
     Counts: {
@@ -1013,27 +1039,6 @@ export interface components {
       /** Name */
       name: string;
       embedding_model: components["schemas"]["ModelId"];
-    };
-    /**
-     * CreateSecurityLevelRequest
-     * @description Request model for creating a new security level.
-     */
-    CreateSecurityLevelRequest: {
-      /**
-       * Name
-       * @description Name of the security level
-       */
-      name: string;
-      /**
-       * Description
-       * @description Description of the security level
-       */
-      description?: string | null;
-      /**
-       * Value
-       * @description Numeric value determining the security level hierarchy
-       */
-      value: number;
     };
     /** CreateSpaceAssistantRequest */
     CreateSpaceAssistantRequest: {
@@ -1223,6 +1228,8 @@ export interface components {
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
       /**
        * Can Access
        * @default false
@@ -1264,6 +1271,14 @@ export interface components {
       description?: string | null;
       org?: components["schemas"]["Orgs"] | null;
     };
+    /** EmbeddingModelSecurityLevelUpdate */
+    EmbeddingModelSecurityLevelUpdate: {
+      /**
+       * Security Level Id
+       * Format: uuid
+       */
+      security_level_id: string;
+    };
     /** EmbeddingModelSparse */
     EmbeddingModelSparse: {
       /** Created At */
@@ -1301,6 +1316,8 @@ export interface components {
        * @default false
        */
       is_org_enabled?: boolean | null;
+      /** Security Level Id */
+      security_level_id?: string | null;
     };
     /**
      * ErrorCodes
@@ -2078,23 +2095,8 @@ export interface components {
       /** Name */
       name?: string | null;
     };
-    /** PartialServiceUpdatePublic */
-    PartialServiceUpdatePublic: {
-      /** Output Format */
-      output_format?: ("json" | "list" | "boolean") | null;
-      /** Json Schema */
-      json_schema?: Record<string, never> | null;
-      /** Name */
-      name?: string | null;
-      /** Prompt */
-      prompt?: string | null;
-      completion_model_kwargs?: components["schemas"]["ModelKwargs"] | null;
-      /** Groups */
-      groups?: components["schemas"]["ModelId"][] | null;
-      completion_model?: components["schemas"]["ModelId"] | null;
-    };
-    /** PartialUpdateSecurityLevelRequest */
-    PartialUpdateSecurityLevelRequest: {
+    /** PartialSecurityLevelUpdatePublic */
+    PartialSecurityLevelUpdatePublic: {
       /**
        * Name
        * @description Name of the security level
@@ -2110,6 +2112,21 @@ export interface components {
        * @description Numeric value determining the security level hierarchy
        */
       value?: number | null;
+    };
+    /** PartialServiceUpdatePublic */
+    PartialServiceUpdatePublic: {
+      /** Output Format */
+      output_format?: ("json" | "list" | "boolean") | null;
+      /** Json Schema */
+      json_schema?: Record<string, never> | null;
+      /** Name */
+      name?: string | null;
+      /** Prompt */
+      prompt?: string | null;
+      completion_model_kwargs?: components["schemas"]["ModelKwargs"] | null;
+      /** Groups */
+      groups?: components["schemas"]["ModelId"][] | null;
+      completion_model?: components["schemas"]["ModelId"] | null;
     };
     /** PartialUpdateSpaceRequest */
     PartialUpdateSpaceRequest: {
@@ -2233,6 +2250,27 @@ export interface components {
     RunService: {
       /** Input */
       input: string;
+    };
+    /**
+     * SecurityLevelCreatePublic
+     * @description Request model for creating a new security level.
+     */
+    SecurityLevelCreatePublic: {
+      /**
+       * Name
+       * @description Name of the security level
+       */
+      name: string;
+      /**
+       * Description
+       * @description Description of the security level
+       */
+      description?: string | null;
+      /**
+       * Value
+       * @description Numeric value determining the security level hierarchy
+       */
+      value: number;
     };
     /**
      * SecurityLevelPublic
@@ -3947,6 +3985,8 @@ export interface operations {
                  * @default false
                  */
                 is_org_enabled?: boolean;
+                /** Security Level Id */
+                security_level_id?: string | null;
                 /**
                  * Can Access
                  * @default false
@@ -4163,6 +4203,8 @@ export interface operations {
                  * @default false
                  */
                 is_org_enabled?: boolean;
+                /** Security Level Id */
+                security_level_id?: string | null;
                 /**
                  * Can Access
                  * @default false
@@ -5187,6 +5229,61 @@ export interface operations {
       };
     };
   };
+  /** Set Completion Model Security Level */
+  set_completion_model_security_level_api_v1_completion_models__id__security_level_put: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompletionModelSecurityLevelUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CompletionModelPublic"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["GeneralError"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Unset Completion Model Security Level */
+  unset_completion_model_security_level_api_v1_completion_models__id__security_level_delete: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CompletionModelPublic"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
   /** Get Embedding Models */
   get_embedding_models_api_v1_embedding_models__get: {
     responses: {
@@ -5221,6 +5318,61 @@ export interface operations {
       404: {
         content: {
           "application/json": components["schemas"]["GeneralError"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Set Embedding Model Security Level */
+  set_embedding_model_security_level_api_v1_embedding_models__id__security_level_put: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EmbeddingModelSecurityLevelUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["EmbeddingModelPublic"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["GeneralError"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Unset Embedding Model Security Level */
+  unset_embedding_model_security_level_api_v1_embedding_models__id__security_level_delete: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["EmbeddingModelPublic"];
         };
       };
       /** @description Validation Error */
@@ -5309,7 +5461,7 @@ export interface operations {
   };
   /**
    * List Security Levels
-   * @description List all security levels ordered by value.
+   * @description List all security levels for the current tenant ordered by value.
    *
    * Returns:
    *     List of security levels ordered by value.
@@ -5335,7 +5487,7 @@ export interface operations {
   };
   /**
    * Create Security Level
-   * @description Create a new security level.
+   * @description Create a new security level for the current tenant.
    *
    * Args:
    *     request: The security level creation request.
@@ -5345,12 +5497,12 @@ export interface operations {
    *
    * Raises:
    *     400: If the request is invalid.
-   *     409: If a security level with the same name already exists.
+   *     409: If a security level with the same name already exists for this tenant.
    */
   create_security_level_api_v1_security_levels_post: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateSecurityLevelRequest"];
+        "application/json": components["schemas"]["SecurityLevelCreatePublic"];
       };
     };
     responses: {
@@ -5392,7 +5544,7 @@ export interface operations {
    *
    * Raises:
    *     403: If the user doesn't have permission to view the security level.
-   *     404: If the security level doesn't exist.
+   *     404: If the security level doesn't exist or belongs to a different tenant.
    */
   get_security_level_api_v1_security_levels__id__get: {
     parameters: {
@@ -5436,7 +5588,7 @@ export interface operations {
    *
    * Raises:
    *     403: If the user doesn't have permission to delete the security level.
-   *     404: If the security level doesn't exist.
+   *     404: If the security level doesn't exist or belongs to a different tenant.
    *     409: If the security level is in use by any spaces or models.
    */
   delete_security_level_api_v1_security_levels__id__delete: {
@@ -5490,8 +5642,8 @@ export interface operations {
    * Raises:
    *     400: If the request is invalid.
    *     403: If the user doesn't have permission to update the security level.
-   *     404: If the security level doesn't exist.
-   *     409: If updating the name would create a duplicate.
+   *     404: If the security level doesn't exist or belongs to a different tenant.
+   *     409: If updating the name would create a duplicate within the tenant.
    */
   update_security_level_api_v1_security_levels__id__patch: {
     parameters: {
@@ -5501,7 +5653,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["PartialUpdateSecurityLevelRequest"];
+        "application/json": components["schemas"]["PartialSecurityLevelUpdatePublic"];
       };
     };
     responses: {

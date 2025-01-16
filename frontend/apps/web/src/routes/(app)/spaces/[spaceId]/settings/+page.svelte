@@ -91,10 +91,12 @@
       <div class="relative flex flex-col gap-8 py-5 pr-6 lg:gap-12">
         <SelectCompletionModels
           selectableModels={data.completionModels.filter((model) => model.can_access)}
+          securityLevels={data.securityLevels}
         ></SelectCompletionModels>
 
         <SelectEmbeddingModels
           selectableModels={data.embeddingModels.filter((model) => model.can_access)}
+          securityLevels={data.securityLevels}
         ></SelectEmbeddingModels>
       </div>
     </section>

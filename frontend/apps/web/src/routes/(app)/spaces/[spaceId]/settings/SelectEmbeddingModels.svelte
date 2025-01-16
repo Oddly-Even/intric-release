@@ -6,12 +6,14 @@
 
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { EmbeddingModel } from "@intric/intric-js";
+  import type { EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import ModelNameAndVendor from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
   import { Input } from "@intric/ui";
   import { derived } from "svelte/store";
 
   export let selectableModels: EmbeddingModel[];
+  export let securityLevels: SecurityLevel[];
+
   selectableModels.sort(sortModel);
 
   function sortModel(a: EmbeddingModel, b: EmbeddingModel) {
@@ -25,6 +27,28 @@
     state: { currentSpace },
     updateSpace
   } = getSpacesManager();
+
+  function modelHasHighEnoughSecurityLevel(model: EmbeddingModel) {
+    const spaceSecurityLevel = $currentSpace.security_level?.value ?? 0;
+    if (!spaceSecurityLevel) return true;
+
+    const modelSecurityLevel = securityLevels.find((level) => level.id === model.security_level_id)?.value ?? 0;
+    return modelSecurityLevel >= spaceSecurityLevel;
+  }
+
+  $: availableModels = selectableModels.map(model => ({
+    ...model,
+    isAvailable: modelHasHighEnoughSecurityLevel(model)
+  }));
+
+  $: {
+    // This block will re-run whenever $currentSpace changes
+    $currentSpace;
+    availableModels = selectableModels.map(model => ({
+      ...model,
+      isAvailable: modelHasHighEnoughSecurityLevel(model)
+    }));
+  }
 
   const currentlySelectedModels = derived(
     currentSpace,
@@ -83,8 +107,11 @@
   </div>
 
   <div class="flex flex-grow flex-col">
-    {#each selectableModels as model (model.id)}
-      <div class=" cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50">
+    {#each availableModels as model (model.id)}
+      <div
+        class="cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
+        class:opacity-30={!model.isAvailable}
+      >
         <Input.Switch
           value={$currentlySelectedModels.includes(model.id)}
           sideEffect={() => toggleModel(model)}

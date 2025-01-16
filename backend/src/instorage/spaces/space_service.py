@@ -125,13 +125,12 @@ class SpaceService:
     ) -> Space:
         """Update a space."""
         space = await self.get_space(id)
-
-
         if not space.can_edit(self.user):
             raise UnauthorizedException("User has no permission to edit space")
 
         # Handle security level change
         security_level = space.security_level
+
         if security_level_id is not None:
             if (space.security_level is None) or (security_level_id != space.security_level.id):
                 security_level = await self.security_level_service.get_security_level(security_level_id)

@@ -2,9 +2,10 @@
 #
 # Licensed under the MIT License.
 
+import json
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from instorage.assistants.api.assistant_models import AssistantPublic
 from instorage.main.container.container import Container
@@ -78,6 +79,7 @@ async def update_space(
 ):
     service = container.space_service()
     assembler = container.space_assembler()
+
 
     def _get_model_ids_or_none(models: list[ModelId] | None):
         if models is None:
