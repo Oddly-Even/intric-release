@@ -7,7 +7,8 @@
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import type { SecurityLevel } from "@intric/intric-js";
-  import { Button, Dropdown } from "@intric/ui";
+  import { Select } from "@intric/ui";
+  import { writable, type Writable } from "svelte/store";
 
   export let securityLevels: SecurityLevel[];
 
@@ -35,6 +36,38 @@
       isUpdating = false;
     }
   }
+
+  let securityLevelStore: Writable<{ value: SecurityLevel | undefined; label: string }>;
+
+  securityLevelStore = writable({
+    value: securityLevel,
+    label: securityLevel?.name || "No security level"
+  });
+
+  $: if (securityLevel !== $securityLevelStore.value && !isUpdating) {
+    $securityLevelStore = {
+      value: securityLevel,
+      label: securityLevel?.name || "No security level"
+    };
+  }
+
+  $: if (isUpdating) {
+    $securityLevelStore = {
+      ...$securityLevelStore,
+      label: "Updating..."
+    };
+  } else if ($securityLevelStore.label === "Updating...") {
+    $securityLevelStore = {
+      ...$securityLevelStore,
+      label: $securityLevelStore.value?.name || "No security level"
+    };
+  }
+
+  securityLevelStore.subscribe((state) => {
+    if (!isUpdating && state.value !== securityLevel) {
+      updateSecurityLevel(state.value?.id ?? null);
+    }
+  });
 </script>
 
 <div class="flex flex-col gap-4 py-5 pr-6 lg:flex-row lg:gap-12">
@@ -42,28 +75,27 @@
     <h3 class="pb-1 text-lg font-medium">Space Security Level</h3>
     <p class="text-stone-500">Set the security level for this space and all its resources.</p>
   </div>
-  <div class="flex flex-grow items-start gap-2">
-    <Dropdown.Root>
-      <Dropdown.Trigger let:trigger asFragment>
-        <Button is={trigger} variant="simple" class="flex items-center gap-2" disabled={isUpdating}>
-          {#if isUpdating}
-            Updating...
-          {:else}
-            {securityLevel?.name || 'Select security level'}
-            <div class="i-lucide-chevron-down" />
-          {/if}
-        </Button>
-      </Dropdown.Trigger>
-      <Dropdown.Menu let:item>
-        <Button is={item} on:click={() => updateSecurityLevel(null)}>
-          No security level
-        </Button>
+  <div class="flex-grow">
+    <Select.Root
+      customStore={securityLevelStore}
+      class="relative w-full border-b border-stone-100 px-4 py-4 hover:bg-stone-50 z-50"
+    >
+      <Select.Label>Security level</Select.Label>
+      <Select.Trigger placeholder="Select..."></Select.Trigger>
+      <Select.Options>
+        <Select.Item value={undefined} label="No security level">
+          <div class="flex w-full items-center justify-between py-1">
+            <span>No security level</span>
+          </div>
+        </Select.Item>
         {#each securityLevels as level}
-          <Button is={item} on:click={() => updateSecurityLevel(level.id)}>
-            {level.name}
-          </Button>
+          <Select.Item value={level} label={level.name}>
+            <div class="flex w-full items-center justify-between py-1">
+              <span>{level.name}</span>
+            </div>
+          </Select.Item>
         {/each}
-      </Dropdown.Menu>
-    </Dropdown.Root>
+      </Select.Options>
+    </Select.Root>
   </div>
 </div>
