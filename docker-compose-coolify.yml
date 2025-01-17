@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-coolify
+      args:
+        - INTRIC_BACKEND_URL
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - SERVICE_FQDN_FRONTEND
+      - INTRIC_BACKEND_URL
+      - JWT_SECRET=1234
+    labels:
+      - coolify.managed=true
+      - traefik.enable=true
+      - "traefik.http.routers.frontend.rule=Host(`${SERVICE_FQDN_FRONTEND}`)"
+      - traefik.http.routers.frontend.entryPoints=http
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-coolify
+    ports:
+      - "8123:8123"
+    environment:
+      - SERVICE_FQDN_BACKEND
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Api keys and model urls
+      - OPENAI_API_KEY=''
+      - ANTHROPIC_API_KEY=''
+      - AZURE_API_KEY=''
+      - AZURE_MODEL_DEPLOYMENT=''
+      - AZURE_ENDPOINT=''
+      - AZURE_API_VERSION=''
+      # Authentication dependencies
+      - MOBILITYGUARD_DISCOVERY_ENDPOINT=''
+      - MOBILITYGUARD_CLIENT_ID=''
+      - MOBILITYGUARD_CLIENT_SECRET=''
+      # Max sizes
+      - UPLOAD_FILE_TO_SESSION_MAX_SIZE=1048576
+      - UPLOAD_IMAGE_TO_SESSION_MAX_SIZE=1048576
+      - UPLOAD_MAX_FILE_SIZE=10485760
+      - TRANSCRIPTION_MAX_FILE_SIZE=10485760
+      - MAX_IN_QUESTION=1
+      # Feature flags
+      - USING_ACCESS_MANAGEMENT=False
+      - USING_AZURE_MODELS=False
+      # Security
+      - API_PREFIX=/api/v1
+      - API_KEY_LENGTH=64
+      - API_KEY_HEADER_NAME=example
+      - JWT_AUDIENCE=*
+      - JWT_ISSUER=EXAMPLE
+      - JWT_EXPIRY_TIME=86000
+      - JWT_ALGORITHM=HS256
+      - JWT_SECRET=1234
+      - JWT_TOKEN_PREFIX=''
+      # Log
+      - LOGLEVEL=DEBUG
+    labels:
+      - coolify.managed=true
+      - traefik.enable=true
+      - "traefik.http.routers.backend.rule=Host(`${SERVICE_FQDN_BACKEND}`)"
+      - traefik.http.routers.backend.entryPoints=http
+    volumes:
+      - type: bind
+        source: ./backend/data
+        target: /app/data
+        is_directory: true
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: pgvector/pgvector:pg13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=postgres
+    volumes:
+      - type: bind
+        source: ./postgres-data
+        target: /var/lib/postgresql/data
+        is_directory: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - coolify.managed=true
+
+  redis:
+    image: redis
+    volumes:
+      - type: bind
+        source: ./redis-data
+        target: /data
+        is_directory: true
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - coolify.managed=true
