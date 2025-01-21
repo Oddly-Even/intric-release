@@ -6,19 +6,27 @@
 
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { EmbeddingModel, SecurityLevel } from "@intric/intric-js";
-  import ModelNameAndVendor from "$lib/features/ai-models/components/ModelNameAndVendor.svelte";
+  import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
+  import ModelNameAndVendor from "./ModelNameAndVendor.svelte";
   import { Input } from "@intric/ui";
   import { derived } from "svelte/store";
 
-  export let selectableModels: EmbeddingModel[];
+  type Model = CompletionModel | EmbeddingModel;
+  type ModelType = "completion" | "embedding";
+
+  export let selectableModels: Model[];
   export let securityLevels: SecurityLevel[];
+  export let modelType: ModelType;
+  export let title: string;
+  export let description: string;
 
   selectableModels.sort(sortModel);
 
-  function sortModel(a: EmbeddingModel, b: EmbeddingModel) {
+  function sortModel(a: Model, b: Model) {
     if (a.org === b.org) {
-      return (a.name ?? "a") > (b.name ?? "b") ? 1 : -1;
+      const aName = modelType === "embedding" ? (a as EmbeddingModel).name : (a as CompletionModel).nickname;
+      const bName = modelType === "embedding" ? (b as EmbeddingModel).name : (b as CompletionModel).nickname;
+      return (aName ?? "a") > (bName ?? "b") ? 1 : -1;
     }
     return (a.org ?? "a") > (b.org ?? "b") ? 1 : -1;
   }
@@ -28,7 +36,7 @@
     updateSpace
   } = getSpacesManager();
 
-  function modelHasHighEnoughSecurityLevel(model: EmbeddingModel) {
+  function modelHasHighEnoughSecurityLevel(model: Model) {
     const spaceSecurityLevel = $currentSpace.security_level?.value ?? 0;
     if (!spaceSecurityLevel) return true;
 
@@ -36,27 +44,27 @@
     return modelSecurityLevel >= spaceSecurityLevel;
   }
 
-  $: availableModels = selectableModels.map(model => ({
-    ...model,
-    isAvailable: modelHasHighEnoughSecurityLevel(model)
-  }));
+  function getAvailableModels() {
+    return selectableModels.filter((model) => modelHasHighEnoughSecurityLevel(model));
+  }
+
+  $: availableModels = getAvailableModels();
 
   $: {
     // This block will re-run whenever $currentSpace changes
     $currentSpace;
-    availableModels = selectableModels.map(model => ({
-      ...model,
-      isAvailable: modelHasHighEnoughSecurityLevel(model)
-    }));
+    availableModels = getAvailableModels();
   }
 
   const currentlySelectedModels = derived(
     currentSpace,
-    ($currentSpace) => $currentSpace.embedding_models.map((model) => model.id) ?? []
+    ($currentSpace) => modelType === "embedding"
+      ? $currentSpace.embedding_models.map((model) => model.id) ?? []
+      : $currentSpace.completion_models.map((model) => model.id) ?? []
   );
 
   let loading = new Set<string>();
-  async function toggleModel(model: EmbeddingModel) {
+  async function toggleModel(model: Model) {
     loading.add(model.id);
     loading = loading;
 
@@ -64,15 +72,21 @@
       if ($currentlySelectedModels.includes(model.id)) {
         const newModels = $currentlySelectedModels
           .filter((id) => id !== model.id)
-          .map((id) => {
-            return { id };
-          });
-        await updateSpace({ embedding_models: newModels });
+          .map((id) => ({ id }));
+
+        const updateData = modelType === "embedding"
+          ? { embedding_models: newModels }
+          : { completion_models: newModels, security_level_id: $currentSpace.security_level?.id };
+
+        await updateSpace(updateData);
       } else {
-        const newModels = [...$currentlySelectedModels, model.id].map((id) => {
-          return { id };
-        });
-        await updateSpace({ embedding_models: newModels });
+        const newModels = [...$currentlySelectedModels, model.id].map((id) => ({ id }));
+
+        const updateData = modelType === "embedding"
+          ? { embedding_models: newModels }
+          : { completion_models: newModels, security_level_id: $currentSpace.security_level?.id };
+
+        await updateSpace(updateData);
       }
     } catch (e) {
       alert(e);
@@ -84,18 +98,22 @@
 
 <div class="flex flex-col gap-4 pb-2 lg:flex-row lg:gap-12">
   <div class="pl-2 pr-12 lg:w-2/5">
-    <h3 class="pb-1 text-lg font-medium">Embedding Models</h3>
+    <h3 class="pb-1 text-lg font-medium">{title}</h3>
     <p class="text-stone-500">
-      Choose which embedding models will be available to embed data in this space.
+      {description}
     </p>
-    {#if $currentSpace.embedding_models.length === 0}
+    {#if $currentlySelectedModels.length === 0}
       <p
         class="mt-2.5 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
       >
-        <span class="font-bold">Hint:&nbsp;</span>Enable an emedding model to be able to use
-        knowledge from collections and websites.
+        <span class="font-bold">Hint:&nbsp;</span>
+        {#if modelType === "embedding"}
+          Enable an embedding model to be able to use knowledge from collections and websites.
+        {:else}
+          Enable at least one completion model to be able to use assistants.
+        {/if}
       </p>
-    {:else if $currentSpace.embedding_models.length > 1}
+    {:else if modelType === "embedding" && $currentlySelectedModels.length > 1}
       <p
         class="mt-2.5 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800"
       >
@@ -110,7 +128,6 @@
     {#each availableModels as model (model.id)}
       <div
         class="cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
-        class:opacity-30={!model.isAvailable}
       >
         <Input.Switch
           value={$currentlySelectedModels.includes(model.id)}

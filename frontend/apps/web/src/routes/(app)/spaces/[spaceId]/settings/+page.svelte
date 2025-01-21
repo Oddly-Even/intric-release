@@ -7,9 +7,8 @@
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { Button, Dialog, Input } from "@intric/ui";
-  import SelectEmbeddingModels from "./SelectEmbeddingModels.svelte";
+  import SelectModels from "$lib/features/ai-models/components/SelectModels.svelte";
   import EditNameAndDescription from "./EditNameAndDescription.svelte";
-  import SelectCompletionModels from "./SelectCompletionModels.svelte";
   import SelectSecurityLevel from "./SelectSecurityLevel.svelte";
   import { Page } from "$lib/components/layout";
   import type { SecurityLevel, CompletionModel, EmbeddingModel } from "@intric/intric-js";
@@ -89,15 +88,21 @@
       </h2>
 
       <div class="relative flex flex-col gap-8 py-5 pr-6 lg:gap-12">
-        <SelectCompletionModels
+        <SelectModels
           selectableModels={data.completionModels.filter((model) => model.can_access)}
           securityLevels={data.securityLevels}
-        ></SelectCompletionModels>
+          modelType="completion"
+          title="Completion Models"
+          description="Choose which completion models will be available to the applications in this space."
+        />
 
-        <SelectEmbeddingModels
+        <SelectModels
           selectableModels={data.embeddingModels.filter((model) => model.can_access)}
           securityLevels={data.securityLevels}
-        ></SelectEmbeddingModels>
+          modelType="embedding"
+          title="Embedding Models"
+          description="Choose which embedding models will be available to embed data in this space."
+        />
       </div>
     </section>
 
