@@ -125,9 +125,14 @@
   </div>
 
   <div class="flex flex-grow flex-col">
-    {#each availableModels as model (model.id)}
-      <div
-        class="cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
+    {#if availableModels.length === 0}
+      <p class="mt-2.5 rounded-md border border-amber-500 bg-amber-50 px-2 py-1 text-sm text-amber-800">
+        No models available that match this space's security level <span class="font-bold">{ $currentSpace.security_level?.name }</span>.
+      </p>
+    {:else}
+      {#each availableModels as model (model.id)}
+        <div
+          class="cursor-pointer border-b border-black/10 py-4 pl-2 pr-4 hover:bg-stone-50"
       >
         <Input.Switch
           value={$currentlySelectedModels.includes(model.id)}
@@ -135,7 +140,8 @@
         >
           <ModelNameAndVendor {model} />
         </Input.Switch>
-      </div>
-    {/each}
+        </div>
+      {/each}
+    {/if}
   </div>
 </div>
