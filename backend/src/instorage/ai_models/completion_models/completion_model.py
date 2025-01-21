@@ -50,7 +50,6 @@ class CompletionModelBase(BaseModel):
     deployment_name: Optional[str] = None
     org: Optional[Orgs] = None
     vision: bool
-    security_level_id: Optional[UUID] = None
 
 
 class CompletionModelCreate(CompletionModelBase):
@@ -73,6 +72,7 @@ class CompletionModelSecurityLevelUpdate(BaseModel):
 
 class CompletionModel(CompletionModelBase, InDB):
     is_org_enabled: bool = False
+    security_level_id: Optional[UUID] = None
 
 
 class CompletionModelPublic(CompletionModel):

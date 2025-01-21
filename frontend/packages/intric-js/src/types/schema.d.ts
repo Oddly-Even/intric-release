@@ -848,13 +848,13 @@ export interface components {
       org?: components["schemas"]["Orgs"] | null;
       /** Vision */
       vision: boolean;
-      /** Security Level Id */
-      security_level_id?: string | null;
       /**
        * Is Org Enabled
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
     };
     /**
      * CompletionModelFamily
@@ -896,13 +896,13 @@ export interface components {
       org?: components["schemas"]["Orgs"] | null;
       /** Vision */
       vision: boolean;
-      /** Security Level Id */
-      security_level_id?: string | null;
       /**
        * Is Org Enabled
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
       /**
        * Can Access
        * @default false
@@ -957,8 +957,6 @@ export interface components {
       org?: components["schemas"]["Orgs"] | null;
       /** Vision */
       vision: boolean;
-      /** Security Level Id */
-      security_level_id?: string | null;
     };
     /** CompletionModelUpdateFlags */
     CompletionModelUpdateFlags: {
@@ -1225,13 +1223,13 @@ export interface components {
       /** Description */
       description?: string | null;
       org?: components["schemas"]["Orgs"] | null;
-      /** Security Level Id */
-      security_level_id?: string | null;
       /**
        * Is Org Enabled
        * @default false
        */
       is_org_enabled?: boolean;
+      /** Security Level Id */
+      security_level_id?: string | null;
       /**
        * Can Access
        * @default false
@@ -1272,8 +1270,6 @@ export interface components {
       /** Description */
       description?: string | null;
       org?: components["schemas"]["Orgs"] | null;
-      /** Security Level Id */
-      security_level_id?: string | null;
     };
     /** EmbeddingModelSecurityLevelUpdate */
     EmbeddingModelSecurityLevelUpdate: {
@@ -1312,8 +1308,6 @@ export interface components {
       /** Description */
       description?: string | null;
       org?: components["schemas"]["Orgs"] | null;
-      /** Security Level Id */
-      security_level_id?: string | null;
     };
     /** EmbeddingModelUpdateFlags */
     EmbeddingModelUpdateFlags: {
@@ -3986,13 +3980,13 @@ export interface operations {
                 org?: components["schemas"]["Orgs"] | null;
                 /** Vision */
                 vision: boolean;
-                /** Security Level Id */
-                security_level_id?: string | null;
                 /**
                  * Is Org Enabled
                  * @default false
                  */
                 is_org_enabled?: boolean;
+                /** Security Level Id */
+                security_level_id?: string | null;
                 /**
                  * Can Access
                  * @default false
@@ -4204,13 +4198,13 @@ export interface operations {
                 org?: components["schemas"]["Orgs"] | null;
                 /** Vision */
                 vision: boolean;
-                /** Security Level Id */
-                security_level_id?: string | null;
                 /**
                  * Is Org Enabled
                  * @default false
                  */
                 is_org_enabled?: boolean;
+                /** Security Level Id */
+                security_level_id?: string | null;
                 /**
                  * Can Access
                  * @default false
