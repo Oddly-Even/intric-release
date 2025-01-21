@@ -6,11 +6,13 @@
 
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { SecurityLevel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
   import { Select } from "@intric/ui";
   import { writable, type Writable } from "svelte/store";
 
   export let securityLevels: SecurityLevel[];
+  export let embeddingModels: EmbeddingModel[];
+  export let completionModels: CompletionModel[];
 
   const {
     state: { currentSpace },
@@ -69,20 +71,26 @@
     }
   });
 
+  function hasModelWithIncompatibleSecurityLevel<T extends { id: string }>(
+    spaceModels: Array<T>,
+    allModels: Array<{ id: string; security_level_id?: string | null }>,
+    currentSecurityLevel: SecurityLevel
+  ): boolean {
+    return spaceModels.some(spaceModel => {
+      const model = allModels.find(m => m.id === spaceModel.id);
+      if (!model) return false;
+      const modelSecurityLevel = securityLevels.find(level => level.id === model.security_level_id)?.value ?? 0;
+      return modelSecurityLevel < currentSecurityLevel.value;
+    });
+  }
+
   function hasIncompatibleModels(currentSecurityLevel: SecurityLevel): boolean {
     if (!currentSecurityLevel) return false;
 
-    const hasIncompatibleCompletionModels = $currentSpace.completion_models.some(model => {
-      const modelSecurityLevel = securityLevels.find(level => level.id === model.security_level_id)?.value ?? 0;
-      return modelSecurityLevel < currentSecurityLevel.value;
-    });
-
-    const hasIncompatibleEmbeddingModels = $currentSpace.embedding_models.some(model => {
-      const modelSecurityLevel = securityLevels.find(level => level.id === model.security_level_id)?.value ?? 0;
-      return modelSecurityLevel < currentSecurityLevel.value;
-    });
-
-    return hasIncompatibleCompletionModels || hasIncompatibleEmbeddingModels;
+    return (
+      hasModelWithIncompatibleSecurityLevel($currentSpace.completion_models, completionModels, currentSecurityLevel) ||
+      hasModelWithIncompatibleSecurityLevel($currentSpace.embedding_models, embeddingModels, currentSecurityLevel)
+    );
   }
 </script>
 

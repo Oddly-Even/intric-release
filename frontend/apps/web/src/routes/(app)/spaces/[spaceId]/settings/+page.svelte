@@ -76,7 +76,7 @@
         >
           Security
         </h2>
-        <SelectSecurityLevel securityLevels={data.securityLevels} />
+        <SelectSecurityLevel securityLevels={data.securityLevels} embeddingModels={data.embeddingModels} completionModels={data.completionModels} />
       </section>
     {/if}
 
