@@ -9,6 +9,7 @@
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
   import ModelEnableSwitch from "./ModelEnableSwitch.svelte";
+  import ModelSecurityLevelSelect from "./ModelSecurityLevelSelect.svelte";
   import {
     default as ModelLabels,
     getLabels
@@ -47,7 +48,7 @@
       accessor: (model) => model,
       header: "Enabled",
       cell: (item) => {
-        return createRender(ModelEnableSwitch, { model: item.value, modeltype: "embedding", securityLevels });
+        return createRender(ModelEnableSwitch, { model: item.value, modeltype: "embedding" });
       },
       plugins: {
         sort: {
@@ -59,10 +60,18 @@
     }),
     table.column({
       accessor: (model) => model,
+      header: "Security Level",
+      cell: (item) =>
+        createRender(ModelSecurityLevelSelect, {
+          model: item.value,
+          modeltype: "embedding",
+          securityLevels
+        })
+    }),
+    table.column({
+      accessor: (model) => model,
       header: "Labels",
-      cell: (item) => {
-        return createRender(ModelLabels, { model: item.value });
-      },
+      cell: (item) => createRender(ModelLabels, { model: item.value }),
       plugins: {
         sort: {
           disable: true
@@ -79,13 +88,12 @@
     }),
     table.columnCard({
       value: (item) => item.name,
-      cell: (item) => {
-        return createRender(ModelTile, {
+      cell: (item) =>
+        createRender(ModelTile, {
           model: item.value,
-          modeltype: "completion",
+          modeltype: "embedding",
           securityLevels
-        });
-      }
+        })
     })
   ]);
 

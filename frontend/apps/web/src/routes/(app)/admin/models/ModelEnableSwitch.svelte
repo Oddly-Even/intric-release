@@ -5,34 +5,23 @@
 -->
 
 <script lang="ts">
-  import type { SecurityLevel } from "@intric/intric-js";
   import { invalidate } from "$app/navigation";
   import { getIntric } from "$lib/core/Intric";
-  import IconKey from "$lib/components/icons/IconKey.svelte";
-  import RadioChecked from "$lib/components/icons/RadioChecked.svelte";
-  import RadioUnchecked from "$lib/components/icons/RadioUnchecked.svelte";
-  import { Dropdown, Button } from "@intric/ui";
+  import { Input, Tooltip } from "@intric/ui";
 
   export let model: {
     id: string;
     is_org_enabled?: boolean;
     is_locked?: boolean;
-    security_level_id?: string;
+    security_level_id?: string | null;
   };
   export let modeltype: "completion" | "embedding";
-  export let securityLevels: SecurityLevel[];
-
-  let securityLevel: SecurityLevel | undefined;
-
-  $: if (securityLevels) {
-    securityLevel = securityLevels.find((level) => level.id === model.security_level_id);
-  }
 
   const intric = getIntric();
 
   async function updateCompletionModel(
     completionModel: { id: string },
-    update: { is_org_enabled: boolean; security_level_id?: string }
+    update: { is_org_enabled?: boolean; security_level_id?: string | null }
   ) {
     try {
       await intric.models.update({ completionModel, update });
@@ -45,7 +34,7 @@
 
   async function updateEmbeddingModel(
     embeddingModel: { id: string },
-    update: { is_org_enabled: boolean; security_level_id?: string }
+    update: { is_org_enabled?: boolean; security_level_id?: string | null }
   ) {
     try {
       await intric.models.update({ embeddingModel, update });
@@ -56,83 +45,34 @@
     }
   }
 
-  async function updateState(state: { enabled: boolean; levelId: string | null }) {
-    if (model.is_locked) return;
-
+  async function updateModel({ next }: { next: boolean }) {
     const update = {
-      is_org_enabled: state.enabled,
-      security_level_id: state.levelId || undefined
+      is_org_enabled: next ?? false,
+      security_level_id: model.security_level_id
     };
 
     if (modeltype === "completion") {
       await updateCompletionModel({ id: model.id }, update);
     } else if (modeltype === "embedding") {
       await updateEmbeddingModel({ id: model.id }, update);
+    } else {
+      throw new Error("Invalid model type");
     }
   }
 
-  function getCurrentState() {
-    if (!model.is_org_enabled) return "disabled";
-    if (model.security_level_id) return `enabled-${model.security_level_id}`;
-    return "enabled";
-  }
+  $: tooltip = model.is_locked
+    ? "EU-hosted models are available on request"
+    : model.is_org_enabled ?? false
+      ? "Toggle to disable model"
+      : "Toggle to enable model";
 </script>
 
-<div>
-  <Dropdown.Root>
-    <Dropdown.Trigger let:trigger asFragment>
-      <Button
-        is={trigger}
-        variant="simple"
-        class="-ml-2 flex items-center gap-2 text-sm text-stone-600"
-        disabled={model.is_locked}
-      >
-        {#if !model.is_org_enabled}
-          <RadioUnchecked size="small" />
-          <span>Disabled</span>
-        {:else if model.security_level_id && securityLevel}
-          <IconKey size="small" />
-          <span>{securityLevel.name}</span>
-        {:else}
-          <RadioChecked size="small" />
-          <span>Enabled</span>
-        {/if}
-      </Button>
-    </Dropdown.Trigger>
-    <Dropdown.Menu let:item>
-      <Button
-        is={item}
-        on:click={() => updateState({ enabled: false, levelId: null })}
-        class="flex items-center gap-2"
-      >
-        <RadioUnchecked size="small" />
-        <span>Disabled</span>
-      </Button>
-      <Button
-        is={item}
-        on:click={() => updateState({ enabled: true, levelId: null })}
-        class="flex items-center gap-2"
-      >
-        <RadioChecked size="small" />
-        <span>Enabled</span>
-      </Button>
-      {#if securityLevels.length > 0}
-        <div class="mt-2 flex items-center gap-2 px-2 py-1 text-stone-500">
-          <span>Enabled on security level</span>
-        </div>
-        <div class="flex flex-col">
-          {#each securityLevels as level}
-            <Button
-              is={item}
-              on:click={() => updateState({ enabled: true, levelId: level.id })}
-              class="flex items-center gap-2"
-            >
-              <IconKey size="small" />
-              <span>{level.name}</span>
-            </Button>
-          {/each}
-        </div>
-      {/if}
-    </Dropdown.Menu>
-  </Dropdown.Root>
-</div>
+<div class="-ml-3 flex items-center gap-4">
+  <Tooltip text={tooltip}>
+    <Input.Switch 
+      sideEffect={updateModel} 
+      value={model.is_org_enabled ?? false} 
+      disabled={model.is_locked}
+    />
+  </Tooltip>
+</div> 
