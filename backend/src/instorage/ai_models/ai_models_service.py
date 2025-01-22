@@ -21,6 +21,7 @@ from instorage.ai_models.embedding_models.embedding_model import (
 from instorage.ai_models.embedding_models.embedding_models_repo import (
     EmbeddingModelsRepository,
 )
+from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.main.config import get_settings
 from instorage.main.exceptions import (
     BadRequestException,
@@ -32,19 +33,20 @@ from instorage.roles.permissions import Permission, validate_permissions
 from instorage.tenants.tenant_repo import TenantRepository
 from instorage.users.user import UserInDB
 
-
 class AIModelsService:
     def __init__(
         self,
         user: UserInDB,
         embedding_model_repo: EmbeddingModelsRepository,
         completion_model_repo: CompletionModelsRepository,
+        security_level_service: SecurityLevelService,
         tenant_repo: TenantRepository,
     ):
         self.user = user
         self.embedding_model_repo = embedding_model_repo
         self.completion_model_repo = completion_model_repo
         self.tenant_repo = tenant_repo
+        self.security_level_service = security_level_service
 
     def _is_locked(
         self,
@@ -112,10 +114,15 @@ class AIModelsService:
                 "Unauthorized. User has no permissions to access."
             )
 
+        security_level = await self.security_level_service.get_security_level(
+            model.security_level_id
+        )
+
         return EmbeddingModelPublic(
             **model.model_dump(),
             is_locked=self._is_locked(model),
             can_access=can_access,
+            security_level=security_level,
         )
 
     async def get_latest_available_embedding_model(self):
@@ -172,10 +179,15 @@ class AIModelsService:
                 "Unauthorized. User has no permissions to access."
             )
 
+        security_level = await self.security_level_service.get_security_level(
+            model.security_level_id
+        )
+
         return CompletionModelPublic(
             **model.model_dump(),
             is_locked=self._is_locked(model),
             can_access=can_access,
+            security_level=security_level,
         )
 
     async def get_latest_available_completion_model(self):

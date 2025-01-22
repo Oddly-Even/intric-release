@@ -218,21 +218,22 @@ class Container(containers.DeclarativeContainer):
     image_extractor = providers.Factory(ImageExtractor)
 
     # Services
+    security_level_service = providers.Factory(
+        SecurityLevelService,
+        user=user,
+        repo=security_level_repo,
+    )
     ai_models_service = providers.Factory(
         AIModelsService,
         user=user,
         embedding_model_repo=embedding_model_repo,
         completion_model_repo=completion_model_repo,
         tenant_repo=tenant_repo,
+        security_level_service=security_level_service,
     )
     auth_service = providers.Factory(
         AuthService,
         api_key_repo=api_key_repo,
-    )
-    security_level_service = providers.Factory(
-        SecurityLevelService,
-        user=user,
-        repo=security_level_repo,
     )
     user_service = providers.Factory(
         UserService,

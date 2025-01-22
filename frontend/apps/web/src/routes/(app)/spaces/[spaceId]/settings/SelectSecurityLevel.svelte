@@ -7,8 +7,9 @@
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
-  import { Select } from "@intric/ui";
+  import { Select, Dialog } from "@intric/ui";
   import { writable, type Writable } from "svelte/store";
+  import SecurityLevelChangeDialog from "./SecurityLevelChangeDialog.svelte";
 
   export let securityLevels: SecurityLevel[];
   export let embeddingModels: EmbeddingModel[];
@@ -26,6 +27,9 @@
   }
 
   let isUpdating = false;
+  let showConfirmDialog: Dialog.OpenState;
+  let pendingSecurityLevel: SecurityLevel | undefined;
+
   async function updateSecurityLevel(levelId: string | null) {
     try {
       isUpdating = true;
@@ -67,9 +71,24 @@
 
   securityLevelStore.subscribe((state) => {
     if (!isUpdating && state.value !== securityLevel) {
-      updateSecurityLevel(state.value?.id ?? null);
+      pendingSecurityLevel = state.value;
+      $showConfirmDialog = true;
     }
   });
+
+  function handleConfirmChange() {
+    $showConfirmDialog = false;
+    updateSecurityLevel(pendingSecurityLevel?.id ?? null);
+  }
+
+  function handleCancelChange() {
+    $showConfirmDialog = false;
+    // Reset the store to the current security level
+    $securityLevelStore = {
+      value: securityLevel,
+      label: securityLevel?.name || "No security level"
+    };
+  }
 
   function hasModelWithIncompatibleSecurityLevel<T extends { id: string }>(
     spaceModels: Array<T>,
@@ -93,6 +112,14 @@
     );
   }
 </script>
+
+<SecurityLevelChangeDialog
+  bind:isOpen={showConfirmDialog}
+  currentSecurityLevel={securityLevel}
+  newSecurityLevel={pendingSecurityLevel}
+  onConfirm={handleConfirmChange}
+  onCancel={handleCancelChange}
+/>
 
 <div class="flex flex-col gap-4 py-5 pr-6 lg:flex-row lg:gap-12">
   <div class="pl-2 pr-12 lg:w-2/5">

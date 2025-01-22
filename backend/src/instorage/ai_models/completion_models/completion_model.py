@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from instorage.files.file_models import File
 from instorage.logging.logging import LoggingDetails
 from instorage.main.models import InDB, partial_model
-
+from instorage.securitylevels.api.security_level_models import SecurityLevelPublic
 
 class CompletionModelFamily(str, Enum):
     OPEN_AI = "openai"
@@ -74,10 +74,10 @@ class CompletionModel(CompletionModelBase, InDB):
     is_org_enabled: bool = False
     security_level_id: Optional[UUID] = None
 
-
 class CompletionModelPublic(CompletionModel):
     can_access: bool = False
     is_locked: bool = True
+    security_level: Optional[SecurityLevelPublic] = None
 
 
 class CompletionModelResponse(BaseModel):

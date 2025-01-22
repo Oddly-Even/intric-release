@@ -10,6 +10,7 @@ from instorage.ai_models.completion_models.completion_model import (
     Orgs,
 )
 from instorage.main.models import InDB, partial_model
+from instorage.securitylevels.api.security_level_models import SecurityLevelPublic
 
 
 class EmbeddingModelFamily(str, Enum):
@@ -54,7 +55,6 @@ class EmbeddingModel(EmbeddingModelBase, InDB):
     is_org_enabled: bool = False
     security_level_id: Optional[UUID] = None
 
-
 class EmbeddingModelPublicBase(EmbeddingModelBase, InDB):
     pass
 
@@ -62,6 +62,7 @@ class EmbeddingModelPublicBase(EmbeddingModelBase, InDB):
 class EmbeddingModelPublic(EmbeddingModel):
     can_access: bool = False
     is_locked: bool = True
+    security_level: Optional[SecurityLevelPublic] = None
 
 
 class EmbeddingModelSparse(EmbeddingModelBase, InDB):

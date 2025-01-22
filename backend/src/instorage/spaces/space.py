@@ -227,8 +227,8 @@ class Space:
         self,
         name: str = None,
         description: str = None,
-        embedding_models: list[EmbeddingModelPublic] = None,
-        completion_models: list[CompletionModelPublic] = None,
+        embedding_models: list[EmbeddingModelSparse] = None,
+        completion_models: list[CompletionModelSparse] = None,
         security_level: SecurityLevel = None,
     ):
         if name is not None:

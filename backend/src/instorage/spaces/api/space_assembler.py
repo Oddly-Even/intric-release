@@ -15,10 +15,12 @@ from instorage.spaces.api.space_models import (
     Knowledge,
     SpaceMember,
     SpacePublic,
+    SpaceUpdateDryRunResponse,
 )
 from instorage.spaces.space import Space
 from instorage.users.user import UserInDB
 from instorage.websites.website_models import Website, WebsiteSparse
+from instorage.spaces.space_service import SpaceUpdateAnalysis
 
 
 class SpaceAssembler:
@@ -186,3 +188,14 @@ class SpaceAssembler:
     @staticmethod
     def from_website_to_model(website: Website):
         return CreateSpaceWebsitesResponse(**website.model_dump())
+
+    def from_space_analyze_update_to_response(
+        self,
+        analysis: SpaceUpdateAnalysis,
+    ) -> SpaceUpdateDryRunResponse:
+        return SpaceUpdateDryRunResponse(
+            unavailable_completion_models=analysis.unavailable_completion_models,
+            unavailable_embedding_models=analysis.unavailable_embedding_models,
+            current_security_level=analysis.current_security_level,
+            new_security_level=analysis.new_security_level,
+        )

@@ -47,6 +47,21 @@ class TransferApplicationRequest(TransferRequest):
     move_resources: bool = False
 
 
+class SpaceUpdateDryRunRequest(BaseModel):
+    """Request to analyze the impact of updating a space's properties."""
+    security_level_id: Optional[UUID]
+    # Add other space properties here as needed
+
+
+class SpaceUpdateDryRunResponse(BaseModel):
+    """Response containing the impact analysis of updating a space's properties."""
+    unavailable_completion_models: list[CompletionModelSparse]
+    unavailable_embedding_models: list[EmbeddingModelSparse]
+    current_security_level: Optional[SecurityLevelSparse]
+    new_security_level: Optional[SecurityLevelSparse]
+    # Add other impact details here as needed
+
+
 # Members
 
 

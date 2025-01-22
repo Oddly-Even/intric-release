@@ -2,12 +2,13 @@
 #
 # Licensed under the MIT License.
 
+from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
 from instorage.ai_models.ai_models_service import AIModelsService
-from instorage.ai_models.completion_models.completion_model import CompletionModelPublic
-from instorage.ai_models.embedding_models.embedding_model import EmbeddingModelPublic
+from instorage.ai_models.completion_models.completion_model import CompletionModelPublic, CompletionModelSparse
+from instorage.ai_models.embedding_models.embedding_model import EmbeddingModelPublic, EmbeddingModelSparse
 from instorage.main.exceptions import (
     BadRequestException,
     NotFoundException,
@@ -21,6 +22,23 @@ from instorage.spaces.space_factory import SpaceFactory
 from instorage.spaces.space_repo import SpaceRepository
 from instorage.users.user import UserInDB
 from instorage.users.user_repo import UsersRepository
+
+
+@dataclass
+class SpaceUpdateAnalysis:
+    """Analysis of the impact of updating a space's properties."""
+
+    def __init__(
+        self,
+        current_security_level: Optional[SecurityLevel],
+        new_security_level: Optional[SecurityLevel],
+        unavailable_completion_models: list[CompletionModelSparse],
+        unavailable_embedding_models: list[EmbeddingModelSparse],
+    ):
+        self.current_security_level = current_security_level
+        self.new_security_level = new_security_level
+        self.unavailable_completion_models = unavailable_completion_models
+        self.unavailable_embedding_models = unavailable_embedding_models
 
 
 class SpaceService:
@@ -258,3 +276,49 @@ class SpaceService:
             personal_space = await self.create_personal_space()
 
         return await self._add_models_to_personal_space(personal_space)
+
+    async def analyze_update(
+        self,
+        id: UUID,
+        security_level_id: Optional[UUID] = None,
+    ) -> SpaceUpdateAnalysis:
+        """
+        Analyze the impact of updating a space's properties without actually applying the changes.
+        Currently supports:
+        - Security level changes: Shows which models would be affected
+        """
+        space = await self._get_space(id)
+        new_security_level = None
+        if security_level_id is not None:
+            new_security_level = await self.security_level_service.get_security_level(security_level_id)
+
+        # Initialize lists for affected models
+        unavailable_completion_models = []
+        unavailable_embedding_models = []
+
+
+        # Check which models will be affected
+        for model in space.completion_models:
+            full_model = await self.ai_models_service.get_completion_model(model.id)
+
+            if not full_model.security_level or (
+                new_security_level
+                and full_model.security_level.value < new_security_level.value
+            ):
+                unavailable_completion_models.append(model)
+
+        for model in space.embedding_models:
+            full_model = await self.ai_models_service.get_embedding_model(model.id)
+            if not full_model.security_level or (
+                new_security_level
+                and full_model.security_level.value < new_security_level.value
+            ):
+
+                unavailable_embedding_models.append(model)
+
+        return SpaceUpdateAnalysis(
+            current_security_level=space.security_level,
+            new_security_level=new_security_level,
+            unavailable_completion_models=unavailable_completion_models,
+            unavailable_embedding_models=unavailable_embedding_models,
+        )
