@@ -221,6 +221,7 @@ async def test_update_space_security_level(
     """Test updating a space's security level."""
     space = MagicMock()
     space.can_edit.return_value = True
+
     service.get_space = AsyncMock(return_value=space)
     service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
 
@@ -229,85 +230,11 @@ async def test_update_space_security_level(
         security_level_id=security_level.id,
     )
 
-    assert space.security_level == security_level
-
-
-async def test_update_space_security_level_with_invalid_models(
-    service: SpaceService, security_level: SecurityLevel, higher_security_level: SecurityLevel
-):
-    """Test updating a space's security level fails when models have higher security requirements."""
-    space = MagicMock()
-    space.can_edit.return_value = True
-    service.get_space = AsyncMock(return_value=space)
-    service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
-
-    # Set up a model with higher security requirements
-    model = MagicMock()
-    model.name = "test_model"
-    model.security_level = higher_security_level
-    space.embedding_models = [model]
-
-    with pytest.raises(BadRequestException) as exc:
-        await service.update_space(
-            id=TEST_UUID,
-            security_level_id=security_level.id,
-        )
-    
-    assert "Cannot change security level" in str(exc.value)
-    assert "test_model" in str(exc.value)
-
-
-async def test_update_space_security_level_with_invalid_assistants(
-    service: SpaceService, security_level: SecurityLevel, higher_security_level: SecurityLevel
-):
-    """Test updating a space's security level fails when assistants have higher security requirements."""
-    space = MagicMock()
-    space.can_edit.return_value = True
-    service.get_space = AsyncMock(return_value=space)
-    service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
-
-    # Set up an assistant with a model that has higher security requirements
-    assistant = MagicMock()
-    assistant.name = "test_assistant"
-    assistant.completion_model = MagicMock()
-    assistant.completion_model.name = "test_model"
-    assistant.completion_model.security_level = higher_security_level
-    space.assistants = [assistant]
-
-    with pytest.raises(BadRequestException) as exc:
-        await service.update_space(
-            id=TEST_UUID,
-            security_level_id=security_level.id,
-        )
-    
-    assert "Cannot change security level" in str(exc.value)
-    assert "test_assistant" in str(exc.value)
-    assert "test_model" in str(exc.value)
-
-
-async def test_update_space_security_level_with_invalid_groups(
-    service: SpaceService, security_level: SecurityLevel, higher_security_level: SecurityLevel
-):
-    """Test updating a space's security level fails when groups have higher security requirements."""
-    space = MagicMock()
-    space.can_edit.return_value = True
-    service.get_space = AsyncMock(return_value=space)
-    service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
-
-    # Set up a group with a model that has higher security requirements
-    group = MagicMock()
-    group.name = "test_group"
-    group.embedding_model = MagicMock()
-    group.embedding_model.name = "test_model"
-    group.embedding_model.security_level = higher_security_level
-    space.groups = [group]
-
-    with pytest.raises(BadRequestException) as exc:
-        await service.update_space(
-            id=TEST_UUID,
-            security_level_id=security_level.id,
-        )
-    
-    assert "Cannot change security level" in str(exc.value)
-    assert "test_group" in str(exc.value)
-    assert "test_model" in str(exc.value)
+    # Check that update was called with the security level
+    space.update.assert_called_once_with(
+        name=None,
+        description=None,
+        completion_models=None,
+        embedding_models=None,
+        security_level=security_level,
+    )

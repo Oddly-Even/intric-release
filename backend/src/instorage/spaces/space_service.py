@@ -148,7 +148,6 @@ class SpaceService:
 
         # Handle security level change
         security_level = space.security_level
-
         if security_level_id is not None:
             if (space.security_level is None) or (security_level_id != space.security_level.id):
                 security_level = await self.security_level_service.get_security_level(security_level_id)
@@ -176,16 +175,6 @@ class SpaceService:
         )
 
         return await self.repo.update(space)
-
-    async def _validate_and_update_security_level(
-        self,
-        space: Space,
-        new_security_level: SecurityLevel
-    ) -> None:
-
-
-        # If all validations pass, update the security level
-        space.security_level = new_security_level
 
     async def delete_space(self, id: UUID):
         space = await self.get_space(id)

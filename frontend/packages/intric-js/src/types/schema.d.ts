@@ -516,6 +516,15 @@ export interface paths {
     /** Get Personal Space */
     get: operations["get_personal_space_api_v1_spaces_type_personal__get"];
   };
+  "/api/v1/spaces/{id}/update/dryrun/": {
+    /**
+     * Update Space Dryrun
+     * @description Analyze the impact of updating a space's properties without actually applying the changes.
+     * Currently supports:
+     * - Security level changes: Shows which models would be affected
+     */
+    post: operations["update_space_dryrun_api_v1_spaces__id__update_dryrun__post"];
+  };
   "/api/v1/dashboard/": {
     /** Get Dashboard */
     get: operations["get_dashboard_api_v1_dashboard__get"];
@@ -2630,6 +2639,26 @@ export interface components {
       /** Personal */
       personal: boolean;
       security_level: components["schemas"]["SecurityLevelSparse"] | null;
+    };
+    /**
+     * SpaceUpdateDryRunRequest
+     * @description Request to analyze the impact of updating a space's properties.
+     */
+    SpaceUpdateDryRunRequest: {
+      /** Security Level Id */
+      security_level_id: string | null;
+    };
+    /**
+     * SpaceUpdateDryRunResponse
+     * @description Response containing the impact analysis of updating a space's properties.
+     */
+    SpaceUpdateDryRunResponse: {
+      /** Unavailable Completion Models */
+      unavailable_completion_models: components["schemas"]["CompletionModelSparse"][];
+      /** Unavailable Embedding Models */
+      unavailable_embedding_models: components["schemas"]["EmbeddingModelSparse"][];
+      current_security_level: components["schemas"]["SecurityLevelSparse"] | null;
+      new_security_level: components["schemas"]["SecurityLevelSparse"] | null;
     };
     /**
      * Task
@@ -6200,6 +6229,44 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["SpacePublic"];
+        };
+      };
+    };
+  };
+  /**
+   * Update Space Dryrun
+   * @description Analyze the impact of updating a space's properties without actually applying the changes.
+   * Currently supports:
+   * - Security level changes: Shows which models would be affected
+   */
+  update_space_dryrun_api_v1_spaces__id__update_dryrun__post: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SpaceUpdateDryRunRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["SpaceUpdateDryRunResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["GeneralError"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
