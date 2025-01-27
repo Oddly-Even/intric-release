@@ -6,7 +6,7 @@
 
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
-  import type { CompletionModel, EmbeddingModel, SecurityLevel } from "@intric/intric-js";
+  import type { CompletionModel, EmbeddingModel, SecurityLevel, SpaceUpdateDryRunResponse } from "@intric/intric-js";
   import { Select, Dialog } from "@intric/ui";
   import { writable, type Writable } from "svelte/store";
   import SecurityLevelChangeDialog from "./SecurityLevelChangeDialog.svelte";
@@ -18,7 +18,8 @@
   const {
     state: { currentSpace },
     updateSpace,
-    refreshCurrentSpace
+    refreshCurrentSpace,
+    updateSpaceDryrun
   } = getSpacesManager();
 
   let securityLevel: SecurityLevel | undefined;
@@ -29,6 +30,7 @@
   let isUpdating = false;
   let showConfirmDialog: Dialog.OpenState;
   let pendingSecurityLevel: SecurityLevel | undefined;
+  let dryRunResult: SpaceUpdateDryRunResponse | undefined;
 
   async function updateSecurityLevel(levelId: string | null) {
     try {
@@ -69,10 +71,23 @@
     };
   }
 
-  securityLevelStore.subscribe((state) => {
+  securityLevelStore.subscribe(async (state) => {
     if (!isUpdating && state.value !== securityLevel) {
       pendingSecurityLevel = state.value;
-      $showConfirmDialog = true;
+      try {
+        dryRunResult = await updateSpaceDryrun({
+          security_level_id: pendingSecurityLevel?.id ?? null
+        });
+        $showConfirmDialog = true;
+      } catch (error) {
+        console.error("Error running security level change dry run:", error);
+        alert("Failed to check security level change implications");
+        // Reset the store to the current security level
+        $securityLevelStore = {
+          value: securityLevel,
+          label: securityLevel?.name || "No security level"
+        };
+      }
     }
   });
 
@@ -117,6 +132,7 @@
   bind:isOpen={showConfirmDialog}
   currentSecurityLevel={securityLevel}
   newSecurityLevel={pendingSecurityLevel}
+  {dryRunResult}
   onConfirm={handleConfirmChange}
   onCancel={handleCancelChange}
 />

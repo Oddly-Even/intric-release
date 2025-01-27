@@ -922,6 +922,7 @@ export interface components {
        * @default true
        */
       is_locked?: boolean;
+      security_level?: components["schemas"]["SecurityLevelPublic"] | null;
     };
     /** CompletionModelSecurityLevelUpdate */
     CompletionModelSecurityLevelUpdate: {
@@ -1249,6 +1250,7 @@ export interface components {
        * @default true
        */
       is_locked?: boolean;
+      security_level?: components["schemas"]["SecurityLevelPublic"] | null;
     };
     /** EmbeddingModelPublicBase */
     EmbeddingModelPublicBase: {
@@ -4026,6 +4028,7 @@ export interface operations {
                  * @default true
                  */
                 is_locked?: boolean;
+                security_level?: components["schemas"]["SecurityLevelPublic"] | null;
               };
               /** FilePublic */
               FilePublic: {
@@ -4091,6 +4094,27 @@ export interface operations {
                * @enum {string}
                */
               Orgs: "OpenAI" | "Meta" | "Microsoft" | "Anthropic";
+              /**
+               * SecurityLevelPublic
+               * @description Complete security level information including relationships.
+               */
+              SecurityLevelPublic: {
+                /** Created At */
+                created_at?: string | null;
+                /** Updated At */
+                updated_at?: string | null;
+                /**
+                 * Id
+                 * Format: uuid
+                 */
+                id: string;
+                /** Name */
+                name: string;
+                /** Description */
+                description: string | null;
+                /** Value */
+                value: number;
+              };
             };
           };
         };
@@ -4244,6 +4268,7 @@ export interface operations {
                  * @default true
                  */
                 is_locked?: boolean;
+                security_level?: components["schemas"]["SecurityLevelPublic"] | null;
               };
               /** FilePublic */
               FilePublic: {
@@ -4309,6 +4334,27 @@ export interface operations {
                * @enum {string}
                */
               Orgs: "OpenAI" | "Meta" | "Microsoft" | "Anthropic";
+              /**
+               * SecurityLevelPublic
+               * @description Complete security level information including relationships.
+               */
+              SecurityLevelPublic: {
+                /** Created At */
+                created_at?: string | null;
+                /** Updated At */
+                updated_at?: string | null;
+                /**
+                 * Id
+                 * Format: uuid
+                 */
+                id: string;
+                /** Name */
+                name: string;
+                /** Description */
+                description: string | null;
+                /** Value */
+                value: number;
+              };
             };
           };
         };

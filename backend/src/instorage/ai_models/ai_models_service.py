@@ -98,10 +98,12 @@ class AIModelsService:
 
         return models
 
-    async def get_embedding_model(self, id: UUID):
+    async def get_embedding_model(self, id: UUID, include_non_accessible: bool = False):
         model = await self.embedding_model_repo.get_model(
             id, tenant_id=self.user.tenant_id
         )
+
+        print(f"ai_models_service embedding model: {model.id}")
 
         if model.is_deprecated:
             raise BadRequestException(
@@ -109,14 +111,17 @@ class AIModelsService:
             )
 
         can_access = self._can_access(model)
-        if not can_access:
+        if not can_access and not include_non_accessible:
             raise UnauthorizedException(
                 "Unauthorized. User has no permissions to access."
             )
 
-        security_level = await self.security_level_service.get_security_level(
-            model.security_level_id
-        )
+        if not model.security_level_id:
+            security_level = None
+        else:
+            security_level = await self.security_level_service.get_security_level(
+                model.security_level_id
+            )
 
         return EmbeddingModelPublic(
             **model.model_dump(),
@@ -157,7 +162,7 @@ class AIModelsService:
 
         return models
 
-    async def get_completion_model(self, id: UUID):
+    async def get_completion_model(self, id: UUID, include_non_accessible: bool = False):
         model = await self.completion_model_repo.get_model(
             id, tenant_id=self.user.tenant_id
         )
@@ -174,14 +179,17 @@ class AIModelsService:
             )
 
         can_access = self._can_access(model)
-        if not can_access:
+        if not can_access and not include_non_accessible:
             raise UnauthorizedException(
                 "Unauthorized. User has no permissions to access."
             )
 
-        security_level = await self.security_level_service.get_security_level(
-            model.security_level_id
-        )
+        if not model.security_level_id:
+            security_level = None
+        else:
+            security_level = await self.security_level_service.get_security_level(
+                model.security_level_id
+            )
 
         return CompletionModelPublic(
             **model.model_dump(),

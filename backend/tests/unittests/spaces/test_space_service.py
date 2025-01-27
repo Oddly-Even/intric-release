@@ -224,6 +224,8 @@ async def test_update_space_security_level(
 
     service.get_space = AsyncMock(return_value=space)
     service.security_level_service.get_security_level = AsyncMock(return_value=security_level)
+    service.ai_models_service.get_completion_models = AsyncMock(return_value=[])
+    service.ai_models_service.get_embedding_models = AsyncMock(return_value=[])
 
     await service.update_space(
         id=TEST_UUID,
@@ -234,7 +236,7 @@ async def test_update_space_security_level(
     space.update.assert_called_once_with(
         name=None,
         description=None,
-        completion_models=None,
-        embedding_models=None,
+        completion_models=[],
+        embedding_models=[],
         security_level=security_level,
     )

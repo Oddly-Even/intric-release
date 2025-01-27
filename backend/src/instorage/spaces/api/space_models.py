@@ -112,6 +112,7 @@ class SpacePublic(SpaceDashboard):
     completion_models: list[CompletionModelSparse]
     knowledge: Knowledge
     members: PaginatedPermissions[SpaceMember]
+    security_level: Optional[SecurityLevelSparse]
 
 
 # Assistants

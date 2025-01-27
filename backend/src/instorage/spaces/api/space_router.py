@@ -336,6 +336,7 @@ async def update_space_dryrun(
     service = container.space_service()
     assembler = container.space_assembler()
 
+
     analysis = await service.analyze_update(
         id=id,
         security_level_id=dryrun_request.security_level_id,
