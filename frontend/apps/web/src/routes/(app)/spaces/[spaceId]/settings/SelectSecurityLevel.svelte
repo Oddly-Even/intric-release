@@ -7,8 +7,7 @@
 <script lang="ts">
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import type { CompletionModel, EmbeddingModel, SecurityLevel, SpaceUpdateDryRunResponse } from "@intric/intric-js";
-  import { Select, Dialog } from "@intric/ui";
-  import { writable, type Writable } from "svelte/store";
+  import { Dialog } from "@intric/ui";
   import SecurityLevelChangeDialog from "./SecurityLevelChangeDialog.svelte";
 
   export let securityLevels: SecurityLevel[];
@@ -32,6 +31,12 @@
   let pendingSecurityLevel: SecurityLevel | undefined;
   let dryRunResult: SpaceUpdateDryRunResponse | undefined;
 
+  // Prepare options for RadioGroup
+  $: radioOptions = [
+    { value: undefined, label: "No security level" },
+    ...securityLevels.map(level => ({ value: level, label: level.name }))
+  ];
+
   async function updateSecurityLevel(levelId: string | null) {
     try {
       isUpdating = true;
@@ -45,64 +50,30 @@
     }
   }
 
-  let securityLevelStore: Writable<{ value: SecurityLevel | undefined; label: string }>;
+  async function handleSecurityLevelChange(level: SecurityLevel | undefined) {
+    if (isUpdating || level === securityLevel) return;
 
-  securityLevelStore = writable({
-    value: securityLevel,
-    label: securityLevel?.name || "No security level"
-  });
-
-  $: if (securityLevel !== $securityLevelStore.value && !isUpdating) {
-    $securityLevelStore = {
-      value: securityLevel,
-      label: securityLevel?.name || "No security level"
-    };
-  }
-
-  $: if (isUpdating) {
-    $securityLevelStore = {
-      ...$securityLevelStore,
-      label: "Updating..."
-    };
-  } else if ($securityLevelStore.label === "Updating...") {
-    $securityLevelStore = {
-      ...$securityLevelStore,
-      label: $securityLevelStore.value?.name || "No security level"
-    };
-  }
-
-  securityLevelStore.subscribe(async (state) => {
-    if (!isUpdating && state.value !== securityLevel) {
-      pendingSecurityLevel = state.value;
-      try {
-        dryRunResult = await updateSpaceDryrun({
-          security_level_id: pendingSecurityLevel?.id ?? null
-        });
-        $showConfirmDialog = true;
-      } catch (error) {
-        console.error("Error running security level change dry run:", error);
-        alert("Failed to check security level change implications");
-        // Reset the store to the current security level
-        $securityLevelStore = {
-          value: securityLevel,
-          label: securityLevel?.name || "No security level"
-        };
-      }
+    pendingSecurityLevel = level;
+    try {
+      dryRunResult = await updateSpaceDryrun({
+        security_level_id: level?.id ?? null
+      });
+      $showConfirmDialog = true;
+    } catch (error) {
+      console.error("Error running security level change dry run:", error);
+      alert("Failed to check security level change implications");
     }
-  });
+  }
 
   function handleConfirmChange() {
     $showConfirmDialog = false;
     updateSecurityLevel(pendingSecurityLevel?.id ?? null);
+    securityLevel = pendingSecurityLevel;
   }
 
   function handleCancelChange() {
     $showConfirmDialog = false;
-    // Reset the store to the current security level
-    $securityLevelStore = {
-      value: securityLevel,
-      label: securityLevel?.name || "No security level"
-    };
+    pendingSecurityLevel = securityLevel;
   }
 
   function hasModelWithIncompatibleSecurityLevel<T extends { id: string }>(
@@ -148,26 +119,32 @@
     {/if}
   </div>
   <div class="flex-grow">
-    <Select.Root
-      customStore={securityLevelStore}
-      class="relative w-full border-b border-stone-100 px-4 py-4 hover:bg-stone-50 z-50"
-    >
-      <Select.Label>Security level</Select.Label>
-      <Select.Trigger placeholder="Select..."></Select.Trigger>
-      <Select.Options>
-        <Select.Item value={undefined} label="No security level">
-          <div class="flex w-full items-center justify-between py-1">
-            <span>No security level</span>
-          </div>
-        </Select.Item>
-        {#each securityLevels as level}
-          <Select.Item value={level} label={level.name}>
-            <div class="flex w-full items-center justify-between py-1">
-              <span>{level.name}</span>
-            </div>
-          </Select.Item>
-        {/each}
-      </Select.Options>
-    </Select.Root>
+    <div class="overflow-hidden rounded-lg border border-stone-300 bg-white shadow">
+      <div class="cursor-pointer border-b border-stone-200 last:border-b-0">
+        <div class="px-4 py-3 font-medium">Security level</div>
+        <div class="flex flex-col">
+          {#each radioOptions as option}
+            <label class="flex cursor-pointer flex-col border-t border-stone-200 px-4 py-3 hover:bg-stone-50">
+              <div class="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="security-level"
+                  class="h-4 w-4 cursor-pointer text-blue-600"
+                  checked={option.value === (pendingSecurityLevel ?? securityLevel)}
+                  disabled={isUpdating}
+                  on:change={() => handleSecurityLevelChange(option.value)}
+                />
+                <span class="font-medium">{option.label}</span>
+              </div>
+              {#if option.value?.description}
+                <p class="mt-1 ml-7 text-sm text-stone-500">{option.value.description}</p>
+              {:else if !option.value}
+                <p class="mt-1 ml-7 text-sm text-stone-500">No specific security requirements for this space.</p>
+              {/if}
+            </label>
+          {/each}
+        </div>
+      </div>
+    </div>
   </div>
 </div>
