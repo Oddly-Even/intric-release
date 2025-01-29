@@ -69,25 +69,16 @@
     loading = loading;
 
     try {
-      if ($currentlySelectedModels.includes(model.id)) {
-        const newModels = $currentlySelectedModels
-          .filter((id) => id !== model.id)
-          .map((id) => ({ id }));
+      const newModels = $currentlySelectedModels.includes(model.id)
+        ? $currentlySelectedModels.filter((id) => id !== model.id)
+        : [...$currentlySelectedModels, model.id];
 
-        const updateData = modelType === "embedding"
-          ? { embedding_models: newModels }
-          : { completion_models: newModels, security_level_id: $currentSpace.security_level?.id };
+      const updateData = {
+        [modelType === "embedding" ? "embedding_models" : "completion_models"]: newModels.map((id) => ({ id })),
+        security_level_id: $currentSpace.security_level?.id
+      };
 
-        await updateSpace(updateData);
-      } else {
-        const newModels = [...$currentlySelectedModels, model.id].map((id) => ({ id }));
-
-        const updateData = modelType === "embedding"
-          ? { embedding_models: newModels }
-          : { completion_models: newModels, security_level_id: $currentSpace.security_level?.id };
-
-        await updateSpace(updateData);
-      }
+      await updateSpace(updateData);
     } catch (e) {
       alert(e);
     }
