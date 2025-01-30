@@ -118,7 +118,7 @@
       </p>
     {/if}
   </div>
-  <div class="flex-grow">
+  <div class="flex-grow min-w-0 w-full lg:pl-12 lg:max-w-[60%]">
     <div class="overflow-hidden rounded-lg border border-stone-300 bg-white shadow">
       <div class="cursor-pointer border-b border-stone-200 last:border-b-0">
         <div class="px-4 py-3 font-medium">Security level</div>
@@ -137,9 +137,9 @@
                 <span class="font-medium">{option.label}</span>
               </div>
               {#if option.value?.description}
-                <p class="mt-1 ml-7 text-sm text-stone-500">{option.value.description}</p>
+                <p class="mt-1 ml-7 text-sm text-stone-500 break-words">{option.value.description}</p>
               {:else if !option.value}
-                <p class="mt-1 ml-7 text-sm text-stone-500">No specific security requirements for this space.</p>
+                <p class="mt-1 ml-7 text-sm text-stone-500 break-words">No specific security requirements for this space.</p>
               {/if}
             </label>
           {/each}
