@@ -8,8 +8,9 @@
   import type { SecurityLevel } from "@intric/intric-js";
   import { invalidate } from "$app/navigation";
   import { getIntric } from "$lib/core/Intric";
-  import { Dropdown, Button, Tooltip } from "@intric/ui";
-  import IconKey from "$lib/components/icons/IconKey.svelte";
+  import { Select } from "@intric/ui";
+  import { writable, type Writable } from "svelte/store";
+  import type { SelectOption } from "@melt-ui/svelte";
 
   export let model: {
     id: string;
@@ -70,49 +71,45 @@
       throw new Error("Invalid model type");
     }
   }
+
+  $: options = [
+    { value: null, label: "No security level" },
+    ...securityLevels.map(level => ({
+      value: level.id,
+      label: level.name
+    }))
+  ];
+
+  const selectedOption: Writable<SelectOption<string | null>> = writable({
+    value: model.security_level_id ?? null,
+    label: securityLevel?.name ?? "No security level"
+  });
+
+  $: {
+    const currentOption = options.find(opt => opt.value === model.security_level_id);
+    if (currentOption) {
+      selectedOption.set(currentOption);
+    }
+  }
+
+  $: if ($selectedOption?.value !== model.security_level_id) {
+    updateSecurityLevel($selectedOption?.value ?? null);
+  }
 </script>
 
 <div>
   {#if securityLevels.length === 0}
-    <Tooltip text="Security levels must be created before they can be assigned">
-      <span class="text-stone-600 text-sm">No security level</span>
-    </Tooltip>
+    <div class="text-stone-600 text-sm">No security level</div>
   {:else}
-    <Dropdown.Root>
-      <Dropdown.Trigger let:trigger asFragment>
-        <Button
-          is={trigger}
-          variant={model.security_level_id ? "primary" : "outlined"}
-          class="flex items-center gap-2 text-sm text-stone-600"
-          disabled={model.is_locked}
-        >
-          {#if model.security_level_id && securityLevel}
-            <IconKey size="small" />
-            <span>{securityLevel.name}</span>
-          {:else}
-            <span>No security level</span>
-          {/if}
-        </Button>
-      </Dropdown.Trigger>
-      <Dropdown.Menu let:item>
-        <Button
-          is={item}
-          on:click={() => updateSecurityLevel(null)}
-          class="flex items-center gap-2"
-        >
-          <span>No security level</span>
-        </Button>
-        {#each securityLevels as level}
-          <Button
-            is={item}
-            on:click={() => updateSecurityLevel(level.id)}
-            class="flex items-center gap-2"
-          >
-            <IconKey size="small" />
-            <span>{level.name}</span>
-          </Button>
-        {/each}
-      </Dropdown.Menu>
-    </Dropdown.Root>
+    <div class="-mb-1.5">
+      <Select.Root customStore={selectedOption} disabled={model.is_locked} class="w-48">
+        <Select.Trigger />
+        <Select.Options>
+          {#each options as option}
+            <Select.Item value={option.value} label={option.label} />
+          {/each}
+        </Select.Options>
+      </Select.Root>
+    </div>
   {/if}
 </div>
