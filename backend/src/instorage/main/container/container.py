@@ -239,7 +239,8 @@ class Container(containers.DeclarativeContainer):
         SecurityLevelOrchestrator,
         user=user,
         security_level_service=security_level_service,
-        model_access=ai_models_service,
+        completion_model_repo=completion_model_repo,
+        embedding_model_repo=embedding_model_repo,
         space_repo=space_repo,
     )
 

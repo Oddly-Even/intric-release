@@ -58,18 +58,10 @@ async def set_completion_model_security_level(
     container: Container = Depends(get_container(with_user=True)),
 ):
     """Set the security level for a completion model with impact analysis."""
-    # First analyze the impact of the change
-    if data.security_level_id:
-        orchestrator = container.security_level_orchestrator()
-        analysis = await orchestrator.analyze_security_level_update(
-            id=data.security_level_id,
-        )
-        # TODO
-
-    # Apply the change
-    service = container.ai_models_service()
-    return await service.set_completion_model_security_level(
-        completion_model_id=id, data=data
+    orchestrator = container.security_level_orchestrator()
+    return await orchestrator.update_completion_model_security_level(
+        completion_model_id=id,
+        security_level_id=data.security_level_id,
     )
 
 
@@ -79,6 +71,11 @@ async def set_completion_model_security_level(
 )
 async def unset_completion_model_security_level(
     id: UUID,
-    service: AIModelsService = Depends(get_ai_models_service),
+    container: Container = Depends(get_container(with_user=True)),
 ):
-    return await service.unset_completion_model_security_level(completion_model_id=id)
+    """Remove the security level from a completion model with impact analysis."""
+    orchestrator = container.security_level_orchestrator()
+    return await orchestrator.update_completion_model_security_level(
+        completion_model_id=id,
+        security_level_id=None,
+    )
