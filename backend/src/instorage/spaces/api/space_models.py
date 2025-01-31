@@ -54,12 +54,12 @@ class SpaceUpdateDryRunRequest(BaseModel):
 
 
 class SpaceUpdateDryRunResponse(BaseModel):
-    """Response containing the impact analysis of updating a space's properties."""
-    unavailable_completion_models: list[CompletionModelSparse]
-    unavailable_embedding_models: list[EmbeddingModelSparse]
+    """Response model for space update dry run analysis."""
+    unavailable_completion_models: list[UUID]
+    unavailable_embedding_models: list[UUID]
     current_security_level: Optional[SecurityLevelSparse]
     new_security_level: Optional[SecurityLevelSparse]
-    # Add other impact details here as needed
+    warning: Optional[str] = None
 
 
 # Members
@@ -78,12 +78,12 @@ class CreateSpaceRequest(CreateRequest):
 
 @partial_model
 class UpdateSpaceRequest(BaseModel):
-    name: str
-    description: str
-    security_level_id: Optional[UUID]
-
-    embedding_models: list[ModelId]
-    completion_models: list[ModelId]
+    """Request model for updating a space."""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    embedding_models: Optional[list[ModelId]] = None
+    completion_models: Optional[list[ModelId]] = None
+    security_level_id: Optional[UUID] = None
 
 
 class Applications(BaseModel):

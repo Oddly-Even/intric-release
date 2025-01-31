@@ -105,6 +105,7 @@ from instorage.workflows.step_repo import StepRepository
 from instorage.securitylevels.security_level_repo import SecurityLevelRepository
 from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.securitylevels.api.security_level_assembler import SecurityLevelAssembler
+from instorage.securitylevels.security_level_orchestrator import SecurityLevelOrchestrator
 
 if get_settings().using_intric_proprietary:
     from instorage_prop.crawler.crawl_repo import CrawlRepository
@@ -223,6 +224,7 @@ class Container(containers.DeclarativeContainer):
         user=user,
         repo=security_level_repo,
     )
+
     ai_models_service = providers.Factory(
         AIModelsService,
         user=user,
@@ -231,10 +233,21 @@ class Container(containers.DeclarativeContainer):
         tenant_repo=tenant_repo,
         security_level_service=security_level_service,
     )
+
+    # Create security level orchestrator after ai_models_service is created
+    security_level_orchestrator = providers.Factory(
+        SecurityLevelOrchestrator,
+        user=user,
+        security_level_service=security_level_service,
+        model_access=ai_models_service,
+        space_repo=space_repo,
+    )
+
     auth_service = providers.Factory(
         AuthService,
         api_key_repo=api_key_repo,
     )
+
     user_service = providers.Factory(
         UserService,
         user_repo=user_repo,
@@ -245,6 +258,7 @@ class Container(containers.DeclarativeContainer):
         predefined_roles_repo=predefined_role_repo,
         info_blob_repo=info_blob_repo,
     )
+
     space_service = providers.Factory(
         SpaceService,
         user=user,
@@ -252,7 +266,6 @@ class Container(containers.DeclarativeContainer):
         factory=space_factory,
         user_repo=user_repo,
         ai_models_service=ai_models_service,
-        security_level_service=security_level_service,
     )
     group_service = providers.Factory(
         GroupService,

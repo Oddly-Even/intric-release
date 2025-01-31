@@ -98,16 +98,3 @@ class SecurityLevelService:
         security_level = await self.repo.get(id)
         self._validate(security_level, id)
         await self.repo.delete(security_level.id)
-
-    async def validate_security_level(
-        self, required_level: SecurityLevel, provided_level: SecurityLevel
-    ) -> bool:
-        """Validate if a provided security level meets the required level."""
-        # Ensure levels are from same tenant
-        if required_level.tenant_id != provided_level.tenant_id:
-            return False
-        return provided_level.value >= required_level.value
-
-    async def get_highest_security_level(self) -> Optional[int]:
-        """Get the highest security level value for the current tenant."""
-        return await self.repo.get_highest_value_by_tenant(self.user.tenant_id)

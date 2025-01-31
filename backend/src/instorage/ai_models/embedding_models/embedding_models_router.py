@@ -16,6 +16,8 @@ from instorage.ai_models.embedding_models.embedding_model import (
 from instorage.main.models import PaginatedResponse
 from instorage.server import protocol
 from instorage.server.protocol import responses
+from instorage.main.container.container import Container
+from instorage.server.dependencies.container import get_container
 
 router = APIRouter()
 
@@ -53,8 +55,19 @@ async def enable_embedding_model(
 async def set_embedding_model_security_level(
     id: UUID,
     data: EmbeddingModelSecurityLevelUpdate,
-    service: AIModelsService = Depends(get_ai_models_service),
+    container: Container = Depends(get_container(with_user=True)),
 ):
+    """Set the security level for an embedding model with impact analysis."""
+    # First analyze the impact of the change
+    if data.security_level_id:
+        orchestrator = container.security_level_orchestrator()
+        analysis = await orchestrator.analyze_security_level_update(
+            id=data.security_level_id,
+        )
+        # TODO
+
+    # Apply the change
+    service = container.ai_models_service()
     return await service.set_embedding_model_security_level(
         embedding_model_id=id, data=data
     )

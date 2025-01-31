@@ -4,8 +4,9 @@
 
 from typing import Optional
 from uuid import UUID
+from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from instorage.main.models import InDB, partial_model
 
@@ -40,7 +41,15 @@ class SecurityLevelSparse(InDB):
     value: int
 
 
-class SecurityLevelPublic(SecurityLevelSparse):
-    """Complete security level information including relationships."""
+class SecurityLevelPublic(BaseModel):
+    """Public model for a security level."""
+    model_config = ConfigDict(from_attributes=True)
 
-    pass  # We'll add relationships to AI models later when implementing that part
+    id: UUID
+    tenant_id: UUID
+    name: str
+    description: Optional[str] = None
+    value: int
+    created_at: datetime
+    updated_at: datetime
+    warning: Optional[str] = None  # Warning message from impact analysis

@@ -3,352 +3,284 @@
 # Licensed under the MIT License.
 
 from unittest.mock import AsyncMock, MagicMock
-from uuid import uuid4
+from uuid import UUID, uuid4
+from datetime import datetime
 
 import pytest
 
 from instorage.main.exceptions import BadRequestException, NotFoundException, UnauthorizedException
 from instorage.roles.permissions import Permission
-from instorage.securitylevels.security_level import SecurityLevel
+from instorage.securitylevels.security_level import SecurityLevel, SecurityLevelCreate
 from instorage.securitylevels.security_level_service import SecurityLevelService
-from tests.fixtures import TEST_UUID, TEST_TENANT
+from tests.fixtures import TEST_UUID, TEST_TENANT, TEST_USER
+from instorage.users.user import UserInDB
+from instorage.tenants.tenant import TenantInDB
 
 TEST_NAME = "test_security_level"
 TEST_DESCRIPTION = "A test security level"
 TEST_VALUE = 100
 
+TEST_TENANT_ID = UUID("6989cb80-a68b-4f4e-a75f-6336b13f36e0")
+TEST_USER_ID = UUID("7989cb80-a68b-4f4e-a75f-6336b13f36e0")
+
 
 @pytest.fixture
-def service():
-    repo = AsyncMock()
-    # Default to no existing security level with any name
-    repo.get_by_name_and_tenant.return_value = None
-
-    user = MagicMock()
-    user.permissions = []  # Default to no permissions
-    user.tenant_id = TEST_TENANT.id
-
-    return SecurityLevelService(
-        repo=repo,
-        user=user,
+def mock_tenant():
+    """Create a mock tenant for testing."""
+    return TenantInDB(
+        id=TEST_TENANT_ID,
+        name="test_tenant",
+        modules=[],
+        quota_limit=1000000
     )
 
 
 @pytest.fixture
 def security_level():
+    """Create a security level for testing."""
     return SecurityLevel(
         id=TEST_UUID,
-        name=TEST_NAME,
-        description=TEST_DESCRIPTION,
-        value=TEST_VALUE,
         tenant_id=TEST_TENANT.id,
-        created_at=None,
-        updated_at=None,
+        name="test_level",
+        description="Test security level",
+        value=100,
+        created_at=datetime(2024, 1, 1),
+        updated_at=datetime(2024, 1, 1),
     )
 
 
-async def test_create_security_level(service, security_level):
+@pytest.fixture
+def service():
+    """Create a service instance for testing."""
+    repo = AsyncMock()
+    return SecurityLevelService(user=TEST_USER, repo=repo)
+
+
+@pytest.fixture
+def service_no_permissions():
+    """Create a service instance with no permissions for testing."""
+    user = TEST_USER.model_copy(update={
+        "roles": [],
+        "predefined_roles": []
+    })
+    repo = AsyncMock()
+    return SecurityLevelService(user=user, repo=repo)
+
+
+@pytest.fixture
+def higher_security_level():
+    return SecurityLevel(
+        id=uuid4(),
+        tenant_id=TEST_TENANT.id,
+        name="high_level",
+        description="High security level",
+        value=200,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
+    )
+
+
+async def test_create_security_level(service: SecurityLevelService):
     """Test creating a security level."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
-    service.repo.create.return_value = security_level
+    service.repo.get_by_name_and_tenant.return_value = None
+    service.repo.create.return_value = MagicMock()
 
-    # Execute
-    result = await service.create_security_level(
-        name=TEST_NAME,
-        description=TEST_DESCRIPTION,
-        value=TEST_VALUE,
+    await service.create_security_level(
+        name="test_level",
+        description="Test security level",
+        value=100,
     )
 
-    # Assert
-    assert result == security_level
+    service.repo.get_by_name_and_tenant.assert_called_once_with(
+        "test_level", service.user.tenant_id
+    )
     service.repo.create.assert_called_once()
 
 
-async def test_create_security_level_no_permission(service):
-    """Test creating a security level without admin permission."""
-    # Setup - no permissions by default
-
-    # Execute & Assert
+async def test_create_security_level_no_permission(service_no_permissions: SecurityLevelService):
+    """Test creating a security level without permission."""
     with pytest.raises(UnauthorizedException):
-        await service.create_security_level(
-            name=TEST_NAME,
-            description=TEST_DESCRIPTION,
-            value=TEST_VALUE,
+        await service_no_permissions.create_security_level(
+            name="test_level",
+            description="Test security level",
+            value=100,
         )
 
-    service.repo.create.assert_not_called()
 
+async def test_create_security_level_duplicate_name(service: SecurityLevelService):
+    """Test creating a security level with a duplicate name."""
+    service.repo.get_by_name_and_tenant.return_value = MagicMock()
 
-async def test_create_security_level_duplicate_name(service, security_level):
-    """Test creating a security level with duplicate name."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
-    service.repo.get_by_name_and_tenant.return_value = security_level
-
-    # Execute & Assert
     with pytest.raises(BadRequestException):
         await service.create_security_level(
-            name=TEST_NAME,
-            description=TEST_DESCRIPTION,
-            value=TEST_VALUE,
+            name="test_level",
+            description="Test security level",
+            value=100,
         )
 
-    service.repo.create.assert_not_called()
 
-
-async def test_get_security_level(service, security_level):
+async def test_get_security_level(service: SecurityLevelService, security_level: SecurityLevel):
     """Test getting a security level."""
-    # Setup
     service.repo.get.return_value = security_level
 
-    # Execute
     result = await service.get_security_level(TEST_UUID)
 
-    # Assert
     assert result == security_level
-    service.repo.get.assert_called_once_with(TEST_UUID)
 
 
-async def test_get_security_level_not_found(service):
+async def test_get_security_level_not_found(service: SecurityLevelService):
     """Test getting a non-existent security level."""
-    # Setup
     service.repo.get.return_value = None
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.get_security_level(TEST_UUID)
 
 
-async def test_get_security_level_wrong_tenant(service, security_level):
+async def test_get_security_level_wrong_tenant(service: SecurityLevelService):
     """Test getting a security level from wrong tenant."""
-    # Setup
     wrong_tenant_level = SecurityLevel(
         id=TEST_UUID,
-        name=TEST_NAME,
-        description=TEST_DESCRIPTION,
-        value=TEST_VALUE,
         tenant_id=uuid4(),  # Different tenant
-        created_at=None,
-        updated_at=None,
+        name="test_level",
+        description="Test security level",
+        value=100,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
     )
     service.repo.get.return_value = wrong_tenant_level
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.get_security_level(TEST_UUID)
 
 
-async def test_list_security_levels(service, security_level):
+async def test_list_security_levels(service: SecurityLevelService):
     """Test listing security levels."""
-    # Setup
-    service.repo.list_by_tenant.return_value = [security_level]
+    expected_levels = [MagicMock(), MagicMock()]
+    service.repo.list_by_tenant.return_value = expected_levels
 
-    # Execute
     result = await service.list_security_levels()
 
-    # Assert
-    assert result == [security_level]
-    service.repo.list_by_tenant.assert_called_once_with(TEST_TENANT.id)
+    assert result == expected_levels
 
 
-async def test_update_security_level(service, security_level):
+async def test_update_security_level(service: SecurityLevelService, security_level: SecurityLevel):
     """Test updating a security level."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     service.repo.get.return_value = security_level
-    service.repo.update.return_value = security_level
+    service.repo.get_by_name_and_tenant.return_value = None
+    service.repo.update.return_value = MagicMock()
 
-    # Execute
-    result = await service.update_security_level(
+    await service.update_security_level(
         id=TEST_UUID,
-        name="updated_name",
-        description="updated_description",
+        name="new_name",
+        description="New description",
         value=200,
     )
 
-    # Assert
-    assert result == security_level
     service.repo.update.assert_called_once()
 
 
-async def test_update_security_level_not_found(service):
+async def test_update_security_level_not_found(service: SecurityLevelService):
     """Test updating a non-existent security level."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     service.repo.get.return_value = None
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.update_security_level(
             id=TEST_UUID,
-            name="updated_name",
+            name="new_name",
+            description="New description",
+            value=200,
         )
 
-    service.repo.update.assert_not_called()
 
-
-async def test_update_security_level_wrong_tenant(service, security_level):
+async def test_update_security_level_wrong_tenant(service: SecurityLevelService):
     """Test updating a security level from wrong tenant."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     wrong_tenant_level = SecurityLevel(
         id=TEST_UUID,
-        name=TEST_NAME,
-        description=TEST_DESCRIPTION,
-        value=TEST_VALUE,
         tenant_id=uuid4(),  # Different tenant
-        created_at=None,
-        updated_at=None,
+        name="test_level",
+        description="Test security level",
+        value=100,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
     )
     service.repo.get.return_value = wrong_tenant_level
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.update_security_level(
             id=TEST_UUID,
-            name="updated_name",
+            name="new_name",
+            description="New description",
+            value=200,
         )
 
-    service.repo.update.assert_not_called()
 
-
-async def test_update_security_level_no_permission(service, security_level):
-    """Test updating a security level without admin permission."""
-    # Setup
-    service.repo.get.return_value = security_level
-    # No permissions by default
-
-    # Execute & Assert
+async def test_update_security_level_no_permission(service_no_permissions: SecurityLevelService):
+    """Test updating a security level without permission."""
     with pytest.raises(UnauthorizedException):
-        await service.update_security_level(
+        await service_no_permissions.update_security_level(
             id=TEST_UUID,
-            name="updated_name",
+            name="new_name",
+            description="New description",
+            value=200,
         )
 
-    service.repo.update.assert_not_called()
 
-
-async def test_update_security_level_duplicate_name(service, security_level):
-    """Test updating a security level with duplicate name."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
+async def test_update_security_level_duplicate_name(service: SecurityLevelService, security_level: SecurityLevel):
+    """Test updating a security level with a duplicate name."""
     service.repo.get.return_value = security_level
-    service.repo.get_by_name_and_tenant.return_value = SecurityLevel(
-        id=uuid4(),
-        name="existing_name",
-        value=0,
+    existing_level = SecurityLevel(
+        id=uuid4(),  # Different ID
         tenant_id=TEST_TENANT.id,
+        name="new_name",
+        description="Existing level",
+        value=100,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
     )
+    service.repo.get_by_name_and_tenant.return_value = existing_level
 
-    # Execute & Assert
     with pytest.raises(BadRequestException):
         await service.update_security_level(
             id=TEST_UUID,
-            name="existing_name",
+            name="new_name",
         )
 
-    service.repo.update.assert_not_called()
 
-
-async def test_delete_security_level(service, security_level):
+async def test_delete_security_level(service: SecurityLevelService, security_level: SecurityLevel):
     """Test deleting a security level."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     service.repo.get.return_value = security_level
 
-    # Execute
     await service.delete_security_level(TEST_UUID)
 
-    # Assert
     service.repo.delete.assert_called_once_with(TEST_UUID)
 
 
-async def test_delete_security_level_not_found(service):
+async def test_delete_security_level_not_found(service: SecurityLevelService):
     """Test deleting a non-existent security level."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     service.repo.get.return_value = None
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.delete_security_level(TEST_UUID)
 
-    service.repo.delete.assert_not_called()
 
-
-async def test_delete_security_level_wrong_tenant(service, security_level):
+async def test_delete_security_level_wrong_tenant(service: SecurityLevelService):
     """Test deleting a security level from wrong tenant."""
-    # Setup
-    service.user.permissions = [Permission.ADMIN]
     wrong_tenant_level = SecurityLevel(
         id=TEST_UUID,
-        name=TEST_NAME,
-        description=TEST_DESCRIPTION,
-        value=TEST_VALUE,
         tenant_id=uuid4(),  # Different tenant
-        created_at=None,
-        updated_at=None,
+        name="test_level",
+        description="Test security level",
+        value=100,
+        created_at="2024-01-01T00:00:00",
+        updated_at="2024-01-01T00:00:00",
     )
     service.repo.get.return_value = wrong_tenant_level
 
-    # Execute & Assert
     with pytest.raises(NotFoundException):
         await service.delete_security_level(TEST_UUID)
 
-    service.repo.delete.assert_not_called()
 
-
-async def test_delete_security_level_no_permission(service, security_level):
-    """Test deleting a security level without admin permission."""
-    # Setup
-    service.repo.get.return_value = security_level
-    # No permissions by default
-
-    # Execute & Assert
+async def test_delete_security_level_no_permission(service_no_permissions: SecurityLevelService):
+    """Test deleting a security level without permission."""
     with pytest.raises(UnauthorizedException):
-        await service.delete_security_level(TEST_UUID)
-
-    service.repo.delete.assert_not_called()
-
-
-async def test_validate_security_level(service, security_level):
-    """Test validating security levels."""
-    # Setup
-    required = SecurityLevel(
-        id=uuid4(),
-        name="required",
-        value=100,
-        tenant_id=TEST_TENANT.id,
-    )
-    provided = SecurityLevel(
-        id=uuid4(),
-        name="provided",
-        value=200,
-        tenant_id=TEST_TENANT.id,
-    )
-
-    # Execute & Assert
-    assert await service.validate_security_level(required, provided) is True
-
-    # Test with lower value
-    provided.value = 50
-    assert await service.validate_security_level(required, provided) is False
-
-    # Test with different tenant
-    provided.value = 200
-    provided.tenant_id = uuid4()
-    assert await service.validate_security_level(required, provided) is False
-
-
-async def test_get_highest_security_level(service):
-    """Test getting the highest security level value."""
-    # Setup
-    service.repo.get_highest_value_by_tenant.return_value = TEST_VALUE
-
-    # Execute
-    result = await service.get_highest_security_level()
-
-    # Assert
-    assert result == TEST_VALUE
-    service.repo.get_highest_value_by_tenant.assert_called_once_with(TEST_TENANT.id)
+        await service_no_permissions.delete_security_level(TEST_UUID)

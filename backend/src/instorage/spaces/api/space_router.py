@@ -79,14 +79,35 @@ async def update_space(
     update_space_req: UpdateSpaceRequest,
     container: Container = Depends(get_container(with_user=True)),
 ):
+    """Update a space with impact analysis for security level changes."""
     service = container.space_service()
     assembler = container.space_assembler()
 
+    # Get current space to check current security level
+    space = await service.get_space(id)
+
+    # Analyze impact if security level is changing
+    if update_space_req.security_level_id:
+        orchestrator = container.security_level_orchestrator()
+        security_level_service = container.security_level_service()
+        
+        # Get current and new security levels
+        current_security_level = space.security_level
+        new_security_level = await security_level_service.get_security_level(
+            update_space_req.security_level_id
+        ) if update_space_req.security_level_id else None
+
+        # Analyze the impact
+        analysis = await orchestrator.analyze_space_security_level_change(
+            space_id=id,
+            current_security_level=current_security_level,
+            new_security_level=new_security_level,
+        )
+        # TODO
 
     def _get_model_ids_or_none(models: list[ModelId] | None):
         if models is None:
             return None
-
         return [model.id for model in models]
 
     space = await service.update_space(
@@ -336,10 +357,34 @@ async def update_space_dryrun(
     service = container.space_service()
     assembler = container.space_assembler()
 
+    # Get current space to check current security level
+    space = await service.get_space(id)
 
-    analysis = await service.analyze_update(
-        id=id,
-        security_level_id=dryrun_request.security_level_id,
+    # Analyze security level changes
+    if dryrun_request.security_level_id:
+        orchestrator = container.security_level_orchestrator()
+        security_level_service = container.security_level_service()
+        
+        # Get current and new security levels
+        current_security_level = space.security_level
+        new_security_level = await security_level_service.get_security_level(
+            dryrun_request.security_level_id
+        ) if dryrun_request.security_level_id else None
+
+        # Analyze the impact
+        analysis = await orchestrator.analyze_space_security_level_change(
+            space_id=id,
+            current_security_level=current_security_level,
+            new_security_level=new_security_level,
+        )
+        
+        return SpaceUpdateDryRunResponse(
+            unavailable_completion_models=analysis.unavailable_completion_models,
+            unavailable_embedding_models=analysis.unavailable_embedding_models,
+            warning=analysis.warning,
+        )
+
+    return SpaceUpdateDryRunResponse(
+        unavailable_completion_models=[],
+        unavailable_embedding_models=[],
     )
-
-    return assembler.from_space_analyze_update_to_response(analysis)

@@ -16,6 +16,8 @@ from instorage.ai_models.completion_models.completion_model import (
 from instorage.main.models import PaginatedResponse
 from instorage.server import protocol
 from instorage.server.protocol import responses
+from instorage.main.container.container import Container
+from instorage.server.dependencies.container import get_container
 
 router = APIRouter()
 
@@ -53,8 +55,19 @@ async def enable_completion_model(
 async def set_completion_model_security_level(
     id: UUID,
     data: CompletionModelSecurityLevelUpdate,
-    service: AIModelsService = Depends(get_ai_models_service),
+    container: Container = Depends(get_container(with_user=True)),
 ):
+    """Set the security level for a completion model with impact analysis."""
+    # First analyze the impact of the change
+    if data.security_level_id:
+        orchestrator = container.security_level_orchestrator()
+        analysis = await orchestrator.analyze_security_level_update(
+            id=data.security_level_id,
+        )
+        # TODO
+
+    # Apply the change
+    service = container.ai_models_service()
     return await service.set_completion_model_security_level(
         completion_model_id=id, data=data
     )

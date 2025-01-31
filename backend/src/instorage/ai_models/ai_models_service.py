@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
 from instorage.ai_models.completion_models.completion_model import (
@@ -21,7 +21,6 @@ from instorage.ai_models.embedding_models.embedding_model import (
 from instorage.ai_models.embedding_models.embedding_models_repo import (
     EmbeddingModelsRepository,
 )
-from instorage.securitylevels.security_level_service import SecurityLevelService
 from instorage.main.config import get_settings
 from instorage.main.exceptions import (
     BadRequestException,
@@ -33,14 +32,17 @@ from instorage.roles.permissions import Permission, validate_permissions
 from instorage.tenants.tenant_repo import TenantRepository
 from instorage.users.user import UserInDB
 
+if TYPE_CHECKING:
+    from instorage.securitylevels.security_level_service import SecurityLevelService
+
 class AIModelsService:
     def __init__(
         self,
         user: UserInDB,
         embedding_model_repo: EmbeddingModelsRepository,
         completion_model_repo: CompletionModelsRepository,
-        security_level_service: SecurityLevelService,
         tenant_repo: TenantRepository,
+        security_level_service: "SecurityLevelService",
     ):
         self.user = user
         self.embedding_model_repo = embedding_model_repo
