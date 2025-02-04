@@ -1,6 +1,8 @@
-from typing import Optional, Set
+from typing import List, Set, TypeVar
 from uuid import UUID
 from pydantic import BaseModel, field_validator
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class SecurityLevel(BaseModel, frozen=True):
@@ -12,78 +14,42 @@ class SecurityLevel(BaseModel, frozen=True):
 class Space(BaseModel, frozen=True):
     id: UUID
     name: str
-    security_level_id: Optional[UUID]
+    security_level_id: UUID | None
 
 
 class CompletionModel(BaseModel, frozen=True):
     id: UUID
     name: str
-    security_level_id: Optional[UUID]
+    security_level_id: UUID | None
 
 
 class EmbeddingModel(BaseModel, frozen=True):
     id: UUID
     name: str
-    security_level_id: Optional[UUID]
+    security_level_id: UUID | None
 
 
-class SpaceChange(BaseModel, frozen=True):
-    space: Space
-    old_security_level_id: Optional[UUID]
-    new_security_level_id: Optional[UUID]
-    added_completion_models: Set[CompletionModel]
-    removed_completion_models: Set[CompletionModel]
-    added_embedding_models: Set[EmbeddingModel]
-    removed_embedding_models: Set[EmbeddingModel]
-
-    def model_availability_changed(self) -> bool:
-        return (
-            self.added_completion_models
-            or self.removed_completion_models
-            or self.added_embedding_models
-            or self.removed_embedding_models
-        )
-
-    def __hash__(self) -> int:
-        # Create a hashable representation using immutable types
-        return hash(
-            (
-                self.space,
-                self.old_security_level_id,
-                self.new_security_level_id,
-                tuple(sorted(str(m.id) for m in self.added_completion_models)),
-                tuple(sorted(str(m.id) for m in self.removed_completion_models)),
-                tuple(sorted(str(m.id) for m in self.added_embedding_models)),
-                tuple(sorted(str(m.id) for m in self.removed_embedding_models)),
-            )
-        )
+class SpaceCompletionModelAccess(BaseModel, frozen=True):
+    space_id: UUID
+    completion_model_id: UUID | None
+    allowed: bool
 
 
-class SecurityLevelChange(BaseModel, frozen=True):
-    security_level: SecurityLevel
-    old_value: int
-    new_value: int
+class SpaceEmbeddingModelAccess(BaseModel, frozen=True):
+    space_id: UUID
+    embedding_model_id: UUID | None
+    allowed: bool
 
 
-class CompletionModelChange(BaseModel, frozen=True):
-    completion_model: CompletionModel
-    old_security_level_id: Optional[UUID]
-    new_security_level_id: Optional[UUID]
+class SpaceSecurityLevelAccess(BaseModel, frozen=True):
+    space_id: UUID
+    security_level_id: UUID | None
+    allowed: bool
 
 
-class EmbeddingModelChange(BaseModel, frozen=True):
-    embedding_model: EmbeddingModel
-    old_security_level_id: Optional[UUID]
-    new_security_level_id: Optional[UUID]
-
-
-class Changes(BaseModel, frozen=True):
-    changed_spaces: Set[SpaceChange]
-    added_security_levels: Set[SecurityLevel]
-    removed_security_levels: Set[SecurityLevel]
-    changed_security_levels: Set[SecurityLevelChange]
-    changed_completion_models: Set[CompletionModelChange]
-    changed_embedding_models: Set[EmbeddingModelChange]
+class EnvironmentAccess(BaseModel, frozen=True):
+    completion_model_access: List[SpaceCompletionModelAccess]
+    embedding_model_access: List[SpaceEmbeddingModelAccess]
 
 
 class Environment(BaseModel, frozen=True):
@@ -93,7 +59,9 @@ class Environment(BaseModel, frozen=True):
     embedding_models: Set[EmbeddingModel]
 
     @field_validator("security_levels")
-    def validate_unique_security_level_ids(cls, v: Set[SecurityLevel]) -> Set[SecurityLevel]:
+    def validate_unique_security_level_ids(
+        cls, v: Set[SecurityLevel]
+    ) -> Set[SecurityLevel]:
         ids = [sl.id for sl in v]
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate security level IDs found")
@@ -107,189 +75,235 @@ class Environment(BaseModel, frozen=True):
         return v
 
     @field_validator("completion_models")
-    def validate_unique_completion_model_ids(cls, v: Set[CompletionModel]) -> Set[CompletionModel]:
+    def validate_unique_completion_model_ids(
+        cls, v: Set[CompletionModel]
+    ) -> Set[CompletionModel]:
         ids = [m.id for m in v]
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate completion model IDs found")
         return v
 
     @field_validator("embedding_models")
-    def validate_unique_embedding_model_ids(cls, v: Set[EmbeddingModel]) -> Set[EmbeddingModel]:
+    def validate_unique_embedding_model_ids(
+        cls, v: Set[EmbeddingModel]
+    ) -> Set[EmbeddingModel]:
         ids = [m.id for m in v]
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate embedding model IDs found")
         return v
+
+    def _get_space_completion_model_access(
+        self, completion_model_id: UUID, space_id: UUID
+    ) -> SpaceCompletionModelAccess:
+        forbidden = SpaceCompletionModelAccess(
+            space_id=space_id, completion_model_id=completion_model_id, allowed=False
+        )
+        allowed = SpaceCompletionModelAccess(
+            space_id=space_id, completion_model_id=completion_model_id, allowed=True
+        )
+
+        if model := next(
+            (m for m in self.completion_models if m.id == completion_model_id), None
+        ):
+            return (
+                allowed
+                if self._get_space_security_level_access(
+                    model.security_level_id, space_id
+                ).allowed
+                else forbidden
+            )
+        return forbidden
+
+    def _get_space_embedding_model_access(
+        self, embedding_model_id: UUID, space_id: UUID
+    ) -> SpaceEmbeddingModelAccess:
+        forbidden = SpaceEmbeddingModelAccess(
+            space_id=space_id, embedding_model_id=embedding_model_id, allowed=False
+        )
+        allowed = SpaceEmbeddingModelAccess(
+            space_id=space_id, embedding_model_id=embedding_model_id, allowed=True
+        )
+
+        if model := next(
+            (m for m in self.embedding_models if m.id == embedding_model_id), None
+        ):
+            return (
+                allowed
+                if self._get_space_security_level_access(
+                    model.security_level_id, space_id
+                ).allowed
+                else forbidden
+            )
+        return forbidden
+
+    def _get_space_security_level_access(
+        self, security_level_id: UUID | None, space_id: UUID | None
+    ) -> SpaceSecurityLevelAccess:
+        forbidden = SpaceSecurityLevelAccess(
+            space_id=space_id, security_level_id=security_level_id, allowed=False
+        )
+        allowed = SpaceSecurityLevelAccess(
+            space_id=space_id, security_level_id=security_level_id, allowed=True
+        )
+
+        if not space_id:
+            return forbidden
+
+        space = next((s for s in self.spaces if s.id == space_id), None)
+        if not space:
+            return forbidden
+
+        # If the space has no security level, and we're checking if access is allowed
+        # to entities without a security level, access is allowed.
+        if space.security_level_id is None:
+            return allowed if security_level_id is None else forbidden
+
+        # Otherwise if space has a security level, and the entity has no security level,
+        # access is forbidden.
+        if security_level_id is None:
+            return forbidden
+
+        # Otherwise if space has a security level, and the entity has a security level,
+        # access is allowed if the entity's security level is greater than or equal to the space's.
+        # If either security level is not found, access is forbidden.
+        if level := next(
+            (sl for sl in self.security_levels if sl.id == security_level_id), None
+        ):
+            if space_level := next(
+                (sl for sl in self.security_levels if sl.id == space.security_level_id),
+                None,
+            ):
+                return allowed if level.value >= space_level.value else forbidden
+
+        return forbidden
+
+    def get_access(self) -> EnvironmentAccess:
+        completion_model_access = set()
+        embedding_model_access = set()
+
+        for space in self.spaces:
+            for completion_model in self.completion_models:
+                completion_model_access.add(
+                    self._get_space_completion_model_access(
+                        completion_model.id, space.id
+                    )
+                )
+            for embedding_model in self.embedding_models:
+                embedding_model_access.add(
+                    self._get_space_embedding_model_access(embedding_model.id, space.id)
+                )
+
+        return EnvironmentAccess(
+            completion_model_access=completion_model_access,
+            embedding_model_access=embedding_model_access,
+        )
+
+
+class SecurityLevelChange(BaseModel, frozen=True):
+    security_level: SecurityLevel
+    old_value: int
+    new_value: int
+
+
+class SpaceChange(BaseModel, frozen=True):
+    space: Space
+    added_completion_model_ids: List[UUID]
+    removed_completion_model_ids: List[UUID]
+    added_embedding_model_ids: List[UUID]
+    removed_embedding_model_ids: List[UUID]
+
+
+class EnvironmentChange(BaseModel, frozen=True):
+    changed_spaces: List[SpaceChange]
 
 
 class EnvironmentUpdate(BaseModel, frozen=True):
     old_environment: Environment
     new_environment: Environment
 
-    def get_changes(self) -> Changes:
-        # Find security level changes
-        old_security_levels = {sl.id: sl for sl in self.old_environment.security_levels}
-        new_security_levels = {sl.id: sl for sl in self.new_environment.security_levels}
+    def get_latest_completion_model(self, completion_model_id: UUID) -> CompletionModel:
+        return _get_latest_from_pools(
+            completion_model_id,
+            [
+                self.new_environment.completion_models,
+                self.old_environment.completion_models,
+            ],
+        )
 
-        added_security_levels = {
-            sl
-            for sl in self.new_environment.security_levels
-            if sl.id not in old_security_levels
-        }
-        removed_security_levels = {
-            sl
-            for sl in self.old_environment.security_levels
-            if sl.id not in new_security_levels
-        }
-        changed_security_levels = {
-            SecurityLevelChange(
-                security_level=new_security_levels[sl_id],
-                old_value=old_security_levels[sl_id].value,
-                new_value=new_security_levels[sl_id].value,
+    def get_latest_embedding_model(self, embedding_model_id: UUID) -> EmbeddingModel:
+        return _get_latest_from_pools(
+            embedding_model_id,
+            [
+                self.new_environment.embedding_models,
+                self.old_environment.embedding_models,
+            ],
+        )
+
+    def get_change(self) -> EnvironmentChange:
+        # Get access states
+        old_access = self.old_environment.get_access()
+        new_access = self.new_environment.get_access()
+
+        # Track changes in spaces
+        changed_spaces = []
+        for space in self.new_environment.spaces:
+            old_allowed_completion_model_ids = {
+                m.completion_model_id
+                for m in old_access.completion_model_access
+                if m.space_id == space.id and m.allowed
+            }
+            new_allowed_completion_model_ids = {
+                m.completion_model_id
+                for m in new_access.completion_model_access
+                if m.space_id == space.id and m.allowed
+            }
+            added_completion_model_ids = (
+                new_allowed_completion_model_ids - old_allowed_completion_model_ids
             )
-            for sl_id in old_security_levels.keys() & new_security_levels.keys()
-            if old_security_levels[sl_id].value != new_security_levels[sl_id].value
-        }
-
-        # Find completion model changes
-        old_completion_models = {
-            cm.id: cm for cm in self.old_environment.completion_models
-        }
-        new_completion_models = {
-            cm.id: cm for cm in self.new_environment.completion_models
-        }
-        changed_completion_models = {
-            CompletionModelChange(
-                completion_model=new_completion_models[cm_id],
-                old_security_level_id=old_completion_models[cm_id].security_level_id,
-                new_security_level_id=new_completion_models[cm_id].security_level_id,
+            removed_completion_model_ids = (
+                old_allowed_completion_model_ids - new_allowed_completion_model_ids
             )
-            for cm_id in old_completion_models.keys() & new_completion_models.keys()
-            if old_completion_models[cm_id].security_level_id
-            != new_completion_models[cm_id].security_level_id
-        }
 
-        # Find embedding model changes
-        old_embedding_models = {
-            em.id: em for em in self.old_environment.embedding_models
-        }
-        new_embedding_models = {
-            em.id: em for em in self.new_environment.embedding_models
-        }
-
-        changed_embedding_models = {
-            EmbeddingModelChange(
-                embedding_model=new_embedding_models[em_id],
-                old_security_level_id=old_embedding_models[em_id].security_level_id,
-                new_security_level_id=new_embedding_models[em_id].security_level_id,
+            old_allowed_embedding_model_ids = {
+                m.embedding_model_id
+                for m in old_access.embedding_model_access
+                if m.space_id == space.id and m.allowed
+            }
+            new_allowed_embedding_model_ids = {
+                m.embedding_model_id
+                for m in new_access.embedding_model_access
+                if m.space_id == space.id and m.allowed
+            }
+            added_embedding_model_ids = (
+                new_allowed_embedding_model_ids - old_allowed_embedding_model_ids
             )
-            for em_id in old_embedding_models.keys() & new_embedding_models.keys()
-            if old_embedding_models[em_id].security_level_id
-            != new_embedding_models[em_id].security_level_id
-        }
-
-        # Find space changes
-        old_spaces = {s.id: s for s in self.old_environment.spaces}
-        new_spaces = {s.id: s for s in self.new_environment.spaces}
-
-        changed_spaces = set()
-        for space_id in old_spaces.keys() | new_spaces.keys():
-            old_space = old_spaces.get(space_id)
-            new_space = new_spaces.get(space_id)
-
-            if not new_space:  # Space was removed
-                continue
-            if not old_space:  # Space was added
-                old_space = Space(
-                    id=new_space.id, name=new_space.name, security_level_id=None
-                )
-
-            # Calculate model changes for the space
-            old_allowed_completion_models = {
-                m
-                for m in self.old_environment.completion_models
-                if self._is_model_allowed_in_space(
-                    m.security_level_id, old_space.security_level_id
-                )
-            }
-            new_allowed_completion_models = {
-                m
-                for m in self.new_environment.completion_models
-                if self._is_model_allowed_in_space(
-                    m.security_level_id, new_space.security_level_id
-                )
-            }
-
-            old_allowed_embedding_models = {
-                m
-                for m in self.old_environment.embedding_models
-                if self._is_model_allowed_in_space(
-                    m.security_level_id, old_space.security_level_id
-                )
-            }
-            new_allowed_embedding_models = {
-                m
-                for m in self.new_environment.embedding_models
-                if self._is_model_allowed_in_space(
-                    m.security_level_id, new_space.security_level_id
-                )
-            }
-
-            space_change = SpaceChange(
-                space=new_space,
-                old_security_level_id=old_space.security_level_id,
-                new_security_level_id=new_space.security_level_id,
-                added_completion_models=new_allowed_completion_models
-                - old_allowed_completion_models,
-                removed_completion_models=old_allowed_completion_models
-                - new_allowed_completion_models,
-                added_embedding_models=new_allowed_embedding_models
-                - old_allowed_embedding_models,
-                removed_embedding_models=old_allowed_embedding_models
-                - new_allowed_embedding_models,
+            removed_embedding_model_ids = (
+                old_allowed_embedding_model_ids - new_allowed_embedding_model_ids
             )
 
             if (
-                space_change.old_security_level_id != space_change.new_security_level_id
-                or space_change.model_availability_changed()
+                added_completion_model_ids
+                or removed_completion_model_ids
+                or added_embedding_model_ids
+                or removed_embedding_model_ids
             ):
-                changed_spaces.add(space_change)
+                changed_spaces.append(
+                    SpaceChange(
+                        space=space,
+                        added_completion_model_ids=added_completion_model_ids,
+                        removed_completion_model_ids=removed_completion_model_ids,
+                        added_embedding_model_ids=added_embedding_model_ids,
+                        removed_embedding_model_ids=removed_embedding_model_ids,
+                    )
+                )
 
-        return Changes(
+        return EnvironmentChange(
             changed_spaces=changed_spaces,
-            added_security_levels=added_security_levels,
-            removed_security_levels=removed_security_levels,
-            changed_security_levels=changed_security_levels,
-            changed_completion_models=changed_completion_models,
-            changed_embedding_models=changed_embedding_models,
         )
 
-    def _is_model_allowed_in_space(
-        self,
-        model_security_level_id: Optional[UUID],
-        space_security_level_id: Optional[UUID],
-    ) -> bool:
-        # If both the model and space have no security level, the model is allowed
-        if model_security_level_id is None and space_security_level_id is None:
-            return True
 
-        # If either the model or space has no security level, the model is not allowed
-        if model_security_level_id is None or space_security_level_id is None:
-            return False
-
-        # If either security level has been removed, the model is not allowed
-        try:
-            model_level = next(
-                sl.value
-                for sl in self.new_environment.security_levels
-                if sl.id == model_security_level_id
-            )
-            space_level = next(
-                sl.value
-                for sl in self.new_environment.security_levels
-                if sl.id == space_security_level_id
-            )
-        except StopIteration:
-            return False
-
-        # Model is allowed if its security level is greater than or equal to the space's level
-        return model_level >= space_level
+def _get_latest_from_pools(id: UUID, pools: List[Set[T]]) -> T:
+    for pool in pools:
+        if model := next((m for m in pool if m.id == id), None):
+            return model
+    raise ValueError(f"Model with ID {id} not found in any of the pools")
