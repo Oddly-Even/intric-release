@@ -76,6 +76,7 @@ class Mutator(BaseModel, Generic[T], frozen=True):
                 ),
                 base_spec=spec,
             )
+        raise ValueError(f"Unsupported model class: {model_class}")
 
 
 @pytest.fixture
