@@ -33,4 +33,4 @@ ENV PYTHONPATH=/app/src
 EXPOSE 8123
 
 # Command to run the application in production mode (no reload)
-CMD ["poetry", "run", "uvicorn", "instorage.server.main:app", "--host", "0.0.0.0", "--port", "8123"] 
+CMD ["poetry", "run", "uvicorn", "intric.server.main:app", "--host", "0.0.0.0", "--port", "8123"] 
