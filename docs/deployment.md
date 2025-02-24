@@ -28,3 +28,7 @@ When running intric in production, make sure that you think about the following:
 5. Environment configuration: Properly configure the environment variables.
 
 Consider dockerizing the application in order to ensure consistent environments across different deployment stages. This helps in minimizing discrepancies between development, staging, and production environments.
+
+## Deployment Platforms
+
+- **Coolify**: A self-hostable PaaS solution - see the [Coolify deployment guide](deployment-coolify.md). Can be used as a starting point for other Docker-based deployments.

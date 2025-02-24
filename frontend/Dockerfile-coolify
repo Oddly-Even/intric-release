@@ -1,0 +1,43 @@
+FROM node:18-slim as builder
+ARG INTRIC_BACKEND_URL
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@9.12.3
+
+# Copy package files
+COPY package*.json ./
+COPY pnpm-*.yaml ./
+COPY apps/web/package*.json ./apps/web/
+COPY packages/intric-js/package*.json ./packages/intric-js/
+COPY packages/ui/package*.json ./packages/ui/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN NODE_ENV=development INTRIC_BACKEND_URL=$INTRIC_BACKEND_URL pnpm run build
+
+# Production image
+FROM node:18-slim
+
+WORKDIR /app
+
+# Copy built assets
+COPY --from=builder /app/apps/web/build ./
+
+# Create package.json for ES modules
+RUN echo '{"type":"module"}' > package.json
+
+# Install only the Node adapter
+RUN npm install @sveltejs/adapter-node
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Command to run the application using Node adapter
+CMD ["node", "index.js"] 

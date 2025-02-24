@@ -1,0 +1,36 @@
+FROM mcr.microsoft.com/devcontainers/python:3.10-bullseye
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libmagic1 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+
+# Copy poetry files
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root --only main
+
+# Copy the rest of the application
+COPY . .
+
+# Install the application
+RUN poetry install --no-interaction --no-ansi --only main
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/src
+
+# Expose the correct port
+EXPOSE 8123
+
+# Command to run the application in production mode (no reload)
+CMD ["poetry", "run", "uvicorn", "intric.server.main:app", "--host", "0.0.0.0", "--port", "8123"] 
