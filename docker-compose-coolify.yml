@@ -65,7 +65,7 @@ services:
       - JWT_ISSUER=EXAMPLE
       - JWT_EXPIRY_TIME=86000
       - JWT_ALGORITHM=HS256
-      - JWT_SECRET=1234
+      - JWT_SECRET=${JWT_SECRET}
       - JWT_TOKEN_PREFIX=''
       # Log
       - LOGLEVEL=DEBUG
