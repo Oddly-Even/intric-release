@@ -21,7 +21,7 @@ async def test_basic_space(container: Container) -> Space:
 
 
 @pytest.fixture
-async def test_space_with_security(
+async def test_space_with_low_security(
     container: Container,
     test_basic_space: Space,
     security_levels: list[SecurityLevel]
@@ -34,5 +34,22 @@ async def test_space_with_security(
     await space_service.update_space(
         id=test_basic_space.id,
         security_level_id=security_levels[0].id  # Low security
+    )
+    return await space_service.get_space(test_basic_space.id)
+
+@pytest.fixture
+async def test_space_with_medium_security(
+    container: Container,
+    test_basic_space: Space,
+    security_levels: list[SecurityLevel]
+) -> Space:
+    """Create a space with medium security level configured.
+
+    This fixture takes the basic space and adds a medium security level to it.
+    """
+    space_service = container.space_service()
+    await space_service.update_space(
+        id=test_basic_space.id,
+        security_level_id=security_levels[1].id  # Medium security
     )
     return await space_service.get_space(test_basic_space.id)
