@@ -26,12 +26,15 @@ def run_migrations_online() -> None:
     Run migrations in 'online' mode
     """
 
+    settings = get_settings()
     # handle testing config for migrations
     if os.environ.get("TESTING"):
-        print("Running migration for test_database")
-        DB_URL = f"{get_settings().sync_database_url}_test"
+        if not settings.postgres_db.endswith("_test"):
+            DB_URL = f"{settings.sync_database_url}_test"
     else:
-        DB_URL = get_settings().sync_database_url
+        DB_URL = settings.sync_database_url
+
+    DB_URL = get_settings().sync_database_url
 
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = str(DB_URL)

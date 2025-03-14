@@ -1,4 +1,3 @@
-import pytest
 from intric.main.container.container import Container
 from intric.securitylevels.security_level import SecurityLevel
 from intric.spaces.space import Space

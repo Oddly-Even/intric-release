@@ -11,7 +11,6 @@
 # - Prefix integration fixtures with 'test_' to avoid conflicts with unit test fixtures
 # - Use clear, descriptive names that indicate the fixture's purpose
 
-import asyncio
 from typing import AsyncGenerator
 
 import bcrypt
@@ -21,7 +20,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from intric.database.database import sessionmanager
-from intric.main.config import get_settings
+from intric.main.config import SettingsProvider
 from intric.main.container.container import Container
 from intric.users.user import UserInDB
 from intric.tenants.tenant import TenantInDB
@@ -29,18 +28,53 @@ from intric.securitylevels.security_level import SecurityLevel
 from intric.ai_models.completion_models.completion_model import CompletionModel
 from intric.spaces.space import Space
 
+@pytest.fixture
+async def container(db_session: AsyncSession, test_user: UserInDB, test_tenant: TenantInDB):
+    """Create a configured container with test dependencies.
+
+    This container comes pre-configured with:
+    - Database session
+    - Test user (with owner role)
+    - Test tenant
+    """
+    container = Container()
+
+    # Configure the container with test session and user
+    container.session.override(db_session)
+    container.user.override(test_user)
+    container.tenant.override(test_tenant)
+
+    # You can add more service overrides here as needed
+
+    return container
+
+
+@pytest.fixture
+def test_jwt_token(container):
+    """Create a JWT token for the test user using the container's auth service."""
+    # Get the auth service from the container
+    auth_service = container.auth_service()
+
+    # Generate a token using the application's own service
+    token = auth_service.create_access_token_for_user(container.user())
+
+    return token
 
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
-    """Initialize database for testing"""
-    # Initialize the database with test configuration
-    settings = get_settings()
-    sessionmanager.init(settings.database_url)
+    """Initialize database connection for testing - runs once per test session"""
+    # Configure test settings
+    test_settings = SettingsProvider.configure_for_testing()
+
+    # Initialize session manager with test database URL
+    # This assumes the test database already exists
+    sessionmanager.init(test_settings.database_url)
 
     yield
 
-    # Cleanup
+    # Cleanup settings
     await sessionmanager.close()
+    SettingsProvider.reset_test_settings()
 
 
 @pytest.fixture
@@ -49,8 +83,10 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
     async with sessionmanager.session() as session:
         # Start a transaction
         async with session.begin():
+
             # Give the session to the test
             yield session
+
             # Rollback the transaction after the test
             await session.rollback()
 
@@ -172,27 +208,6 @@ async def security_levels(db_session: AsyncSession, test_tenant: TenantInDB) -> 
 async def test_completion_model(completion_model_factory) -> CompletionModel:
     """Create a default test completion model using the factory."""
     return await completion_model_factory(name="test-model")
-
-@pytest.fixture
-async def container(
-    db_session: AsyncSession,
-    test_user: UserInDB,
-    test_tenant: TenantInDB,
-) -> Container:
-    """Create a configured container with test dependencies.
-
-    This container comes pre-configured with:
-    - Database session
-    - Test user (with owner role)
-    - Test tenant
-    - A default test completion model
-    """
-    container = Container()
-    container.session.override(db_session)
-    container.user.override(test_user)
-    container.tenant.override(test_tenant)
-    return container
-
 
 @pytest.fixture
 def completion_model_factory(db_session, test_tenant, test_user, security_levels):

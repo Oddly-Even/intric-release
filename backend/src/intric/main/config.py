@@ -115,11 +115,52 @@ class Settings(BaseSettings):
         )
 
 
-SETTINGS = Settings()
+class SettingsProvider:
+    """Provider for settings that supports override for testing"""
+    _instance = None
+    _test_settings = None
+
+    @classmethod
+    def get_settings(self) -> Settings:
+        """Get the current settings, prioritizing test settings if in test mode"""
+        if self._test_settings is not None:
+            return self._test_settings
+
+        if self._instance is None:
+            self._instance = Settings()
+
+        return self._instance
+
+    @classmethod
+    def configure_for_testing(self, **overrides):
+        """Set up test-specific settings"""
+        base_settings = self.get_settings() if self._test_settings is None else self._instance
+        test_db_name = f"{base_settings.postgres_db}_test"
+
+        # Start with a base config and layer on overrides
+        test_config = {
+            **base_settings.model_dump(),
+            "testing": True,
+            "postgres_db": test_db_name,
+            **overrides
+        }
+
+        self._test_settings = Settings.model_validate(test_config)
+        return self._test_settings
+
+    @classmethod
+    def reset_test_settings(cls):
+        """Clear test settings and return to normal settings"""
+        cls._test_settings = None
+
+
+# For backwards compatibility
+SETTINGS = SettingsProvider.get_settings()
 
 
 def get_settings():
-    return SETTINGS
+    """Get current settings (either test or normal)"""
+    return SettingsProvider.get_settings()
 
 
 def get_loglevel():

@@ -18,6 +18,7 @@ from tests.fixtures import (
     TEST_MODEL_GPT4,
     TEST_TENANT,
 )
+from tests.conftest import configure_test_setting
 
 TEST_ADMIN_ROLE = RoleInDB(
     id=uuid4(),
@@ -135,7 +136,7 @@ async def test_embedding_models_flags_settings_not_exists(service: AIModelsServi
 
 
 async def test_azure_models_with_feature_flag_off(service: AIModelsService):
-    SETTINGS.using_azure_models = False
+    configure_test_setting(using_azure_models=False)
     service.completion_model_repo.get_models.return_value = [
         TEST_MODEL_GPT4,
         TEST_MODEL_CHATGPT,
@@ -149,7 +150,7 @@ async def test_azure_models_with_feature_flag_off(service: AIModelsService):
 
 
 async def test_azure_models_with_feature_flag_on(service: AIModelsService):
-    SETTINGS.using_azure_models = True
+    configure_test_setting(using_azure_models=True)
     service.completion_model_repo.get_models.return_value = [
         TEST_MODEL_GPT4,
         TEST_MODEL_CHATGPT,
