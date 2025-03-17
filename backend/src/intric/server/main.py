@@ -26,9 +26,9 @@ else:
     allowed_origins = ["*"]
 
 
-def get_application():
+def get_application(use_lifespan: bool = True):
     app = FastAPI(
-        lifespan=lifespan,
+        lifespan=lifespan if use_lifespan else None
     )
 
     app.add_middleware(

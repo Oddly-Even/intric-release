@@ -209,6 +209,7 @@ class UserService:
             username = self.auth_service.get_username_from_token(
                 token, SETTINGS.jwt_secret
             )
+            print("USERNAME ===>", username)
             return await self.repo.get_user_by_username(username)
 
     async def _get_user_from_api_key(self, api_key: str):
@@ -246,6 +247,7 @@ class UserService:
         user_in_db = None
         if token is not None:
             user_in_db = await self._get_user_from_token(token)
+            print("USER_IN_DB ===>", user_in_db)
 
         elif api_key is not None:
             user_in_db = await self._get_user_from_api_key(api_key)

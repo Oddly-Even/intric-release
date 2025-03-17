@@ -22,8 +22,7 @@ async def lifespan(app: FastAPI):
 async def startup():
     aiohttp_client.start()
     settings = get_settings()
-    print("TESTING: ", settings.testing)
-    print("DATABASE URL: ", settings.database_url)
+
     sessionmanager.init(settings.database_url)
     await job_manager.init()
 
@@ -39,6 +38,6 @@ async def startup():
 
 async def shutdown():
     await sessionmanager.close()
-    await aiohttp_client.stop()
     await job_manager.close()
+    await aiohttp_client.stop()
     await websocket_manager.shutdown()

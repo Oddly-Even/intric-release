@@ -14,6 +14,8 @@ from intric.securitylevels.api.security_level_models import (
     SecurityLevelPublic,
     SecurityLevelUpdatePublic,
 )
+from intric.server.dependencies.container import get_container
+from intric.main.container.container import Container
 
 router = APIRouter()
 
@@ -54,7 +56,7 @@ async def create_security_level(
     responses=responses.get_responses([403]),
 )
 async def list_security_levels(
-    service: SecurityLevelService = Depends(get_security_level_service),
+    container: Container = Depends(get_container(with_user=True)),
 ) -> list[SecurityLevelPublic]:
     """List all security levels for the current tenant ordered by value.
 
@@ -64,6 +66,7 @@ async def list_security_levels(
     Raises:
         403: If the user doesn't have permission to list security levels.
     """
+    service = container.security_level_service()
     security_levels = await service.list_security_levels()
     return [SecurityLevelPublic.model_validate(sl) for sl in security_levels]
 

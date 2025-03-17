@@ -167,6 +167,7 @@ class AuthService:
         try:
             decoded_token = jwt.decode(token, key=key, audience=aud, algorithms=algs)
             payload = JWTPayload(**decoded_token)
+            print("PAYLOAD ===>", payload)
 
         except (jwt.PyJWTError, ValidationError):
             raise AuthenticationException("Could not validate token credentials.")

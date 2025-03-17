@@ -11,6 +11,7 @@
 # - Prefix integration fixtures with 'test_' to avoid conflicts with unit test fixtures
 # - Use clear, descriptive names that indicate the fixture's purpose
 
+from contextlib import ExitStack
 from typing import AsyncGenerator
 
 import bcrypt
@@ -27,43 +28,17 @@ from intric.tenants.tenant import TenantInDB
 from intric.securitylevels.security_level import SecurityLevel
 from intric.ai_models.completion_models.completion_model import CompletionModel
 from intric.spaces.space import Space
-
-@pytest.fixture
-async def container(db_session: AsyncSession, test_user: UserInDB, test_tenant: TenantInDB):
-    """Create a configured container with test dependencies.
-
-    This container comes pre-configured with:
-    - Database session
-    - Test user (with owner role)
-    - Test tenant
-    """
-    container = Container()
-
-    # Configure the container with test session and user
-    container.session.override(db_session)
-    container.user.override(test_user)
-    container.tenant.override(test_tenant)
-
-    # You can add more service overrides here as needed
-
-    return container
-
-
-@pytest.fixture
-def test_jwt_token(container):
-    """Create a JWT token for the test user using the container's auth service."""
-    # Get the auth service from the container
-    auth_service = container.auth_service()
-
-    # Generate a token using the application's own service
-    token = auth_service.create_access_token_for_user(container.user())
-
-    return token
+from intric.server.main import get_application
+from httpx import AsyncClient, ASGITransport
+from fastapi import FastAPI
+from utils import setup_test_database
 
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
     """Initialize database connection for testing - runs once per test session"""
     # Configure test settings
+    setup_test_database()
+
     test_settings = SettingsProvider.configure_for_testing()
 
     # Initialize session manager with test database URL
@@ -76,40 +51,136 @@ async def setup_database():
     await sessionmanager.close()
     SettingsProvider.reset_test_settings()
 
-
 @pytest.fixture
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
-    """Get a database session for testing"""
+    """Get a database session for testing.
+
+    Note: This fixture doesn't manage transactions.
+    Each test/fixture using this session should manage its own transactions.
+    """
     async with sessionmanager.session() as session:
-        # Start a transaction
+        # Provide the raw session without transaction management
+        yield session
+        # No auto-commit/rollback here - each test must handle its own transactions
+
+@pytest.fixture(autouse=True)
+async def clean_database():
+    """Truncate all tables between tests to ensure a clean state."""
+    # Run test first
+    yield
+
+    # Clean up database AFTER test completes
+    # This will use a separate session from the test session
+    print("Cleaning database after test...")
+    async with sessionmanager.session() as session:
         async with session.begin():
+            # Get the current database schema (usually 'public')
+            result = await session.execute(text("SELECT current_schema()"))
+            schema = result.scalar()
 
-            # Give the session to the test
-            yield session
+            # Disable foreign key constraints temporarily for clean truncation
+            await session.execute(text("SET session_replication_role = 'replica';"))
 
-            # Rollback the transaction after the test
-            await session.rollback()
+            # Get a list of all tables in the schema
+            result = await session.execute(
+                text("""
+                SELECT tablename FROM pg_tables
+                WHERE schemaname = :schema
+                AND tablename != 'alembic_version'  -- Keep migration tracking
+                """),
+                {"schema": schema}
+            )
+            tables = [row[0] for row in result.fetchall()]
+
+            if tables:
+                # Format for TRUNCATE statement
+                tables_str = ', '.join(f'"{t}"' for t in tables)
+
+                # Truncate all tables in one statement
+                await session.execute(text(f"TRUNCATE TABLE {tables_str} CASCADE"))
+                print(f"Truncated {len(tables)} tables")
+
+            # Re-enable foreign key constraints
+            await session.execute(text("SET session_replication_role = 'origin';"))
+
+            # Session will be committed automatically when the context exits
+
+@pytest.fixture
+def app(db_session: AsyncSession):
+    """Create a test FastAPI application without lifespan."""
+    with ExitStack():
+        test_app = get_application(use_lifespan=False)
+        yield test_app
+
+@pytest.fixture
+async def test_client(app: FastAPI):
+    """Create a test client for the FastAPI app."""
+    async with AsyncClient(base_url="http://test", transport=ASGITransport(app)) as client:
+        yield client
+
+@pytest.fixture(scope="function")
+async def container(db_session: AsyncSession, test_user: UserInDB, test_tenant: TenantInDB):
+    """Create a configured container with test dependencies.
+
+    This container comes pre-configured with:
+    - Database session
+    - Test user (with owner role)
+    - Test tenant
+    """
+    container = Container()
+
+    transaction = await db_session.begin()
+
+    container.session.override(db_session)
+    container.user.override(test_user)
+    container.tenant.override(test_tenant)
+    # You can add more service overrides here as needed
+    yield container
+
+    await transaction.rollback()
 
 
-def hash_password(password: str) -> tuple[str, str]:
-    """Hash a password for storing."""
-    salt = bcrypt.gensalt().decode()
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    return pwd_context.hash(password + salt), salt
 
+
+@pytest.fixture
+def test_jwt_token(container, test_user: UserInDB):
+    """Create a JWT token for the test user using the container's auth service."""
+    # Get the auth service from the container
+    auth_service = container.auth_service()
+
+    # Generate a token using the application's own service
+    token = auth_service.create_access_token_for_user(test_user)
+
+    return token
+
+@pytest.fixture(autouse=True)
+async def session_override(app, db_session, container):
+    """Override FastAPI's session dependency to use our test session.
+
+    This ensures that API requests in tests use the same database state.
+    """
+    pass
 
 @pytest.fixture
 async def test_tenant(db_session: AsyncSession) -> TenantInDB:
     """Create a test tenant."""
-    # Insert tenant
-    result = await db_session.execute(
-        text("""
-        INSERT INTO tenants (name, quota_limit)
-        VALUES ('TestTenant', '10737418240')
-        RETURNING id, name, quota_limit, created_at, updated_at
-        """)
-    )
-    tenant_row = result.fetchone()
+    # Start transaction explicitly for this operation
+    async with db_session.begin():
+        # Insert tenant
+        result = await db_session.execute(
+            text("""
+            INSERT INTO tenants (name, quota_limit)
+            VALUES ('TestTenant', '10737418240')
+            RETURNING id, name, quota_limit, created_at, updated_at
+            """)
+        )
+        tenant_row = result.fetchone()
+
+        # Verify the tenant was created by checking ID
+        print(f"Created test tenant with ID: {tenant_row[0]}")
+
+        # No need to explicitly commit - the async with session.begin() context
+        # manager will automatically commit when exiting if no exceptions occur
 
     return TenantInDB(
         id=tenant_row[0],
@@ -119,42 +190,50 @@ async def test_tenant(db_session: AsyncSession) -> TenantInDB:
         updated_at=tenant_row[4]
     )
 
-
 @pytest.fixture
 async def test_user(db_session: AsyncSession, test_tenant: TenantInDB) -> UserInDB:
     """Create a test user with owner role."""
     # Create user
     hashed_pass, salt = hash_password("TestPass123!")
-    result = await db_session.execute(
-        text("""
-        INSERT INTO users (username, email, password, salt, tenant_id, used_tokens, state)
-        VALUES ('testuser', 'test@example.com', :password, :salt, :tenant_id, 0, 'active')
-        RETURNING id, username, email, tenant_id, used_tokens, state, created_at, updated_at
-        """),
-        {"password": hashed_pass, "salt": salt, "tenant_id": test_tenant.id}
-    )
-    user_row = result.fetchone()
 
-    # Create owner role if it doesn't exist
-    result = await db_session.execute(
-        text("""
-        INSERT INTO predefined_roles (name, permissions)
-        VALUES ('Owner', ARRAY['admin', 'assistants', 'services', 'collections', 'insights', 'AI', 'editor', 'websites'])
-        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
-        RETURNING id
-        """)
-    )
-    role_id = result.fetchone()[0]
+    # Start transaction explicitly
+    async with db_session.begin():
+        result = await db_session.execute(
+            text("""
+            INSERT INTO users (username, email, password, salt, tenant_id, used_tokens, state)
+            VALUES ('testuser', 'test@example.com', :password, :salt, :tenant_id, 0, 'active')
+            RETURNING id, username, email, tenant_id, used_tokens, state, created_at, updated_at
+            """),
+            {"password": hashed_pass, "salt": salt, "tenant_id": test_tenant.id}
+        )
+        user_row = result.fetchone()
 
-    # Assign role to user
-    await db_session.execute(
-        text("""
-        INSERT INTO users_predefined_roles (user_id, predefined_role_id)
-        VALUES (:user_id, :role_id)
-        ON CONFLICT DO NOTHING
-        """),
-        {"user_id": user_row[0], "role_id": role_id}
-    )
+        # Create owner role if it doesn't exist
+        result = await db_session.execute(
+            text("""
+            INSERT INTO predefined_roles (name, permissions)
+            VALUES ('Owner', ARRAY['admin', 'assistants', 'services', 'collections', 'insights', 'AI', 'editor', 'websites'])
+            ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+            RETURNING id
+            """)
+        )
+        role_id = result.fetchone()[0]
+
+        # Assign role to user
+        await db_session.execute(
+            text("""
+            INSERT INTO users_predefined_roles (user_id, predefined_role_id)
+            VALUES (:user_id, :role_id)
+            ON CONFLICT DO NOTHING
+            """),
+            {"user_id": user_row[0], "role_id": role_id}
+        )
+
+        # Verify the user was created by checking ID
+        print(f"Created test user with ID: {user_row[0]}")
+
+        # No need to explicitly commit - the async with session.begin() context
+        # manager will automatically commit when exiting if no exceptions occur
 
     return UserInDB(
         id=user_row[0],
@@ -201,6 +280,8 @@ async def security_levels(db_session: AsyncSession, test_tenant: TenantInDB) -> 
             created_at=level_row[5],
             updated_at=level_row[6]
         ))
+
+    db_session.commit()
 
     return levels
 
@@ -377,3 +458,9 @@ def space_factory(container):
 async def test_basic_space(space_factory) -> Space:
     """Create a basic space for testing using the space factory."""
     return await space_factory(name="Test Space")
+
+def hash_password(password: str) -> tuple[str, str]:
+    """Hash a password for storing."""
+    salt = bcrypt.gensalt().decode()
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    return pwd_context.hash(password + salt), salt

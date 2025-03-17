@@ -19,7 +19,6 @@ async def test_create_additional_space(container: Container, test_basic_space: S
     assert another_space.id != test_basic_space.id
 
 
-
 async def test_analyze_update_increased_security_level_from_no_security(
     container: Container,
     test_basic_space: Space,

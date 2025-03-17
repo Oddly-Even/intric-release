@@ -63,6 +63,11 @@ class UsersRepository:
     async def get_user_by_username(
         self, username: str, with_deleted: bool = False
     ) -> UserInDB:
+        print("GET_USER_BY_USERNAME ===>", username)
+        query = sa.select(Tenants)
+        result = await self.session.scalar(query)
+
+        print("ALL TENANT ===>", result)
         query = sa.select(Users).where(Users.username == username)
 
         return await self._get_model_from_query(query, with_deleted=with_deleted)

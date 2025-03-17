@@ -47,6 +47,7 @@ def get_container(
         container: Container = Depends(_get_container),
     ):
         user = await container.user_service().authenticate(token=token, api_key=api_key)
+        print("GET_CONTAINER_WITH_USER ===>", user)
 
         if not user.is_active:
             await setup_user(container=container, user=user)

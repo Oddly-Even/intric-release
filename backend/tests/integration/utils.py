@@ -5,8 +5,7 @@ from pathlib import Path
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from intric.main.config import Settings, SettingsProvider, SETTINGS
-
+from intric.main.config import SettingsProvider
 
 def setup_test_database():
     """Create test database and run migrations"""
@@ -38,7 +37,7 @@ def setup_test_database():
 
     # Set test environment for migrations
     os.environ["TESTING"] = "true"
-    os.environ["POSTGRES_DB"] = settings.postgres_db  # Ensure original db name is used
+    os.environ["POSTGRES_DB"] = settings.postgres_db
 
     # Run migrations on test database
     backend_dir = Path(__file__).parent.parent.parent
@@ -49,7 +48,3 @@ def setup_test_database():
         env={**os.environ, "TESTING": "true"},
     )
     print("Ran migrations successfully")
-
-
-if __name__ == "__main__":
-    setup_test_database()
