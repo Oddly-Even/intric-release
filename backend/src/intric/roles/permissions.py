@@ -30,6 +30,7 @@ def validate_permissions(permission: Permission):
 
     def _validate(func):
         async def _inner(self, *args, **kwargs):
+            print("VALIDATE USER", self.user)
             if permission not in self.user.permissions:
                 raise UnauthorizedException(
                     f"Need permission {permission.value} in order to access"

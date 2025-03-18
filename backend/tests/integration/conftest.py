@@ -129,18 +129,17 @@ async def container(db_session: AsyncSession, test_user: UserInDB, test_tenant: 
     """
     container = Container()
 
-    transaction = await db_session.begin()
+    # Start a transaction
+    # transaction = await db_session.begin()
 
     container.session.override(db_session)
     container.user.override(test_user)
     container.tenant.override(test_tenant)
     # You can add more service overrides here as needed
-    yield container
+    return container
 
-    await transaction.rollback()
-
-
-
+    # Commit the transaction instead of rolling back
+    # await transaction.commit()
 
 @pytest.fixture
 def test_jwt_token(container, test_user: UserInDB):
@@ -161,26 +160,23 @@ async def session_override(app, db_session, container):
     """
     pass
 
-@pytest.fixture
-async def test_tenant(db_session: AsyncSession) -> TenantInDB:
+async def create_test_tenant(db_session: AsyncSession) -> TenantInDB:
     """Create a test tenant."""
-    # Start transaction explicitly for this operation
-    async with db_session.begin():
-        # Insert tenant
-        result = await db_session.execute(
-            text("""
-            INSERT INTO tenants (name, quota_limit)
-            VALUES ('TestTenant', '10737418240')
-            RETURNING id, name, quota_limit, created_at, updated_at
-            """)
-        )
-        tenant_row = result.fetchone()
+    # Insert tenant
+    result = await db_session.execute(
+        text("""
+        INSERT INTO tenants (name, quota_limit)
+        VALUES ('TestTenant', '10737418240')
+        RETURNING id, name, quota_limit, created_at, updated_at
+        """)
+    )
+    tenant_row = result.fetchone()
 
-        # Verify the tenant was created by checking ID
-        print(f"Created test tenant with ID: {tenant_row[0]}")
+    # Verify the tenant was created by checking ID
+    print(f"Created test tenant with ID: {tenant_row[0]}")
 
-        # No need to explicitly commit - the async with session.begin() context
-        # manager will automatically commit when exiting if no exceptions occur
+    # No need to explicitly commit - the async with session.begin() context
+    # manager will automatically commit when exiting if no exceptions occur
 
     return TenantInDB(
         id=tenant_row[0],
@@ -191,50 +187,78 @@ async def test_tenant(db_session: AsyncSession) -> TenantInDB:
     )
 
 @pytest.fixture
-async def test_user(db_session: AsyncSession, test_tenant: TenantInDB) -> UserInDB:
+async def test_user(db_session: AsyncSession, tenant: TenantInDB) -> UserInDB:
     """Create a test user with owner role."""
     # Create user
     hashed_pass, salt = hash_password("TestPass123!")
 
     # Start transaction explicitly
     async with db_session.begin():
-        result = await db_session.execute(
-            text("""
+        # Insert user with parameterized query
+        user_query = text("""
             INSERT INTO users (username, email, password, salt, tenant_id, used_tokens, state)
-            VALUES ('testuser', 'test@example.com', :password, :salt, :tenant_id, 0, 'active')
+            VALUES (:username, :email, :password, :salt, :tenant_id, :used_tokens, :state)
             RETURNING id, username, email, tenant_id, used_tokens, state, created_at, updated_at
-            """),
-            {"password": hashed_pass, "salt": salt, "tenant_id": test_tenant.id}
-        )
+        """)
+
+        user_params = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": hashed_pass,
+            "salt": salt,
+            "tenant_id": tenant.id,
+            "used_tokens": 0,
+            "state": "active"
+        }
+
+        result = await db_session.execute(user_query, user_params)
         user_row = result.fetchone()
+        user_id = user_row[0]
 
         # Create owner role if it doesn't exist
-        result = await db_session.execute(
-            text("""
+        # The issue is with how array parameters are handled - use a direct SQL string with array literals
+        # instead of binding parameters for the array
+        owner_permissions = ["admin", "assistants", "services", "collections", "insights", "AI", "editor", "websites"]
+        permission_str = "'{" + ",".join(f'"{p}"' for p in owner_permissions) + "}'"
+
+        role_query = text(f"""
             INSERT INTO predefined_roles (name, permissions)
-            VALUES ('Owner', ARRAY['admin', 'assistants', 'services', 'collections', 'insights', 'AI', 'editor', 'websites'])
+            VALUES ('Owner', {permission_str}::text[])
             ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
-            RETURNING id
-            """)
+            RETURNING id, name, permissions, created_at, updated_at
+        """)
+
+        result = await db_session.execute(role_query)
+        role_row = result.fetchone()
+
+        # Create PredefinedRoleInDB object
+        from intric.predefined_roles.predefined_role import PredefinedRoleInDB
+        predefined_role = PredefinedRoleInDB(
+            id=role_row[0],
+            name=role_row[1],
+            permissions=role_row[2],
+            created_at=role_row[3],
+            updated_at=role_row[4]
         )
-        role_id = result.fetchone()[0]
 
         # Assign role to user
-        await db_session.execute(
-            text("""
+        user_role_query = text("""
             INSERT INTO users_predefined_roles (user_id, predefined_role_id)
             VALUES (:user_id, :role_id)
             ON CONFLICT DO NOTHING
-            """),
-            {"user_id": user_row[0], "role_id": role_id}
-        )
+        """)
 
-        # Verify the user was created by checking ID
-        print(f"Created test user with ID: {user_row[0]}")
+        user_role_params = {
+            "user_id": user_id,
+            "role_id": predefined_role.id
+        }
 
-        # No need to explicitly commit - the async with session.begin() context
-        # manager will automatically commit when exiting if no exceptions occur
+        await db_session.execute(user_role_query, user_role_params)
 
+        # Verify the user was created with role
+        print(f"Created test user with ID: {user_id} and predefined role: {predefined_role.name}")
+
+    # Create UserInDB with predefined_roles, which will compute permissions automatically
     return UserInDB(
         id=user_row[0],
         username=user_row[1],
@@ -244,11 +268,12 @@ async def test_user(db_session: AsyncSession, test_tenant: TenantInDB) -> UserIn
         state=user_row[5],
         created_at=user_row[6],
         updated_at=user_row[7],
-        tenant=test_tenant
+        tenant=tenant,
+        predefined_roles=[predefined_role],
+        roles=[]
     )
 
-@pytest.fixture
-async def security_levels(db_session: AsyncSession, test_tenant: TenantInDB) -> list[SecurityLevel]:
+async def create_security_levels(db_session: AsyncSession, tenant: TenantInDB) -> list[SecurityLevel]:
     """Create three security levels with ascending values."""
     levels = []
     for i, (name, value) in enumerate([
@@ -266,7 +291,7 @@ async def security_levels(db_session: AsyncSession, test_tenant: TenantInDB) -> 
                 "name": name,
                 "description": f"Security level {value}",
                 "value": value,
-                "tenant_id": test_tenant.id
+                "tenant_id": tenant.id
             }
         )
         level_row = result.fetchone()
@@ -281,8 +306,6 @@ async def security_levels(db_session: AsyncSession, test_tenant: TenantInDB) -> 
             updated_at=level_row[6]
         ))
 
-    db_session.commit()
-
     return levels
 
 @pytest.fixture
@@ -291,7 +314,7 @@ async def test_completion_model(completion_model_factory) -> CompletionModel:
     return await completion_model_factory(name="test-model")
 
 @pytest.fixture
-def completion_model_factory(db_session, test_tenant, test_user, security_levels):
+def completion_model_factory(db_session):
     """Factory for creating CompletionModel instances with customizable properties.
 
     Usage:
@@ -316,7 +339,8 @@ def completion_model_factory(db_session, test_tenant, test_user, security_levels
         is_deprecated=False,
         vision=True,
         open_source=False,
-        security_level_id=None
+        security_level_id=None,
+        tenant=None
     ):
         # Generate unique name if not provided
         if name is None:
@@ -362,7 +386,7 @@ def completion_model_factory(db_session, test_tenant, test_user, security_levels
             VALUES (:tenant_id, :model_id, TRUE, TRUE, :security_level_id)
             """),
             {
-                "tenant_id": test_tenant.id,
+                "tenant_id": tenant.id,
                 "model_id": model_row[0],
                 "security_level_id": security_level_id
             }
