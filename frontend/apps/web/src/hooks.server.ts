@@ -1,3 +1,4 @@
+import { locale } from 'svelte-i18n';
 import { dev } from "$app/environment";
 import { DASHBOARD_URL } from "$lib/core/constants";
 import { detectMobile } from "$lib/core/detectMobile";
@@ -43,6 +44,9 @@ const authHandle: Handle = async ({ event, resolve }) => {
   event.locals.access_token = tokens.access_token ?? null;
   event.locals.featureFlags = getFeatureFlags();
   event.locals.environment = getEnvironmentConfig();
+
+  // Setup i18n locale for SSR
+  locale.set(event.locals.environment.defaultLocale);
 
   return resolve(event);
 };
