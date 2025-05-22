@@ -1,0 +1,10 @@
+{
+  "spaces": {
+    "chat": {
+      "page": {
+        "title": "Hi, {firstName}!",
+        "welcomeMessage": "Welcome to intric. I'm your personal assistant and ready to help. Ask me a question to get started."
+      }
+    }
+  }
+}

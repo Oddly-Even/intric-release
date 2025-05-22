@@ -1,10 +1,18 @@
+import '$lib/i18n';
+import { browser } from '$app/environment';
 import { createZitadelClient } from "$lib/core/Zitadel";
 import { createIntric, createIntricSocket } from "@intric/intric-js";
+import { locale, waitLocale } from 'svelte-i18n';
 
 export const load = async (event) => {
   event.depends("global:state");
 
   const { tokens, environment, featureFlags } = event.data;
+
+  if (browser) {
+    locale.set(environment.defaultLocale);
+  }
+  await waitLocale();
 
   const intric = createIntric({
     token: tokens.id_token,

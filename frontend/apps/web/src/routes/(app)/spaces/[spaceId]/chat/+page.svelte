@@ -16,6 +16,7 @@
   import { page } from "$app/state";
   import { writable } from "svelte/store";
   import { untrack } from "svelte";
+  import { _ } from "svelte-i18n";
 
   const { data } = $props();
 
@@ -57,10 +58,11 @@
 {#snippet defaultAssistantWelcomeMessage()}
   <div class="max-w-[640px]">
     <div class="relative">
-      <h3 class="b-1 text-2xl font-extrabold">Hi, {$userInfo.firstName}!</h3>
-      <p class="text-secondary max-w-[50ch] pt-2 pr-20">
-        Welcome to intric. I'm your personal assistant and ready to help. Ask me a question to get
-        started.
+      <h3 class="b-1 text-2xl font-extrabold">
+        {$_("spaces.chat.page.title", { values: { firstName: $userInfo.firstName } })}
+      </h3>
+      <p class="text-secondary max-w-[50ch] pr-20 pt-2">
+        {$_("spaces.chat.page.welcomeMessage")}
       </p>
     </div>
   </div>
@@ -152,7 +154,7 @@
         }}
       />
 
-      <div class="text-secondary flex-col pt-8 pb-12">
+      <div class="text-secondary flex-col pb-12 pt-8">
         <div class="flex flex-col items-center justify-center gap-2">
           {#if chat.hasMoreConversations}
             <Button
