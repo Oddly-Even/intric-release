@@ -7,6 +7,7 @@
 <script lang="ts">
   import { IconAttachment } from "@intric/icons/attachment";
   import { getAttachmentManager } from "$lib/features/attachments/AttachmentManager";
+  import { _ } from "svelte-i18n";
 
   export let label = "Select documents to attach";
   let selectedFiles: FileList;
@@ -41,6 +42,8 @@
   <label
     for="fileInput"
     class="bg-secondary text-primary hover:bg-hover-stronger flex h-9 cursor-pointer items-center justify-center gap-1 rounded-lg pr-2 pl-1"
-    ><IconAttachment class="text-primary" />Attach files</label
+    ><IconAttachment class="text-primary" />{$_(
+      "features.attachments.components.attachmentUploadIconButton.label"
+    )}</label
   >
 </div>

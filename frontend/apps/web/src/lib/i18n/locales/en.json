@@ -1,9 +1,97 @@
 {
-  "spaces": {
+
+  "app": {
+    "header": {
+      "title": "intric.ai",
+      "jumpToContent": "Jump to content"
+    },
+    "navigation": {
+      "personal": "Personal",
+      "spaces": "Spaces",
+      "admin": "Admin"
+    },
+    "spaces": {
+      "menu": {
+        "chat": "Chat",
+        "overview": "Overview",
+        "assistants": "Assistants",
+        "apps": "Apps",
+        "knowledge": "Knowledge",
+        "insights": "Insights",
+        "services": "Services",
+        "members": "Members",
+        "settings": "Settings"
+      },
+      "chat": {
+        "page": {
+          "title": {
+            "personal": "Personal",
+            "space": "{spaceName}"
+          },
+          "navigation": {
+            "personal": {
+              "title": "Personal assistant",
+              "tabTitle": "Personal"
+            },
+            "spaces": {
+              "title": "Spaces",
+              "tabTitle": "Space"
+            }
+          },
+          "tabs": {
+            "chat": {
+              "title": "Chat",
+              "welcome": {
+                "title": "Hi, {firstName}!",
+                "message": "Welcome to intric. I'm your personal assistant and ready to help you. Ask a question to get started."
+              }
+            },
+            "history": {
+              "title": "History",
+              "loadMore": "Load more conversations",
+              "conversationsLoaded": "Loaded {loaded}/{total} conversations",
+              "allConversationsLoaded": "Loaded all {total} conversations"
+            },
+            "insights": {
+              "title": "Insights",
+              "noInsights": "No insights available for this chat"
+            }
+          },
+          "actions": {
+            "edit": "Edit",
+            "newConversation": "New conversation"
+          }
+        }
+      }
+    }
+  },
+  "features": {
     "chat": {
-      "page": {
-        "title": "Hi, {firstName}!",
-        "welcomeMessage": "Welcome to intric. I'm your personal assistant and ready to help. Ask me a question to get started."
+      "components": {
+        "mentionInput": {
+          "placeholder": "Ask a question..."
+        },
+        "mentionButton": {
+          "label": "Mention"
+        },
+        "conversationInput": {
+          "send": "Send",
+          "sendDescription": "Send your question"
+        }
+      }
+    },
+    "attachments": {
+      "components": {
+        "attachmentUploadIconButton": {
+          "label": "Attach files"
+        }
+      }
+    },
+    "spaces": {
+      "components": {
+        "spaceSelector": {
+          "personal": "Personal space"
+        }
       }
     }
   }
