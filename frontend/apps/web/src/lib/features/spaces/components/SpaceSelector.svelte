@@ -14,6 +14,7 @@
   import { fade, fly } from "svelte/transition";
   import SpaceChip from "./SpaceChip.svelte";
   import CreateSpaceDialog from "./CreateSpaceDialog.svelte";
+  import { _ } from "svelte-i18n";
 
   export let showSelectPrompt = false;
 
@@ -45,14 +46,16 @@
     class="group border-default relative flex h-[4.25rem] w-full items-center justify-start gap-3 border-b-[0.5px] pt-0.5 pr-5 pl-[1.4rem] font-medium"
   >
     <SpaceChip space={$currentSpace}></SpaceChip>
-    <span class="text-primary flex-grow truncate pl-0.5 text-left"> Personal space </span>
+    <span class="text-primary flex-grow truncate pl-0.5 text-left">
+      {$_("features.spaces.components.spaceSelector.personal")}
+    </span>
   </div>
 {:else}
   <Button
     is={[$trigger]}
     unstyled
     label="Change space or create a new one"
-    class="group border-default hover:bg-accent-dimmer hover:text-accent-stronger relative flex h-[4.25rem] w-full items-center justify-start gap-3 border-b-[0.5px] pt-0.5 pr-5 pl-[1.4rem] font-medium"
+    class="group border-default hover:bg-accent-dimmer hover:text-accent-stronger relative flex h-[4.25rem] w-full items-center justify-start gap-3 border-b-[0.5px] pt-0.5 pr-5 pl-[1.4rem] font-mediu"
   >
     {#if showSelectPrompt}
       <div

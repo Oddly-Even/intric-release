@@ -2,6 +2,7 @@
   import { Button, Tooltip } from "@intric/ui";
   import { getMentionInput } from "./MentionInput";
   import { IconAtSymbol } from "@intric/icons/at-symbol";
+  import { _ } from "svelte-i18n";
 
   const {
     showMentionPicker,
@@ -19,6 +20,6 @@
     on:click={showMentionPicker}
   >
     <IconAtSymbol></IconAtSymbol>
-    Mention</Button
+    {$_("features.chat.components.mentionButton.label")}</Button
   >
 </Tooltip>

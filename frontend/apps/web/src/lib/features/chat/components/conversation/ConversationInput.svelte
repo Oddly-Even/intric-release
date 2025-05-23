@@ -11,6 +11,7 @@
   import { IconWeb } from "@intric/icons/web";
   import { track } from "$lib/core/helpers/track";
   import { getAppContext } from "$lib/core/AppContext";
+  import { _ } from "svelte-i18n";
 
   const chat = getChatService();
   const { featureFlags } = getAppContext();
@@ -130,13 +131,13 @@
     {:else}
       <Button
         disabled={isAskingDisabled}
-        aria-label="Submit your question"
+        aria-label={$_("features.chat.components.conversationInput.sendDescription")}
         type="submit"
         on:click={() => ask()}
         name="ask"
         class="bg-secondary hover:bg-hover-stronger disabled:bg-tertiary disabled:text-secondary flex h-9 items-center justify-center !gap-1 rounded-lg !pr-1 !pl-2"
       >
-        Send
+        {$_("features.chat.components.conversationInput.send")}
         <IconEnter />
       </Button>
     {/if}
