@@ -1,9 +1,96 @@
 {
-  "spaces": {
+  "app": {
+    "header": {
+      "title": "intric.ai",
+      "jumpToContent": "Hoppa till innehåll"
+    },
+    "navigation": {
+      "personal": "Personligt",
+      "spaces": "Spaces",
+      "admin": "Admin"
+    },
+    "spaces": {
+      "menu": {
+        "chat": "Chat",
+        "overview": "Översikt",
+        "assistants": "Assistenter",
+        "apps": "Appar",
+        "knowledge": "Kunskap",
+        "insights": "Insikter",
+        "services": "Tjänster",
+        "members": "Medlemmar",
+        "settings": "Inställningar"
+      },
+      "chat": {
+        "page": {
+          "title": {
+            "personal": "Personlig",
+            "space": "{spaceName}"
+          },
+          "navigation": {
+            "personal": {
+              "title": "Personlig assistent",
+              "tabTitle": "Personlig"
+            },
+            "spaces": {
+              "title": "Dina utrymmen",
+              "tabTitle": "Utrymmen"
+            }
+          },
+          "tabs": {
+            "chat": {
+              "title": "Chat",
+              "welcome": {
+                "title": "Hej, {firstName}!",
+                "message": "Välkommen till intric. Jag är din personliga assistent och redo att hjälpa dig. Ställ en fråga för att komma igång."
+              }
+            },
+            "history": {
+              "title": "Historik",
+              "loadMore": "Ladda fler konversationer",
+              "conversationsLoaded": "Laddade {loaded}/{total} konversationer",
+              "allConversationsLoaded": "Laddade alla {total} konversationer"
+            },
+            "insights": {
+              "title": "Insikter",
+              "noInsights": "Inga insikter tillgängliga för denna chatt"
+            }
+          },
+          "actions": {
+            "edit": "Redigera",
+            "newConversation": "Ny konversation"
+          }
+        }
+      }
+    }
+  },
+  "features": {
     "chat": {
-      "page": {
-        "title": "Hej, {firstName}!",
-        "welcomeMessage": "Välkomen till intric. Jag är din personliga assistent och redo att hjälpa dig. Fråga mig en fråga för att komma igång."
+      "components": {
+        "mentionInput": {
+          "placeholder": "Ställ en fråga..."
+        },
+        "mentionButton": {
+          "label": "Nämn"
+        },
+        "conversationInput": {
+          "send": "Skicka",
+          "sendDescription": "Skicka din fråga"
+        }
+      }
+    },
+    "attachments": {
+      "components": {
+        "attachmentUploadIconButton": {
+          "label": "Bifoga filer"
+        }
+      }
+    },
+    "spaces": {
+      "components": {
+        "spaceSelector": {
+          "personal": "Personligt space"
+        }
       }
     }
   }

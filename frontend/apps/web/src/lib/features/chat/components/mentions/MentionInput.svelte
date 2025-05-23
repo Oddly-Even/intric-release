@@ -1,7 +1,7 @@
 <script lang="ts">
   import { dynamicColour } from "$lib/core/colours";
   import { getMentionInput } from "./MentionInput";
-
+  import { _ } from "svelte-i18n";
   const {
     elements: { input, suggestionList },
     states: { suggestions, selectedIndex, question },
@@ -24,7 +24,9 @@
       {...rest}
     ></div>
     {#if $question.length === 0}
-      <div class="text-muted pointer-events-none absolute top-2">Ask a question...</div>
+      <div class="text-muted pointer-events-none absolute top-2">
+        {$_("features.chat.components.mentionInput.placeholder")}
+      </div>
     {/if}
   </div>
   <div

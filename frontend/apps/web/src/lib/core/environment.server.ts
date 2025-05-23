@@ -39,9 +39,9 @@ export function getEnvironmentConfig() {
   const frontendVersion = __FRONTEND_VERSION__;
   const gitInfo = __IS_PREVIEW__
     ? {
-      branch: __GIT_BRANCH__ ?? "Branch not found",
-      commit: __GIT_COMMIT_SHA__ ?? "Commit not found"
-    }
+        branch: __GIT_BRANCH__ ?? "Branch not found",
+        commit: __GIT_COMMIT_SHA__ ?? "Commit not found"
+      }
     : undefined;
 
   // URLS for various functionality

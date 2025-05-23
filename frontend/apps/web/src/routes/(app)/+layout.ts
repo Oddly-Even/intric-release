@@ -10,6 +10,7 @@ export const load = async (event) => {
   const { tokens, environment, featureFlags } = event.data;
 
   if (browser) {
+    console.log("Setting locale to", environment.defaultLocale);
     locale.set(environment.defaultLocale);
   }
   await waitLocale();

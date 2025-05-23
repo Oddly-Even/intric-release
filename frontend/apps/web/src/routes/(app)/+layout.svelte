@@ -15,6 +15,7 @@
   import { IconIntric } from "@intric/icons/intric";
   import { initAttachmentUrlService } from "$lib/features/attachments/AttachmentUrlService.svelte.js";
   import { initFaviconUrlService } from "$lib/features/knowledge/FaviconUrlService.svelte.js";
+  import { _ } from "svelte-i18n";
 
   export let data;
 
@@ -46,7 +47,7 @@
 <a
   href={contentLink}
   class="bg-primary text-accent-stronger absolute top-1 left-1 z-50 h-0 w-0 overflow-hidden rounded-lg font-medium shadow-lg focus:block focus:h-auto focus:w-auto"
-  ><span class="block p-2">Jump to content</span></a
+  ><span class="block p-2">{$_("app.header.jumpToContent")}</span></a
 >
 
 <div class="bg-secondary absolute inset-0"></div>
@@ -91,14 +92,15 @@
     <nav class="flex h-[3.25rem] w-full overflow-x-auto">
       <a
         href="/spaces/personal/chat"
-        data-current={currentRoute.startsWith("/spaces/personal") ? "page" : undefined}>Personal</a
+        data-current={currentRoute.startsWith("/spaces/personal") ? "page" : undefined}
+        >{$_("app.navigation.personal")}</a
       >
       <a
         href="/spaces/list"
         data-current={currentRoute.startsWith("/spaces") &&
         !currentRoute.startsWith("/spaces/personal")
           ? "page"
-          : undefined}>Spaces</a
+          : undefined}>{$_("app.navigation.spaces")}</a
       >
 
       <div aria-hidden="true" class="flex-grow"></div>
@@ -106,7 +108,7 @@
       <!-- Toggle -->
       {#if user.hasPermission("admin")}
         <a href="/admin" data-current={currentRoute.startsWith("/admin") ? "page" : undefined}
-          >Admin</a
+          >{$_("app.navigation.admin")}</a
         >
       {/if}
 
