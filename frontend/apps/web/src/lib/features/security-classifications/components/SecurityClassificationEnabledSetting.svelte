@@ -11,6 +11,7 @@
   import { IntricError } from "@intric/intric-js";
   import { Settings } from "$lib/components/layout";
   import { createAsyncState } from "$lib/core/helpers/createAsyncState.svelte";
+  import { _ } from "svelte-i18n";
 
   const security = getSecurityClassificationService();
 
@@ -45,21 +46,25 @@
 </script>
 
 <Settings.Row
-  title="Security classification"
-  description="Enable security classifications across your organisation's spaces."
+  title={$_("app.admin.security.settings.enabled.title")}
+  description={$_("app.admin.security.settings.enabled.description")}
 >
   <div class="border-default flex h-14 border-b py-2">
-    <Input.RadioSwitch bind:value={isEnabled} sideEffect={onValueChange}></Input.RadioSwitch>
+    <Input.RadioSwitch
+      bind:value={isEnabled}
+      sideEffect={onValueChange}
+      labelTrue={$_("app.admin.security.settings.enabled.toggle.enable")}
+      labelFalse={$_("app.admin.security.settings.enabled.toggle.disable")}
+    ></Input.RadioSwitch>
   </div>
 </Settings.Row>
 
 <Dialog.Root openController={showEnableDialog}>
   <Dialog.Content>
-    <Dialog.Title>Enable security classifications</Dialog.Title>
+    <Dialog.Title>{$_("app.admin.security.settings.enabled.dialog.enable.title")}</Dialog.Title>
 
     <Dialog.Description>
-      Do you want to enable security classifications for your organisation? This will limit the
-      availablity of AI models based on their respective security setting.
+      {$_("app.admin.security.settings.enabled.dialog.enable.description")}
     </Dialog.Description>
 
     <Dialog.Controls>
@@ -67,20 +72,21 @@
         onclick={() => {
           isEnabled = security.isSecurityEnabled;
           $showEnableDialog = false;
-        }}>Cancel</Button
+        }}>{$_("app.admin.security.settings.enabled.dialog.enable.cancel")}</Button
       >
-      <Button variant="primary" onclick={enable} disabled={enable.isLoading}>Enable</Button>
+      <Button variant="primary" onclick={enable} disabled={enable.isLoading}
+        >{$_("app.admin.security.settings.enabled.dialog.enable.confirm")}</Button
+      >
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
 
 <Dialog.Root openController={showDisableDialog}>
   <Dialog.Content>
-    <Dialog.Title>Disable security classifications</Dialog.Title>
+    <Dialog.Title>{$_("app.admin.security.settings.enabled.dialog.disable.title")}</Dialog.Title>
 
     <Dialog.Description>
-      Do you want to disable security classifications for your organisation? This will remove model
-      restrictions from your spaces.
+      {$_("app.admin.security.settings.enabled.dialog.disable.description")}
     </Dialog.Description>
 
     <Dialog.Controls>
@@ -88,9 +94,11 @@
         onclick={() => {
           isEnabled = security.isSecurityEnabled;
           $showDisableDialog = false;
-        }}>Cancel</Button
+        }}>{$_("app.admin.security.settings.enabled.dialog.disable.cancel")}</Button
       >
-      <Button variant="destructive" onclick={disable} disabled={disable.isLoading}>Disable</Button>
+      <Button variant="destructive" onclick={disable} disabled={disable.isLoading}
+        >{$_("app.admin.security.settings.enabled.dialog.disable.confirm")}</Button
+      >
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>

@@ -9,6 +9,7 @@
   import CreateSpaceDialog from "$lib/features/spaces/components/CreateSpaceDialog.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import SpacesTable from "./SpacesTable.svelte";
+  import { _ } from "svelte-i18n";
 
   const {
     state: { accessibleSpaces }
@@ -17,7 +18,7 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Your spaces"></Page.Title>
+    <Page.Title title={$_("app.spaces.list.title")}></Page.Title>
     <CreateSpaceDialog includeTrigger={true} forwardToNewSpace={false}></CreateSpaceDialog>
   </Page.Header>
 

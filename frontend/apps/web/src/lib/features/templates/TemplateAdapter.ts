@@ -1,5 +1,7 @@
 import type { AppTemplate, AssistantTemplate, Intric, JSONRequestBody } from "@intric/intric-js";
 import { appTemplateCategories, assistantTemplateCategories } from "./TemplateCategories";
+import { _ } from "svelte-i18n";
+import { get } from "svelte/store";
 
 export type GenericTemplate = {
   [K in keyof AssistantTemplate & keyof AppTemplate]: AssistantTemplate[K] | AppTemplate[K];
@@ -38,7 +40,11 @@ export function createAssistantTemplateAdapter(params: {
       return await intric.assistants.create({ spaceId: currentSpaceId, name, from_template });
     },
     getResourceName() {
-      return { singular: "assistant", singularCapitalised: "Assistant" };
+      const t = get(_);
+      return {
+        singular: t("features.templates.resource.assistant"),
+        singularCapitalised: t("features.templates.resource.assistantCapitalised")
+      };
     },
     getCategorisedTemplates(templates) {
       return Object.entries(assistantTemplateCategories).map(([category, info]) => {
@@ -66,7 +72,11 @@ export function createAppTemplateAdapter(params: {
       return await intric.apps.create({ spaceId: currentSpaceId, name, from_template });
     },
     getResourceName() {
-      return { singular: "app", singularCapitalised: "App" };
+      const t = get(_);
+      return {
+        singular: t("features.templates.resource.app"),
+        singularCapitalised: t("features.templates.resource.appCapitalised")
+      };
     },
     getCategorisedTemplates(templates) {
       return Object.entries(appTemplateCategories).map(([category, info]) => {

@@ -11,6 +11,7 @@
   import AddMember from "./AddMember.svelte";
   import MemberRole from "./MemberRole.svelte";
   import { Page, Settings } from "$lib/components/layout";
+  import { _ } from "svelte-i18n";
 
   const { user } = getAppContext();
 
@@ -30,31 +31,31 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.name} – Members</title>
+  <title>Intric.ai – {$currentSpace.name} – {$_("app.spaces.members.title")}</title>
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Members"></Page.Title>
+    <Page.Title title={$_("app.spaces.members.title")}></Page.Title>
     {#if $currentSpace.hasPermission("add", "member")}
       <AddMember></AddMember>
     {/if}
   </Page.Header>
   <Page.Main>
     <Settings.Page>
-      <Settings.Group title="Current members">
+      <Settings.Group title={$_("app.spaces.members.currentMembers")}>
         <Settings.Row
-          title="Admins & Editors"
-          description="People that can create and edit new assistants and apps, and manage this space's knowledge."
+          title={$_("app.spaces.members.adminsEditors")}
+          description={$_("app.spaces.members.adminsEditorsDescription")}
         >
           <div class="flex flex-grow flex-col">
             {#each editors as member (member.id)}
               <div
-                class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
               >
                 <MemberChip {member}></MemberChip>
                 {#if user.id === member.id}
-                  <span class="text-primary">{member.email} (you)</span>
+                  <span class="text-primary">{member.email} {$_("app.spaces.members.you")}</span>
                 {:else}
                   <span class="text-primary">{member.email}</span>
                 {/if}
@@ -71,18 +72,19 @@
 
         {#if isViewerRoleAvailable}
           <Settings.Row
-            title="Viewers"
-            description="People that can see and use this space's published assistants and apps."
+            title={$_("app.spaces.members.viewers")}
+            description={$_("app.spaces.members.viewersDescription")}
           >
             <div class="flex flex-grow flex-col">
               {#if viewers.length > 0}
                 {#each viewers as member (member.id)}
                   <div
-                    class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                    class="border-default hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
                   >
                     <MemberChip {member}></MemberChip>
                     {#if user.id === member.id}
-                      <span class="text-primary">{member.email} (you)</span>
+                      <span class="text-primary">{member.email} {$_("app.spaces.members.you")}</span
+                      >
                     {:else}
                       <span class="text-primary">{member.email}</span>
                     {/if}
@@ -96,9 +98,9 @@
                 {/each}
               {:else}
                 <div
-                  class="border-default text-muted hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pr-4 pl-4"
+                  class="border-default text-muted hover:bg-hover-dimmer flex items-center justify-between gap-4 border-b py-4 pl-4 pr-4"
                 >
-                  There are currently no viewers in this space
+                  {$_("app.spaces.members.noViewers")}
                 </div>
               {/if}
             </div>

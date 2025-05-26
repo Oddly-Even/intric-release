@@ -9,6 +9,7 @@
   import type { StorageSpaceList, StorageUsageSummary } from "@intric/intric-js";
   import StorageOverviewBar from "./StorageOverviewBar.svelte";
   import StorageTable from "./StorageTable.svelte";
+  import { _ } from "svelte-i18n";
 
   type Props = {
     spaces: StorageSpaceList[];
@@ -19,13 +20,13 @@
 </script>
 
 <Settings.Page>
-  <Settings.Group title="Overview">
+  <Settings.Group title={$_("app.admin.usage.storage.overview")}>
     <StorageOverviewBar {storageStats}></StorageOverviewBar>
   </Settings.Group>
-  <Settings.Group title="Details">
+  <Settings.Group title={$_("app.admin.usage.storage.details")}>
     <Settings.Row
-      title="Public Spaces"
-      description="See this organisation's public spaces and their storage use."
+      title={$_("app.admin.usage.storage.publicSpaces")}
+      description={$_("app.admin.usage.storage.publicSpacesDescription")}
       fullWidth
     >
       <StorageTable {spaces} />

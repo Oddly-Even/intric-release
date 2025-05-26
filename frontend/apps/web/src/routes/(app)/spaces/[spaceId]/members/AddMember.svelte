@@ -14,6 +14,7 @@
   import MemberChip from "$lib/features/spaces/components/MemberChip.svelte";
   import { UserList } from "./AddMember.svelte.ts";
   import { createAsyncState } from "$lib/core/helpers/createAsyncState.svelte.ts";
+  import { _ } from "svelte-i18n";
 
   const {
     refreshCurrentSpace,
@@ -66,23 +67,23 @@
 
 <Dialog.Root bind:isOpen={showDialog}>
   <Dialog.Trigger asFragment let:trigger>
-    <Button variant="primary" is={trigger}>Add new member</Button>
+    <Button variant="primary" is={trigger}>{$_("app.spaces.members.addMember")}</Button>
   </Dialog.Trigger>
 
   <Dialog.Content width="medium" form>
-    <Dialog.Title>Add new member</Dialog.Title>
+    <Dialog.Title>{$_("app.spaces.members.addMember")}</Dialog.Title>
 
     <Dialog.Section scrollable={false}>
       <div class="hover:bg-hover-dimmer flex items-center rounded-md">
-        <div class="flex flex-grow flex-col gap-1 rounded-md pt-2 pr-2 pb-4 pl-4">
+        <div class="flex flex-grow flex-col gap-1 rounded-md pb-4 pl-4 pr-2 pt-2">
           <div>
-            <span class="pl-3 font-medium">User</span>
+            <span class="pl-3 font-medium">{$_("app.spaces.members.user")}</span>
           </div>
 
           <div class="relative flex flex-grow">
             <input
               bind:this={inputElement}
-              placeholder="Find user..."
+              placeholder={$_("app.spaces.members.findUser")}
               {...$input}
               required
               use:input
@@ -95,7 +96,7 @@
                 $open = true;
               }}
             >
-              <IconSearch class="absolute top-2 right-4" />
+              <IconSearch class="absolute right-4 top-2" />
             </button>
           </div>
           <ul
@@ -121,7 +122,9 @@
                   >
                     <Tooltip
                       text={isMember
-                        ? `This user is already a member of ${$currentSpace.name}`
+                        ? $_("app.spaces.members.alreadyMember", {
+                            values: { name: $currentSpace.name }
+                          })
                         : undefined}
                       class="pointer-events-auto flex w-full"
                     >
@@ -136,7 +139,8 @@
                   </li>
                 {/each}
               {:else}
-                <span class="text-secondary px-2 py-1">No matching users found.</span>
+                <span class="text-secondary px-2 py-1">{$_("app.spaces.members.noUsersFound")}</span
+                >
               {/if}
             </div>
             {#if userList.hasMoreUsers}
@@ -146,9 +150,11 @@
                 disabled={userList.isLoadingUsers}
               >
                 {#if userList.isLoadingUsers}
-                  Loading...
+                  {$_("app.spaces.members.loading")}
                 {:else}
-                  Load more ({userList.filteredUsers.length}/{userList.totalCount})
+                  {$_("app.spaces.members.loadMore", {
+                    values: { count: userList.filteredUsers.length, total: userList.totalCount }
+                  })}
                 {/if}
               </Button>
             {/if}
@@ -160,16 +166,18 @@
           options={$currentSpace.available_roles.map((role) => {
             return { label: role.label, value: role };
           })}
-          bind:value={selectedRole}>Role</Select.Simple
+          bind:value={selectedRole}>{$_("app.spaces.members.role")}</Select.Simple
         >
       </div>
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("app.spaces.members.cancel")}</Button>
 
       <Button variant="primary" on:click={addMember} type="submit"
-        >{addMember.isLoading ? "Adding..." : "Add member"}</Button
+        >{addMember.isLoading
+          ? $_("app.spaces.members.adding")
+          : $_("app.spaces.members.add")}</Button
       >
     </Dialog.Controls>
   </Dialog.Content>

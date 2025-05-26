@@ -8,6 +8,7 @@
   import { Button, Dialog, Input } from "@intric/ui";
   import { getSpacesManager } from "../SpacesManager";
   import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
 
   const spaces = getSpacesManager();
 
@@ -22,23 +23,23 @@
 <Dialog.Root bind:isOpen>
   {#if includeTrigger}
     <Dialog.Trigger let:trigger asFragment>
-      <Button variant="primary" is={trigger}>Create space</Button>
+      <Button variant="primary" is={trigger}>{$_("features.spaces.create.trigger")}</Button>
     </Dialog.Trigger>
   {/if}
   <Dialog.Content width="medium" form>
-    <Dialog.Title>Create a new space</Dialog.Title>
+    <Dialog.Title>{$_("features.spaces.create.title")}</Dialog.Title>
 
     <Dialog.Section>
       <Input.Text
         bind:value={newSpaceName}
-        label="Name"
+        label={$_("features.spaces.create.name")}
         required
         class="hover:bg-hover-dimmer px-4 py-4"
       ></Input.Text>
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("features.spaces.create.cancel")}</Button>
       <Button
         variant="primary"
         on:click={async () => {
@@ -53,7 +54,10 @@
             }
           }
           isCreatingSpace = false;
-        }}>{isCreatingSpace ? "Creating..." : "Create space"}</Button
+        }}
+        >{isCreatingSpace
+          ? $_("features.spaces.create.creating")
+          : $_("features.spaces.create.trigger")}</Button
       >
     </Dialog.Controls>
   </Dialog.Content>

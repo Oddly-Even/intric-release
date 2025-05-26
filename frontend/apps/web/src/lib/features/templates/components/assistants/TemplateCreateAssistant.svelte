@@ -6,6 +6,7 @@
   import { Button, Dialog, Input } from "@intric/ui";
   import CreateAssistantBackdrop from "./CreateAssistantBackdrop.svelte";
   import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
 
   const {
     state: { currentSpace },
@@ -34,7 +35,7 @@
     {#if $$slots.default}
       <slot {trigger}></slot>
     {:else}
-      <Button is={trigger} variant="primary">Create assistant</Button>
+      <Button is={trigger} variant="primary">{$_("app.spaces.assistants.create")}</Button>
     {/if}
   </Dialog.Trigger>
 
@@ -43,19 +44,18 @@
       <p
         class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
       >
-        <span class="font-bold">Warning:</span>
-        This space does currently not have any completion models enabled. Enable at least one completion
-        model to be able to create an assistant.
+        <span class="font-bold">{$_("app.spaces.assistants.warning")}</span>
+        {$_("app.spaces.assistants.noCompletionModels")}
       </p>
       <div class="border-dimmer border-b"></div>
     {/if}
 
-    <Dialog.Section class="relative mt-2 -mb-0.5">
+    <Dialog.Section class="relative -mb-0.5 mt-2">
       {#if $currentStep === "wizard"}
         <TemplateWizard></TemplateWizard>
       {:else}
         <TemplateSelector></TemplateSelector>
-        <div class="absolute top-0 right-0 h-52 w-72 overflow-hidden">
+        <div class="absolute right-0 top-0 h-52 w-72 overflow-hidden">
           <CreateAssistantBackdrop></CreateAssistantBackdrop>
         </div>
       {/if}
@@ -67,7 +67,8 @@
         sideEffect={() => {
           userTouchedToggle = true;
         }}
-        class="flex-row-reverse p-2">Open assistant editor after creation</Input.Switch
+        class="flex-row-reverse p-2"
+        >{$_("app.spaces.assistants.openEditorAfterCreation")}</Input.Switch
       >
       <div class="flex-grow"></div>
 
@@ -75,10 +76,10 @@
         <Button
           on:click={() => {
             $currentStep = "start";
-          }}>Back</Button
+          }}>{$_("app.spaces.assistants.back")}</Button
         >
       {:else}
-        <Button is={close}>Cancel</Button>
+        <Button is={close}>{$_("app.spaces.assistants.cancel")}</Button>
       {/if}
       <Button
         variant="primary"

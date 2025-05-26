@@ -9,6 +9,7 @@
   import { IconCopy } from "@intric/icons/copy";
   import { IconFile } from "@intric/icons/file";
   import { getAppContext } from "$lib/core/AppContext";
+  import { _ } from "svelte-i18n";
 
   const {
     state: { name, creationMode, selectedTemplate, showTemplateGallery, hasWizard },
@@ -19,23 +20,33 @@
 </script>
 
 <div class="outer relative flex flex-grow flex-col items-start justify-start text-left">
-  <div class=" border-default flex w-full flex-col px-10 pt-12 pb-10">
-    <h3 class="px-4 pb-1 text-2xl font-extrabold">Create a new {resourceName.singular}</h3>
-    <p class="text-secondary max-w-[60ch] pr-36 pl-4">
+  <div class=" border-default flex w-full flex-col px-10 pb-10 pt-12">
+    <h3 class="px-4 pb-1 text-2xl font-extrabold">
+      {$_("features.templates.selector.createNew", { values: { resource: resourceName.singular } })}
+    </h3>
+    <p class="text-secondary max-w-[60ch] pl-4 pr-36">
       {#if featureFlags.showTemplates}
-        Create a new {resourceName.singular} from scratch or get started with a premade {resourceName.singular}
-        from our template gallery.
+        {$_("features.templates.selector.createNewOrTemplate", {
+          values: { resource: resourceName.singular }
+        })}
       {:else}
-        Get started creating a new {resourceName.singular} by entering a name below. You will be able
-        to edit your {resourceName.singular} after creation.
+        {$_("features.templates.selector.createNewDescription", {
+          values: { resource: resourceName.singular }
+        })}
       {/if}
     </p>
     <!-- <div class="h-8"></div> -->
-    <div class="border-dimmer mt-14 mb-2 border-t"></div>
-    <div class="flex flex-col gap-1 pt-6 pb-4">
-      <span class="px-4 pb-1 text-lg font-medium">{resourceName.singularCapitalised} name</span>
+    <div class="border-dimmer mb-2 mt-14 border-t"></div>
+    <div class="flex flex-col gap-1 pb-4 pt-6">
+      <span class="px-4 pb-1 text-lg font-medium"
+        >{$_("features.templates.selector.nameLabel", {
+          values: { resource: resourceName.singularCapitalised }
+        })}</span
+      >
       <Input.Text bind:value={$name} hiddenLabel inputClass="!text-lg !py-6 !px-4" required
-        >{resourceName.singularCapitalised} name</Input.Text
+        >{$_("features.templates.selector.nameLabel", {
+          values: { resource: resourceName.singularCapitalised }
+        })}</Input.Text
       >
     </div>
     {#if featureFlags.showTemplates}
@@ -48,7 +59,9 @@
           <div class="flex w-full items-center justify-start gap-2 text-left">
             <IconFile></IconFile>
             <span class="text-dynamic-stronger line-clamp-2">
-              Create a blank {resourceName.singular}</span
+              {$_("features.templates.selector.createBlank", {
+                values: { resource: resourceName.singular }
+              })}</span
             >
           </div>
         </button>
@@ -71,13 +84,13 @@
                 >
               {:else}
                 <IconCopy></IconCopy>
-                Start with a template...
+                {$_("features.templates.selector.startWithTemplate")}
               {/if}
               <div class="flex-grow"></div>
             </div>
           </button>
           <button
-            class="border-default text-secondary hover:bg-hover-default absolute top-[50%] right-2 -translate-y-[50%] rounded border p-1"
+            class="border-default text-secondary hover:bg-hover-default absolute right-2 top-[50%] -translate-y-[50%] rounded border p-1"
             on:click|preventDefault={() => {
               $showTemplateGallery = true;
             }}
@@ -90,7 +103,7 @@
       {#if $hasWizard}
         <p class="text-secondary translate-y-5 p-2 text-center">
           <IconInfo class="inline"></IconInfo>
-          This template offers additional options. You can configure them in the next step.
+          {$_("features.templates.selector.hasWizard")}
         </p>
       {/if}
 

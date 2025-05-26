@@ -3,6 +3,7 @@ import { type GroupSparse, type TemplateAdditionalField } from "@intric/intric-j
 import { derived, get, writable } from "svelte/store";
 import { type Attachment } from "../attachments/AttachmentManager";
 import type { GenericTemplate, TemplateAdapter } from "./TemplateAdapter";
+import { _ } from "svelte-i18n";
 
 const [getTemplateController, setTemplateController] =
   createContext<ReturnType<typeof createTemplateController>>();
@@ -48,11 +49,20 @@ function createTemplateController(data: TemplateControllerParams) {
   const createButtonLabel = derived(
     [hasWizard, currentStep, creationMode],
     ([$hasWizard, $currentStep, $creationMode]) => {
+      const t = get(_);
       if ($creationMode === "blank" || !$hasWizard) {
-        return `Create ${adapter.getResourceName().singular}`;
+        return t(
+          "features.templates.controller.create",
+          { values: { resource: adapter.getResourceName().singular } }
+        );
       }
 
-      return $currentStep === "start" ? "Next" : `Create ${adapter.getResourceName().singular}`;
+      return $currentStep === "start"
+        ? t("features.templates.controller.next")
+        : t(
+          "features.templates.controller.create",
+          { values: { resource: adapter.getResourceName().singular } }
+        );
     }
   );
 

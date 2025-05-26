@@ -18,6 +18,7 @@
   import { getIntric } from "$lib/core/Intric";
   import { Button } from "@intric/ui";
   import { IconChevronRight } from "@intric/icons/chevron-right";
+  import { _ } from "svelte-i18n";
 
   type Props =
     | {
@@ -69,9 +70,9 @@
   }
 
   const label: Record<typeof type, string> = {
-    completionModel: "Configure completion models",
-    embeddingModel: "Configure embedding models",
-    transcriptionModel: "Configure transcription models"
+    completionModel: $_("app.admin.security.models.completion.title"),
+    embeddingModel: $_("app.admin.security.models.embedding.title"),
+    transcriptionModel: $_("app.admin.security.models.transcription.title")
   };
 
   const countClassifiedModels = () => {
@@ -79,7 +80,7 @@
     const classified = models.filter(
       ({ security_classification }) => security_classification !== null
     ).length;
-    return `${classified} of ${total} classified`;
+    return $_("app.admin.security.models.completion.classified", { values: { classified, total } });
   };
 
   let classifiedCount = $state(countClassifiedModels());

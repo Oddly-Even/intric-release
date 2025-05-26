@@ -9,13 +9,14 @@
   import type { Assistant } from "@intric/intric-js";
   import { Table } from "@intric/ui";
   import { createRender } from "svelte-headless-table";
+  import { _ } from "svelte-i18n";
 
   export let assistants: Assistant[];
   const table = Table.createWithResource(assistants);
 
   const viewModel = table.createViewModel([
     table.columnPrimary({
-      header: "Name",
+      header: $_("app.admin.insights.assistants.table.columns.name"),
       value: (item) => item.name,
       cell: (item) => {
         return createRender(Table.PrimaryCell, {
@@ -26,9 +27,12 @@
       }
     }),
     table.column({
-      header: "Logging",
+      header: $_("app.admin.insights.assistants.table.columns.logging"),
       accessor: "logging_enabled",
-      cell: (item) => (item.value ? "Enabled" : "–"),
+      cell: (item) =>
+        item.value
+          ? $_("app.admin.insights.assistants.table.logging.enabled")
+          : $_("app.admin.insights.assistants.table.logging.disabled"),
       plugins: {
         sort: { getSortValue: (item) => item.logging_enabled ?? 0 }
       }

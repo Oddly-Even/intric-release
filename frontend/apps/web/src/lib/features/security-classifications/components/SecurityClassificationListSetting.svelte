@@ -12,25 +12,27 @@
   import SecurityClassificationActions from "./SecurityClassificationActions.svelte";
   import { IconLockClosed } from "@intric/icons/lock-closed";
   import { IconLockOpen } from "@intric/icons/lock-open";
+  import { _ } from "svelte-i18n";
 
   const security = getSecurityClassificationService();
 </script>
 
 <Settings.Row
   fullWidth
-  title="Classifications"
-  description="Manage your organisation's security classifications and their descriptions."
+  title={$_("app.admin.security.settings.list.title")}
+  description={$_("app.admin.security.settings.list.description")}
 >
   <div slot="toolbar">
     <SecurityClassificationCreateDialog></SecurityClassificationCreateDialog>
   </div>
 
   <div class="relative pl-2">
-    <div class="border-default absolute top-2 bottom-2 left-9 z-0 border-l"></div>
+    <div class="border-default absolute bottom-2 left-9 top-2 z-0 border-l"></div>
     <div
       class="border-strongest bg-primary relative z-0 mb-4 flex w-fit items-center gap-2 rounded-full border px-4 py-2 font-mono text-sm shadow-sm"
     >
-      <IconLockClosed></IconLockClosed> Highest security
+      <IconLockClosed></IconLockClosed>
+      {$_("app.admin.security.settings.list.highestSecurity")}
     </div>
     {#if security.classifications.length > 0}
       <table class=" w-full">
@@ -61,13 +63,14 @@
       </table>
     {:else}
       <div class="text-muted flex h-20 items-center justify-center">
-        Your organisation does currently not have any security classifications configured.
+        {$_("app.admin.security.settings.list.empty")}
       </div>
     {/if}
     <div
       class="border-strongest bg-primary relative z-0 mt-4 flex w-fit items-center gap-2 rounded-full border px-4 py-2 font-mono text-sm shadow-sm"
     >
-      <IconLockOpen></IconLockOpen> Lowest security
+      <IconLockOpen></IconLockOpen>
+      {$_("app.admin.security.settings.list.lowestSecurity")}
     </div>
   </div>
 </Settings.Row>

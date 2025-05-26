@@ -10,6 +10,7 @@
   import { IntricError } from "@intric/intric-js";
   import { Button, Dialog, Dropdown, Input } from "@intric/ui";
   import { writable } from "svelte/store";
+  import { _ } from "svelte-i18n";
 
   const intric = getIntric();
 
@@ -49,7 +50,7 @@
 <div class="flex gap-[1px]">
   <TemplateCreateAssistant let:trigger={createAssistantTrigger}>
     <Button variant="primary" is={createAssistantTrigger} class="!rounded-r-none"
-      >Create assistant</Button
+      >{$_("app.spaces.assistants.create")}</Button
     ></TemplateCreateAssistant
   >
   <Dropdown.Root gutter={2} arrowSize={0} placement="bottom-end">
@@ -61,11 +62,11 @@
     <Dropdown.Menu let:item>
       <Button is={item} onclick={() => ($showCreateAssistantDialog = true)}>
         <IconAssistant size="sm"></IconAssistant>
-        Create new assistant</Button
+        {$_("app.spaces.assistants.createNew")}</Button
       >
       <Button is={item} onclick={() => ($showCreateGroupChatDialog = true)}>
         <IconPeople size="sm"></IconPeople>
-        Create new group chat</Button
+        {$_("app.spaces.assistants.createGroupChat")}</Button
       >
     </Dropdown.Menu>
   </Dropdown.Root>
@@ -73,22 +74,26 @@
 
 <Dialog.Root openController={showCreateGroupChatDialog}>
   <Dialog.Content width="dynamic">
-    <Dialog.Section class="relative mt-2 -mb-0.5">
-      <div class=" border-default flex w-full flex-col px-10 pt-12 pb-10">
-        <h3 class="px-4 pb-1 text-2xl font-extrabold">Create a new group chat</h3>
-        <p class="text-secondary max-w-[60ch] pr-36 pl-4">
-          Group chats are an easy way to communicate with multiple assistants in a single session.
+    <Dialog.Section class="relative -mb-0.5 mt-2">
+      <div class=" border-default flex w-full flex-col px-10 pb-10 pt-12">
+        <h3 class="px-4 pb-1 text-2xl font-extrabold">
+          {$_("app.spaces.assistants.createGroupChatTitle")}
+        </h3>
+        <p class="text-secondary max-w-[60ch] pl-4 pr-36">
+          {$_("app.spaces.assistants.groupChatDescription")}
         </p>
         <!-- <div class="h-8"></div> -->
-        <div class=" border-dimmer mt-14 mb-4 border-t"></div>
-        <div class="flex flex-col gap-1 pt-6 pb-4">
-          <span class="px-4 pb-1 text-lg font-medium">Group chat name</span>
+        <div class=" border-dimmer mb-4 mt-14 border-t"></div>
+        <div class="flex flex-col gap-1 pb-4 pt-6">
+          <span class="px-4 pb-1 text-lg font-medium"
+            >{$_("app.spaces.assistants.groupChatName")}</span
+          >
           <Input.Text
             bind:value={newGroupChatName}
             hiddenLabel
             inputClass="!text-lg !py-6 !px-4"
-            placeholder="Name..."
-            required>Group chat name</Input.Text
+            placeholder={$_("app.spaces.assistants.groupChatNamePlaceholder")}
+            required>{$_("app.spaces.assistants.groupChatName")}</Input.Text
           >
         </div>
       </div>
@@ -96,11 +101,13 @@
 
     <Dialog.Controls let:close>
       <Input.Switch bind:value={openGroupChatAfterCreation} class="flex-row-reverse p-2"
-        >Open group chat editor after creation</Input.Switch
+        >{$_("app.spaces.assistants.openGroupChatEditor")}</Input.Switch
       >
       <div class="flex-grow"></div>
-      <Button is={close}>Cancel</Button>
-      <Button is={close} onclick={createNewGroupChat} variant="primary">Create group chat</Button>
+      <Button is={close}>{$_("app.spaces.assistants.cancel")}</Button>
+      <Button is={close} onclick={createNewGroupChat} variant="primary"
+        >{$_("app.spaces.assistants.createGroupChat")}</Button
+      >
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>

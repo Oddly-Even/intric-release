@@ -1,155 +1,222 @@
 {
-  "app": {
-    "header": {
-      "title": "intric.ai",
-      "jumpToContent": "Hoppa till innehåll"
-    },
-    "navigation": {
-      "personal": "Personligt",
-      "spaces": "Spaces",
-      "admin": "Admin"
-    },
-    "spaces": {
-      "page": {
-        "title": {
-          "personal": "Personligt",
-          "space": "intric.ai – {spaceName}"
-        }
-      },
-      "menu": {
-        "chat": "Chat",
-        "overview": "Översikt",
-        "assistants": "Assistenter",
-        "apps": "Appar",
-        "knowledge": "Kunskap",
-        "insights": "Insikter",
-        "services": "Tjänster",
-        "members": "Medlemmar",
-        "settings": "Inställningar"
-      },
-      "chat": {
-        "page": {
-          "title": {
-            "personal": "Personlig",
-            "space": "{spaceName}"
-          },
-          "navigation": {
-            "personal": {
-              "title": "Personlig assistent",
-              "tabTitle": "Personlig"
-            },
-            "spaces": {
-              "title": "Dina utrymmen",
-              "tabTitle": "Utrymmen"
-            }
-          },
-          "tabs": {
-            "chat": {
-              "title": "Chat",
-              "welcome": {
-                "title": "Hej, {firstName}!",
-                "message": "Välkommen till intric. Jag är din personliga assistent och redo att hjälpa dig. Ställ en fråga för att komma igång."
-              }
-            },
-            "history": {
-              "title": "Historik",
-              "loadMore": "Ladda fler konversationer",
-              "conversationsLoaded": "Laddade {loaded}/{total} konversationer",
-              "allConversationsLoaded": "Laddade alla {total} konversationer"
-            },
-            "insights": {
-              "title": "Insikter",
-              "noInsights": "Inga insikter tillgängliga för denna chatt"
-            }
-          },
-          "actions": {
-            "edit": "Redigera",
-            "newConversation": "Ny konversation"
-          }
-        }
-      }
-    },
-    "account": {
-      "menu": {
-        "title": "Inställningar",
-        "account": "Mitt konto",
-        "apiKeys": "Mina API-nycklar",
-        "logout": "Logga ut"
-      }
-    },
-    "admin": {
-      "navigation": {
-        "organisation": "Organisation",
-        "models": "Modeller",
-        "security": "Säkerhet",
-        "usage": "Användning",
-        "insights": "Insikter",
-        "users": "Användare",
-        "userGroups": "Användargrupper",
-        "roles": "Roller",
-        "integrations": "Integrationer",
-        "beta": "Beta"
-      },
-      "models": {
-        "page": {
-          "title": "Intric.ai – Admin – Modeller",
-          "header": {
-            "title": "Modeller",
-            "tabs": {
-              "completion": "Completion modeller",
-              "embedding": "Embedding modeller",
-              "transcription": "Transkriberingsmodeller"
-            }
-          }
-        },
-        "table": {
-          "columns": {
-            "name": "Namn",
-            "enabled": "Aktiverad",
-            "details": "Detaljer",
-            "security": "Säkerhet"
-          }
-        },
-        "actions": {
-          "showInfo": "Visa modellinfo",
-          "editSecurity": "Redigera säkerhetsklassificering",
-          "setDefault": "Ange som standardmodell",
-          "unsetDefault": "Ta bort standardstatus",
-          "enable": "Aktivera modell",
-          "disable": "Inaktivera modell",
-          "error": "Fel vid ändring av status för {modelName}"
-        }
-      }
-    }
-  },
-  "features": {
-    "chat": {
-      "components": {
-        "mentionInput": {
-          "placeholder": "Ställ en fråga..."
-        },
-        "mentionButton": {
-          "label": "Nämn"
-        },
-        "conversationInput": {
-          "send": "Skicka",
-          "sendDescription": "Skicka din fråga"
-        }
-      }
-    },
-    "attachments": {
-      "components": {
-        "attachmentUploadIconButton": {
-          "label": "Bifoga filer"
-        }
-      }
-    },
-    "spaces": {
-      "components": {
-        "spaceSelector": {
-          "personal": "Personligt space"
-        }
-      }
-    }
-  }
+  "app.header.title": "intric.ai",
+  "app.header.jumpToContent": "Hoppa till innehåll",
+  "app.navigation.personal": "Personligt",
+  "app.navigation.spaces": "Spaces",
+  "app.navigation.admin": "Admin",
+  "app.spaces.page.title.personal": "Personligt",
+  "app.spaces.page.title.space": "intric.ai – {spaceName}",
+  "app.spaces.menu.chat": "Chat",
+  "app.spaces.menu.overview": "Översikt",
+  "app.spaces.menu.assistants": "Assistenter",
+  "app.spaces.menu.apps": "Appar",
+  "app.spaces.menu.knowledge": "Kunskap",
+  "app.spaces.menu.insights": "Insikter",
+  "app.spaces.menu.services": "Tjänster",
+  "app.spaces.menu.members": "Medlemmar",
+  "app.spaces.menu.settings": "Inställningar",
+  "app.spaces.chat.page.title.personal": "Personlig",
+  "app.spaces.chat.page.title.space": "{spaceName}",
+  "app.spaces.chat.page.navigation.personal.title": "Personlig assistent",
+  "app.spaces.chat.page.navigation.personal.tabTitle": "Personlig",
+  "app.spaces.chat.page.navigation.spaces.title": "Dina utrymmen",
+  "app.spaces.chat.page.navigation.spaces.tabTitle": "Utrymmen",
+  "app.spaces.chat.page.tabs.chat.title": "Chat",
+  "app.spaces.chat.page.tabs.chat.welcome.title": "Hej, {firstName}!",
+  "app.spaces.chat.page.tabs.chat.welcome.message": "Välkommen till intric. Jag är din personliga assistent och redo att hjälpa dig. Ställ en fråga för att komma igång.",
+  "app.spaces.chat.page.tabs.history.title": "Historik",
+  "app.spaces.chat.page.tabs.history.loadMore": "Ladda fler konversationer",
+  "app.spaces.chat.page.tabs.history.conversationsLoaded": "Laddade {loaded}/{total} konversationer",
+  "app.spaces.chat.page.tabs.history.allConversationsLoaded": "Laddade alla {total} konversationer",
+  "app.spaces.chat.page.tabs.insights.title": "Insikter",
+  "app.spaces.chat.page.tabs.insights.noInsights": "Inga insikter tillgängliga för denna chatt",
+  "app.spaces.chat.page.actions.edit": "Redigera",
+  "app.spaces.chat.page.actions.newConversation": "Ny konversation",
+  "app.account.menu.title": "Inställningar",
+  "app.account.menu.account": "Mitt konto",
+  "app.account.menu.apiKeys": "Mina API-nycklar",
+  "app.account.menu.logout": "Logga ut",
+  "app.admin.navigation.organisation": "Organisation",
+  "app.admin.navigation.models": "Modeller",
+  "app.admin.navigation.security": "Säkerhet",
+  "app.admin.navigation.usage": "Användning",
+  "app.admin.navigation.insights": "Insikter",
+  "app.admin.navigation.users": "Användare",
+  "app.admin.navigation.userGroups": "Användargrupper",
+  "app.admin.navigation.roles": "Roller",
+  "app.admin.navigation.integrations": "Integrationer",
+  "app.admin.navigation.beta": "Beta",
+  "app.admin.models.page.title": "Intric.ai – Admin – Modeller",
+  "app.admin.models.page.header.title": "Modeller",
+  "app.admin.models.page.header.tabs.completion": "Completion modeller",
+  "app.admin.models.page.header.tabs.embedding": "Embedding modeller",
+  "app.admin.models.page.header.tabs.transcription": "Transkriberingsmodeller",
+  "app.admin.models.table.columns.name": "Namn",
+  "app.admin.models.table.columns.enabled": "Aktiverad",
+  "app.admin.models.table.columns.details": "Detaljer",
+  "app.admin.models.table.columns.security": "Säkerhet",
+  "app.admin.models.actions.showInfo": "Visa modellinfo",
+  "app.admin.models.actions.editSecurity": "Redigera säkerhetsklassificering",
+  "app.admin.models.actions.setDefault": "Ange som standardmodell",
+  "app.admin.models.actions.unsetDefault": "Ta bort standardstatus",
+  "app.admin.models.actions.enable": "Aktivera modell",
+  "app.admin.models.actions.disable": "Inaktivera modell",
+  "app.admin.models.actions.error": "Fel vid ändring av status för {modelName}",
+  "app.admin.insights.page.title": "Intric.ai – Admin – Insikter",
+  "app.admin.insights.page.header.title": "Insikter",
+  "app.admin.insights.page.header.tabs.overview": "Användning",
+  "app.admin.insights.page.header.tabs.assistants": "Assistenter",
+  "app.admin.insights.overview.statistics.title": "Statistik",
+  "app.admin.insights.overview.statistics.assistantUsage.title": "Assistentanvändning",
+  "app.admin.insights.overview.statistics.assistantUsage.description": "Upptäck hur människor interagerar med din organisations assistenter.",
+  "app.admin.insights.overview.statistics.metrics.assistantsCreated": "Skapade assistenter",
+  "app.admin.insights.overview.statistics.metrics.conversationsStarted": "Startade konversationer",
+  "app.admin.insights.overview.statistics.metrics.questionsAsked": "Ställda frågor",
+  "app.admin.insights.overview.statistics.loading": "Laddar data...",
+  "app.admin.insights.overview.graph.filters.newConversations": "Nya konversationer",
+  "app.admin.insights.overview.graph.filters.newQuestions": "Nya frågor",
+  "app.admin.insights.overview.graph.timeframes.byDate": "Per datum",
+  "app.admin.insights.overview.graph.timeframes.byWeekday": "Per veckodag",
+  "app.admin.insights.overview.graph.timeframes.byHour": "Per timme",
+  "app.admin.insights.assistants.table.columns.name": "Namn",
+  "app.admin.insights.assistants.table.columns.logging": "Loggning",
+  "app.admin.insights.assistants.table.logging.enabled": "Aktiverad",
+  "app.admin.insights.assistants.table.logging.disabled": "–",
+  "app.admin.security.page.title": "Intric.ai – Admin – Säkerhetsklassificeringar",
+  "app.admin.security.page.header.title": "Säkerhet",
+  "app.admin.security.settings.general.title": "Allmänt",
+  "app.admin.security.settings.configuration.title": "Konfiguration",
+  "app.admin.security.settings.configuration.classifyModels.title": "Klassificera modeller",
+  "app.admin.security.settings.configuration.classifyModels.description": "Välj en säkerhetsklassificering för alla modeller i din organisation.\nModeller kommer att vara tillgängliga i utrymmen med samma eller lägre klassificering.",
+  "app.admin.security.settings.enabled.title": "Säkerhetsklassificering",
+  "app.admin.security.settings.enabled.description": "Aktivera säkerhetsklassificeringar för din organisations utrymmen.",
+  "app.admin.security.settings.enabled.toggle.enable": "Aktivera",
+  "app.admin.security.settings.enabled.toggle.disable": "Inaktivera",
+  "app.admin.security.settings.enabled.dialog.enable.title": "Aktivera säkerhetsklassificeringar",
+  "app.admin.security.settings.enabled.dialog.enable.description": "Vill du aktivera säkerhetsklassificeringar för din organisation? Detta kommer att begränsa tillgängligheten för AI-modeller baserat på deras respektive säkerhetsinställning.",
+  "app.admin.security.settings.enabled.dialog.enable.cancel": "Avbryt",
+  "app.admin.security.settings.enabled.dialog.enable.confirm": "Aktivera",
+  "app.admin.security.settings.enabled.dialog.disable.title": "Inaktivera säkerhetsklassificeringar",
+  "app.admin.security.settings.enabled.dialog.disable.description": "Vill du inaktivera säkerhetsklassificeringar för din organisation? Detta kommer att ta bort modellrestriktioner från dina utrymmen.",
+  "app.admin.security.settings.enabled.dialog.disable.cancel": "Avbryt",
+  "app.admin.security.settings.enabled.dialog.disable.confirm": "Inaktivera",
+  "app.admin.security.settings.list.title": "Klassificeringar",
+  "app.admin.security.settings.list.description": "Hantera din organisations säkerhetsklassificeringar och deras beskrivningar.",
+  "app.admin.security.settings.list.highestSecurity": "Högsta säkerhet",
+  "app.admin.security.settings.list.lowestSecurity": "Lägsta säkerhet",
+  "app.admin.security.settings.list.empty": "Din organisation har för närvarande inga säkerhetsklassificeringar konfigurerade.",
+  "app.admin.security.settings.create.button": "Skapa ny",
+  "app.admin.security.settings.create.title": "Skapa en ny säkerhetsklassificering",
+  "app.admin.security.settings.create.name.label": "Namn",
+  "app.admin.security.settings.create.name.description": "Ett igenkännbart visningsnamn.",
+  "app.admin.security.settings.create.description.label": "Beskrivning",
+  "app.admin.security.settings.create.description.description": "Beskriv när denna klassificering ska väljas.",
+  "app.admin.security.settings.create.cancel": "Avbryt",
+  "app.admin.security.settings.create.confirm": "Skapa klassificering",
+  "app.admin.security.settings.create.creating": "Skapar...",
+  "app.admin.security.models.completion.title": "Konfigurera completion modeller",
+  "app.admin.security.models.completion.classified": "{classified} av {total} klassificerade",
+  "app.admin.security.models.embedding.title": "Konfigurera embedding modeller",
+  "app.admin.security.models.embedding.classified": "{classified} av {total} klassificerade",
+  "app.admin.security.models.transcription.title": "Konfigurera transkriberingsmodeller",
+  "app.admin.security.models.transcription.classified": "{classified} av {total} klassificerade",
+  "features.chat.components.mentionInput.placeholder": "Ställ en fråga...",
+  "features.chat.components.mentionButton.label": "Nämn",
+  "features.chat.components.conversationInput.send": "Skicka",
+  "features.chat.components.conversationInput.sendDescription": "Skicka din fråga",
+  "features.attachments.components.attachmentUploadIconButton.label": "Bifoga filer",
+  "app.admin.security.classification.none": "Ingen klassificering",
+  "app.admin.security.classification.select": "Välj en säkerhetsklassificering",
+  "app.admin.organisation.title": "Organisation",
+  "app.admin.usage.title": "Användning",
+  "app.admin.usage.storage.summary": "Lagringsöversikt",
+  "app.admin.usage.storage.summaryDescription": "Se hur mycket lagringsutrymme din organisations utrymmen använder.",
+  "app.admin.usage.storage.publicSpaces": "Publika utrymmen",
+  "app.admin.usage.storage.personalSpaces": "Personliga utrymmen",
+  "app.admin.usage.storage.free": "Ledigt",
+  "app.admin.usage.storage.available": "Tillgängligt",
+  "app.admin.usage.storage.overview": "Översikt",
+  "app.admin.usage.storage.details": "Detaljer",
+  "app.admin.usage.storage.publicSpacesDescription": "Se din organisations publika utrymmen och deras lagringsanvändning.",
+  "app.admin.usage.tokens.summary": "Tokenöversikt (senaste 30 dagarna)",
+  "app.admin.usage.tokens.summaryDescription": "Se hur många tokens din organisations applikationer har använt uppdelat per leverantör.",
+  "app.admin.usage.tokens.unknownOrg": "Okänd organisation",
+  "features.jobs.dropdown.notificationsAndJobs": "Aviseringar och jobb",
+  "features.jobs.dropdown.uploading": "Laddar upp",
+  "features.jobs.dropdown.waiting": "Väntar...",
+  "features.jobs.dropdown.done": "Klar",
+  "features.jobs.dropdown.analysing": "Analyserar...",
+  "features.jobs.dropdown.embedding": "Bearbetar embedding...",
+  "features.jobs.dropdown.transcribing": "Transkriberar...",
+  "features.jobs.dropdown.importingConfluence": "Importerar från Confluence...",
+  "features.jobs.dropdown.importingSharepoint": "Importerar från Sharepoint...",
+  "features.jobs.dropdown.crawling": "Genomsöker...",
+  "features.jobs.dropdown.upToDate": "Allt är uppdaterat",
+  "app.spaces.list.title": "Dina utrymmen",
+  "app.spaces.list.table.name": "Namn",
+  "app.spaces.list.table.showOnly10": "Visa endast 10 utrymmen",
+  "app.spaces.list.table.showAll": "Visa alla {count} utrymmen",
+  "features.spaces.create.trigger": "Skapa utrymme",
+  "features.spaces.create.title": "Skapa ett nytt utrymme",
+  "features.spaces.create.name": "Namn",
+  "features.spaces.create.cancel": "Avbryt",
+  "features.spaces.create.creating": "Skapar...",
+  "features.spaces.components.spaceSelector.select": "Välj ett utrymme",
+  "features.spaces.components.spaceSelector.create": "Skapa ett nytt utrymme",
+  "app.spaces.overview.title": "Översikt",
+  "app.spaces.overview.greeting": "Hej, {name}!",
+  "app.spaces.overview.personalDescription": "Du kan bygga och experimentera med egna AI-applikationer i ditt personliga utrymme.",
+  "app.spaces.overview.welcome": "Välkommen till {name}",
+  "app.spaces.overview.tiles.assistants": "Assistenter",
+  "app.spaces.overview.tiles.apps": "Appar",
+  "app.spaces.overview.tiles.services": "Tjänster",
+  "app.spaces.overview.tiles.collections": "Samlingar",
+  "app.spaces.overview.tiles.websites": "Webbplatser",
+  "app.spaces.overview.tiles.members": "Medlemmar",
+  "app.spaces.members.title": "Medlemmar",
+  "app.spaces.members.currentMembers": "Nuvarande medlemmar",
+  "app.spaces.members.adminsEditors": "Administratörer & Redigerare",
+  "app.spaces.members.adminsEditorsDescription": "Personer som kan skapa och redigera nya assistenter och appar samt hantera detta utrymmes kunskap.",
+  "app.spaces.members.viewers": "Granskare",
+  "app.spaces.members.viewersDescription": "Personer som kan se och använda detta utrymmes publicerade assistenter och appar.",
+  "app.spaces.members.noViewers": "Det finns för närvarande inga granskare i detta utrymme",
+  "app.spaces.members.you": "(du)",
+  "app.spaces.members.addMember": "Lägg till ny medlem",
+  "app.spaces.members.user": "Användare",
+  "app.spaces.members.findUser": "Hitta användare...",
+  "app.spaces.members.alreadyMember": "Denna användare är redan medlem i {name}",
+  "app.spaces.members.noUsersFound": "Inga matchande användare hittades.",
+  "app.spaces.members.loading": "Laddar...",
+  "app.spaces.members.loadMore": "Ladda fler ({count}/{total})",
+  "app.spaces.members.role": "Roll",
+  "app.spaces.members.cancel": "Avbryt",
+  "app.spaces.members.adding": "Lägger till...",
+  "app.spaces.members.add": "Lägg till medlem",
+  "app.spaces.assistants.title": "Assistenter",
+  "app.spaces.assistants.create": "Skapa assistent",
+  "app.spaces.assistants.createNew": "Skapa ny assistent",
+  "app.spaces.assistants.createGroupChat": "Skapa ny gruppchatt",
+  "app.spaces.assistants.createGroupChatTitle": "Skapa en ny gruppchatt",
+  "app.spaces.assistants.groupChatDescription": "Gruppchattar är ett enkelt sätt att kommunicera med flera assistenter i en och samma session.",
+  "app.spaces.assistants.groupChatName": "Gruppchattens namn",
+  "app.spaces.assistants.groupChatNamePlaceholder": "Namn...",
+  "app.spaces.assistants.openGroupChatEditor": "Öppna gruppchattredigeraren efter skapande",
+  "app.spaces.assistants.cancel": "Avbryt",
+  "features.templates.selector.createNew": "Skapa en ny {resource}",
+  "features.templates.selector.createNewOrTemplate": "Skapa en ny {resource} från grunden eller kom igång med en färdig {resource} från vår templatetgalleri.",
+  "features.templates.selector.createNewDescription": "Börja skapa en ny {resource} genom att ange ett namn nedan. Du kan redigera din {resource} efter skapandet.",
+  "features.templates.selector.nameLabel": "{resource}-namn",
+  "features.templates.selector.createBlank": "Skapa en tom {resource}",
+  "features.templates.selector.startWithTemplate": "Börja med en mall...",
+  "features.templates.selector.hasWizard": "Denna mall erbjuder ytterligare alternativ. Du kan konfigurera dem i nästa steg.",
+  "app.spaces.assistants.warning": "Varning:",
+  "app.spaces.assistants.noCompletionModels": "Detta utrymme har för närvarande inga completion-modeller aktiverade. Aktivera minst en completion-modell för att kunna skapa en assistent.",
+  "app.spaces.assistants.openEditorAfterCreation": "Öppna assistentredigeraren efter skapande",
+  "app.spaces.assistants.back": "Tillbaka",
+  "features.templates.controller.create": "Skapa {resource}",
+  "features.templates.controller.next": "Nästa",
+  "features.templates.resource.assistant": "assistent",
+  "features.templates.resource.assistantCapitalised": "Assistent",
+  "features.templates.resource.app": "app",
+  "features.templates.resource.appCapitalised": "App"
 }
