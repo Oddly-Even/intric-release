@@ -19,6 +19,7 @@
   import { IconArrowDownToLine } from "@intric/icons/arrow-down-to-line";
   import ModelClassificationDialog from "$lib/features/security-classifications/components/ModelClassificationDialog.svelte";
   import { IconLockClosed } from "@intric/icons/lock-closed";
+  import { _ } from "svelte-i18n";
 
   export let model: CompletionModel | EmbeddingModel | TranscriptionModel;
   export let type: "completionModel" | "embeddingModel" | "transcriptionModel";
@@ -39,7 +40,7 @@
       );
       invalidate("admin:models:load");
     } catch (e) {
-      alert(`Error changing status of ${model.name}`);
+      alert($_("app.admin.models.actions.error", { values: { modelName: model.name } }));
     }
   }
 
@@ -56,7 +57,7 @@
       );
       invalidate("admin:models:load");
     } catch (e) {
-      alert(`Error changing status of ${model.name}`);
+      alert($_("app.admin.models.actions.error", { values: { modelName: model.name } }));
     }
   }
 
@@ -78,7 +79,7 @@
         $showCardDialog = true;
       }}
     >
-      <IconInfo></IconInfo>Show model info
+      <IconInfo></IconInfo>{$_("app.admin.models.actions.showInfo")}
     </Button>
     <Button
       is={item}
@@ -87,14 +88,14 @@
         $showSecurityDialog = true;
       }}
     >
-      <IconLockClosed></IconLockClosed>Edit security classification
+      <IconLockClosed></IconLockClosed>{$_("app.admin.models.actions.editSecurity")}
     </Button>
     {#if "is_org_default" in model}
       <Button is={item} on:click={togglePreferred} padding="icon-leading">
         {#if model.is_org_default}
-          <IconArrowDownToLine></IconArrowDownToLine>Unset default status
+          <IconArrowDownToLine></IconArrowDownToLine>{$_("app.admin.models.actions.unsetDefault")}
         {:else}
-          <IconArrowUpToLine></IconArrowUpToLine>Set as default model
+          <IconArrowUpToLine></IconArrowUpToLine>{$_("app.admin.models.actions.setDefault")}
         {/if}
       </Button>
     {/if}
@@ -106,10 +107,10 @@
     >
       {#if model.is_org_enabled}
         <IconCancel></IconCancel>
-        <span> Disable model </span>
+        <span>{$_("app.admin.models.actions.disable")}</span>
       {:else}
         <IconCheck></IconCheck>
-        Enable model
+        {$_("app.admin.models.actions.enable")}
       {/if}
     </Button>
   </Dropdown.Menu>

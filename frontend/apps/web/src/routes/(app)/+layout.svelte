@@ -46,7 +46,7 @@
 
 <a
   href={contentLink}
-  class="bg-primary text-accent-stronger absolute top-1 left-1 z-50 h-0 w-0 overflow-hidden rounded-lg font-medium shadow-lg focus:block focus:h-auto focus:w-auto"
+  class="bg-primary text-accent-stronger absolute left-1 top-1 z-50 h-0 w-0 overflow-hidden rounded-lg font-medium shadow-lg focus:block focus:h-auto focus:w-auto"
   ><span class="block p-2">{$_("app.header.jumpToContent")}</span></a
 >
 
@@ -72,7 +72,7 @@
     class="border-stronger bg-secondary z-10 box-border flex items-start overflow-clip rounded-t-sm transition-all duration-500 ease-in-out"
   >
     <div
-      class="border-default hover:bg-accent-dimmer group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] pr-3 pl-6 md:w-[17rem] md:min-w-[17rem]"
+      class="border-default hover:bg-accent-dimmer group flex h-[3.25rem] min-w-[3.85rem] items-center justify-between border-r-[0.5px] pl-6 pr-3 md:w-[17rem] md:min-w-[17rem]"
     >
       <a href="/">
         <IntricWordMark class="text-brand-intric hidden h-[3rem] w-[3.5rem] md:block"

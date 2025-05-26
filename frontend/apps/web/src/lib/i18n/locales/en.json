@@ -1,5 +1,4 @@
 {
-
   "app": {
     "header": {
       "title": "intric.ai",
@@ -11,6 +10,12 @@
       "admin": "Admin"
     },
     "spaces": {
+      "page": {
+        "title": {
+          "personal": "Personal",
+          "space": "intric.ai – {spaceName}"
+        }
+      },
       "menu": {
         "chat": "Chat",
         "overview": "Overview",
@@ -61,6 +66,58 @@
             "edit": "Edit",
             "newConversation": "New conversation"
           }
+        }
+      }
+    },
+    "account": {
+      "menu": {
+        "title": "Settings",
+        "account": "My account",
+        "apiKeys": "My API keys",
+        "logout": "Logout"
+      }
+    },
+    "admin": {
+      "navigation": {
+        "organisation": "Organisation",
+        "models": "Models",
+        "security": "Security",
+        "usage": "Usage",
+        "insights": "Insights",
+        "users": "Users",
+        "userGroups": "User groups",
+        "roles": "Roles",
+        "integrations": "Integrations",
+        "beta": "Beta"
+      },
+      "models": {
+        "page": {
+          "title": "Intric.ai – Admin – Models",
+          "header": {
+            "title": "Models",
+            "tabs": {
+              "completion": "Completion models",
+              "embedding": "Embedding models",
+              "transcription": "Transcription models"
+            }
+          }
+        },
+        "table": {
+          "columns": {
+            "name": "Name",
+            "enabled": "Enabled",
+            "details": "Details",
+            "security": "Security"
+          }
+        },
+        "actions": {
+          "showInfo": "Show model info",
+          "editSecurity": "Edit security classification",
+          "setDefault": "Set as default model",
+          "unsetDefault": "Unset default status",
+          "enable": "Enable model",
+          "disable": "Disable model",
+          "error": "Error changing status of {modelName}"
         }
       }
     }

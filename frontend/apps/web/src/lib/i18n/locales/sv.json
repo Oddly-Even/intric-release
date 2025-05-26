@@ -10,6 +10,12 @@
       "admin": "Admin"
     },
     "spaces": {
+      "page": {
+        "title": {
+          "personal": "Personligt",
+          "space": "intric.ai – {spaceName}"
+        }
+      },
       "menu": {
         "chat": "Chat",
         "overview": "Översikt",
@@ -60,6 +66,58 @@
             "edit": "Redigera",
             "newConversation": "Ny konversation"
           }
+        }
+      }
+    },
+    "account": {
+      "menu": {
+        "title": "Inställningar",
+        "account": "Mitt konto",
+        "apiKeys": "Mina API-nycklar",
+        "logout": "Logga ut"
+      }
+    },
+    "admin": {
+      "navigation": {
+        "organisation": "Organisation",
+        "models": "Modeller",
+        "security": "Säkerhet",
+        "usage": "Användning",
+        "insights": "Insikter",
+        "users": "Användare",
+        "userGroups": "Användargrupper",
+        "roles": "Roller",
+        "integrations": "Integrationer",
+        "beta": "Beta"
+      },
+      "models": {
+        "page": {
+          "title": "Intric.ai – Admin – Modeller",
+          "header": {
+            "title": "Modeller",
+            "tabs": {
+              "completion": "Completion modeller",
+              "embedding": "Embedding modeller",
+              "transcription": "Transkriberingsmodeller"
+            }
+          }
+        },
+        "table": {
+          "columns": {
+            "name": "Namn",
+            "enabled": "Aktiverad",
+            "details": "Detaljer",
+            "security": "Säkerhet"
+          }
+        },
+        "actions": {
+          "showInfo": "Visa modellinfo",
+          "editSecurity": "Redigera säkerhetsklassificering",
+          "setDefault": "Ange som standardmodell",
+          "unsetDefault": "Ta bort standardstatus",
+          "enable": "Aktivera modell",
+          "disable": "Inaktivera modell",
+          "error": "Fel vid ändring av status för {modelName}"
         }
       }
     }
