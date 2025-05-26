@@ -3,6 +3,7 @@
   import SelectEmbeddingModel from "$lib/features/ai-models/components/SelectEmbeddingModel.svelte";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { Dialog, Button, Input } from "@intric/ui";
+  import { _ } from "svelte-i18n";
 
   const intric = getIntric();
   const {
@@ -59,17 +60,22 @@
 <Dialog.Root bind:isOpen={showDialog}>
   {#if mode === "create"}
     <Dialog.Trigger asFragment let:trigger>
-      <Button variant="primary" is={trigger}>Create collection</Button>
+      <Button variant="primary" is={trigger}>{$_("app.spaces.knowledge.collections.create")}</Button
+      >
     </Dialog.Trigger>
   {/if}
 
   <Dialog.Content width="medium" form>
     {#if mode === "create"}
-      <Dialog.Title>Create a new collection</Dialog.Title>
-      <Dialog.Description hidden>Create a new collection</Dialog.Description>
+      <Dialog.Title>{$_("app.spaces.knowledge.collections.createTitle")}</Dialog.Title>
+      <Dialog.Description hidden
+        >{$_("app.spaces.knowledge.collections.createTitle")}</Dialog.Description
+      >
     {:else}
-      <Dialog.Title>Edit collection</Dialog.Title>
-      <Dialog.Description hidden>Edit the selected collection</Dialog.Description>
+      <Dialog.Title>{$_("app.spaces.knowledge.collections.editTitle")}</Dialog.Title>
+      <Dialog.Description hidden
+        >{$_("app.spaces.knowledge.collections.editDescription")}</Dialog.Description
+      >
     {/if}
 
     <Dialog.Section>
@@ -78,15 +84,14 @@
           <p
             class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
           >
-            <span class="font-bold">Warning:</span>
-            This space does currently not have any embedding models enabled. Enable at least one embedding
-            model to be able to create a collection.
+            <span class="font-bold">{$_("app.spaces.knowledge.collections.warning")}</span>
+            {$_("app.spaces.knowledge.collections.noEmbeddingModels")}
           </p>
           <div class="border-default border-b"></div>
         {/if}
         <Input.Text
           bind:value={collectionName}
-          label="Name"
+          label={$_("app.spaces.knowledge.collections.name")}
           required
           class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         ></Input.Text>
@@ -98,7 +103,7 @@
       {:else}
         <Input.Text
           bind:value={collectionName}
-          label="Name"
+          label={$_("app.spaces.knowledge.collections.name")}
           required
           class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
         ></Input.Text>
@@ -106,18 +111,22 @@
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("app.spaces.knowledge.collections.cancel")}</Button>
       {#if mode === "create"}
         <Button
           variant="primary"
           on:click={createCollection}
           type="submit"
           disabled={isProcessing || $currentSpace.embedding_models.length === 0}
-          >{isProcessing ? "Creating..." : "Create collection"}</Button
+          >{isProcessing
+            ? $_("app.spaces.knowledge.collections.creating")
+            : $_("app.spaces.knowledge.collections.create")}</Button
         >
       {:else if mode === "update"}
         <Button variant="primary" on:click={editCollection} type="submit"
-          >{isProcessing ? "Saving..." : "Save changes"}</Button
+          >{isProcessing
+            ? $_("app.spaces.knowledge.collections.saving")
+            : $_("app.spaces.knowledge.collections.save")}</Button
         >
       {/if}
     </Dialog.Controls>

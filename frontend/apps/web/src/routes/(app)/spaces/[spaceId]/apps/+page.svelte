@@ -7,6 +7,7 @@
   import { createAppTemplateAdapter } from "$lib/features/templates/TemplateAdapter";
   import { initTemplateController } from "$lib/features/templates/TemplateController";
   import TemplateCreateAppHint from "$lib/features/templates/components/apps/TemplateCreateAppHint.svelte";
+  import { _ } from "svelte-i18n";
   export let data;
 
   const {
@@ -28,12 +29,16 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Apps</title>
+  <title
+    >Intric.ai – {$currentSpace.personal
+      ? $_("app.spaces.page.title.personal")
+      : $currentSpace.name} – {$_("app.spaces.apps.title")}</title
+  >
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Apps"></Page.Title>
+    <Page.Title title={$_("app.spaces.apps.title")}></Page.Title>
     {#if $currentSpace.hasPermission("create", "app")}
       <TemplateCreateApp></TemplateCreateApp>
     {/if}

@@ -5,6 +5,7 @@
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
   import { type Website } from "@intric/intric-js";
   import { Dialog, Button, Input, Select, Tooltip } from "@intric/ui";
+  import { _ } from "svelte-i18n";
 
   const emptyWebsite = () => {
     return {
@@ -74,28 +75,28 @@
   }
 
   const crawlOptions = [
-    { label: "Basic crawl", value: "crawl" },
-    { label: "Sitemap based crawl", value: "sitemap" }
+    { label: $_("app.spaces.knowledge.websites.crawlType.basic"), value: "crawl" },
+    { label: $_("app.spaces.knowledge.websites.crawlType.sitemap"), value: "sitemap" }
   ] as { label: string; value: Website["crawl_type"] }[];
 
   const updateOptions = [
-    { label: "Never", value: "never" },
-    { label: "Every week", value: "weekly" }
+    { label: $_("app.spaces.knowledge.websites.updateInterval.never"), value: "never" },
+    { label: $_("app.spaces.knowledge.websites.updateInterval.weekly"), value: "weekly" }
   ] as { label: string; value: Website["update_interval"] }[];
 </script>
 
 <Dialog.Root bind:isOpen={showDialog}>
   {#if mode === "create"}
     <Dialog.Trigger asFragment let:trigger>
-      <Button variant="primary" is={trigger}>Connect website</Button>
+      <Button variant="primary" is={trigger}>{$_("app.spaces.knowledge.websites.connect")}</Button>
     </Dialog.Trigger>
   {/if}
 
   <Dialog.Content width="medium" form>
     {#if mode === "create"}
-      <Dialog.Title>Create a website integration</Dialog.Title>
+      <Dialog.Title>{$_("app.spaces.knowledge.websites.createTitle")}</Dialog.Title>
     {:else}
-      <Dialog.Title>Edit website integration</Dialog.Title>
+      <Dialog.Title>{$_("app.spaces.knowledge.websites.editTitle")}</Dialog.Title>
     {/if}
 
     <Dialog.Section>
@@ -103,19 +104,18 @@
         <p
           class="label-warning border-label-default bg-label-dimmer text-label-stronger m-4 rounded-md border px-2 py-1 text-sm"
         >
-          <span class="font-bold">Warning:</span>
-          This space does currently not have any embedding models enabled. Enable at least one embedding
-          model to be able to connect to a website.
+          <span class="font-bold">{$_("app.spaces.knowledge.websites.warning")}</span>
+          {$_("app.spaces.knowledge.websites.noEmbeddingModels")}
         </p>
         <div class="border-default border-t"></div>
       {/if}
 
       <Input.Text
         bind:value={editableWebsite.url}
-        label="URL"
+        label={$_("app.spaces.knowledge.websites.url")}
         description={editableWebsite.crawl_type === "sitemap"
-          ? "Full URL to your sitemap.xml file"
-          : "URL from where to start indexing (including https://)"}
+          ? $_("app.spaces.knowledge.websites.urlDescription.sitemap")
+          : $_("app.spaces.knowledge.websites.urlDescription.basic")}
         type="url"
         required
         placeholder={editableWebsite.crawl_type === "sitemap"
@@ -126,9 +126,9 @@
       ></Input.Text>
 
       <Input.Text
-        label="Display name"
+        label={$_("app.spaces.knowledge.websites.displayName")}
         class="border-default hover:bg-hover-dimmer border-b p-4"
-        description="Optional, will default to the website's URL"
+        description={$_("app.spaces.knowledge.websites.displayNameDescription")}
         bind:value={websiteName}
         placeholder={editableWebsite.url.split("//")[1] ?? editableWebsite.url}
       ></Input.Text>
@@ -137,13 +137,15 @@
         <Select.Simple
           class="border-default hover:bg-hover-dimmer w-1/2 border-b px-4 py-4"
           options={crawlOptions}
-          bind:value={editableWebsite.crawl_type}>Crawl type</Select.Simple
+          bind:value={editableWebsite.crawl_type}
+          >{$_("app.spaces.knowledge.websites.crawlType")}</Select.Simple
         >
 
         <Select.Simple
           class="border-default hover:bg-hover-dimmer w-1/2 border-b px-4 py-4"
           options={updateOptions}
-          bind:value={editableWebsite.update_interval}>Automatic updates</Select.Simple
+          bind:value={editableWebsite.update_interval}
+          >{$_("app.spaces.knowledge.websites.updateInterval")}</Select.Simple
         >
       </div>
 
@@ -152,16 +154,16 @@
           bind:value={editableWebsite.download_files}
           class="border-default hover:bg-hover-dimmer p-4 px-6"
         >
-          Download and analyse compatible files
+          {$_("app.spaces.knowledge.websites.downloadFiles")}
         </Input.Switch>
       {:else}
-        <Tooltip text="This option is only available for basic crawls">
+        <Tooltip text={$_("app.spaces.knowledge.websites.downloadFilesTooltip")}>
           <Input.Switch
             disabled
             bind:value={editableWebsite.download_files}
             class="border-default hover:bg-hover-dimmer p-4 px-6 opacity-40"
           >
-            Download and analyse compatible files
+            {$_("app.spaces.knowledge.websites.downloadFiles")}
           </Input.Switch>
         </Tooltip>
       {/if}
@@ -177,18 +179,22 @@
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("app.spaces.knowledge.websites.cancel")}</Button>
       {#if mode === "create"}
         <Button
           variant="primary"
           on:click={createWebsite}
           type="submit"
           disabled={isProcessing || $currentSpace.embedding_models.length === 0}
-          >{isProcessing ? "Creating..." : "Create website"}</Button
+          >{isProcessing
+            ? $_("app.spaces.knowledge.websites.creating")
+            : $_("app.spaces.knowledge.websites.create")}</Button
         >
       {:else if mode === "update"}
         <Button variant="primary" on:click={updateWebsite} disabled={isProcessing}
-          >{isProcessing ? "Saving..." : "Save changes"}</Button
+          >{isProcessing
+            ? $_("app.spaces.knowledge.websites.saving")
+            : $_("app.spaces.knowledge.websites.save")}</Button
         >
       {/if}
     </Dialog.Controls>

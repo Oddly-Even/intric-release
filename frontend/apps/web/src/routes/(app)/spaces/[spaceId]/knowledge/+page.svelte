@@ -10,6 +10,7 @@
   import { IconLinkExternal } from "@intric/icons/link-external";
   import IntegrationsTable from "./integrations/IntegrationsTable.svelte";
   import ImportKnowledgeDialog from "$lib/features/integrations/components/import/ImportKnowledgeDialog.svelte";
+  import { _ } from "svelte-i18n";
   export let data;
 
   const {
@@ -28,22 +29,28 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – Knowledge</title
+    >Intric.ai – {data.currentSpace.personal
+      ? $_("app.spaces.page.title.personal")
+      : data.currentSpace.name} – {$_("app.spaces.knowledge.title")}</title
   >
 </svelte:head>
 
 <Page.Root tabController={selectedTab}>
   <Page.Header>
-    <Page.Title title="Knowledge"></Page.Title>
+    <Page.Title title={$_("app.spaces.knowledge.title")}></Page.Title>
     <Page.Tabbar>
       {#if userCanSeeCollections}
-        <Page.TabTrigger tab="collections">Collections</Page.TabTrigger>
+        <Page.TabTrigger tab="collections"
+          >{$_("app.spaces.knowledge.tabs.collections")}</Page.TabTrigger
+        >
       {/if}
       {#if userCanSeeWebsites}
-        <Page.TabTrigger tab="websites">Websites</Page.TabTrigger>
+        <Page.TabTrigger tab="websites">{$_("app.spaces.knowledge.tabs.websites")}</Page.TabTrigger>
       {/if}
       {#if userCanSeeIntegrations}
-        <Page.TabTrigger tab="integrations">Integrations</Page.TabTrigger>
+        <Page.TabTrigger tab="integrations"
+          >{$_("app.spaces.knowledge.tabs.integrations")}</Page.TabTrigger
+        >
       {/if}
     </Page.Tabbar>
     <div class="flex-grow"></div>
@@ -76,18 +83,22 @@
               class="label-neutral border-label-default bg-label-dimmer text-label-stronger flex items-center gap-8 rounded-lg border px-4 py-3 shadow"
             >
               <div class="flex flex-col">
-                <span class="font-mono text-xs uppercase">Beta version</span>
-                <span class="text-xl font-extrabold">Integrations</span>
+                <span class="font-mono text-xs uppercase"
+                  >{$_("app.spaces.knowledge.integrations.beta")}</span
+                >
+                <span class="text-xl font-extrabold"
+                  >{$_("app.spaces.knowledge.tabs.integrations")}</span
+                >
               </div>
               <p class="-mt-[0.1rem] max-w-[85ch] pl-6 leading-[1.3rem]">
-                This is an early version of our upcoming integrations feature. It might be unstable
-                during the beta period. <a
+                {$_("app.spaces.knowledge.integrations.betaDescription")}
+                <a
                   target="_blank"
                   rel="noreferrer"
                   class="hover:bg-label-stronger hover:text-label-dimmer inline items-center gap-1 underline"
                   href={data.environment.integrationRequestFormUrl}
-                  >Please leave feedback on this feature or request other integrations
-                </a>
+                  >{$_("app.spaces.knowledge.integrations.feedback")}</a
+                >
                 <IconLinkExternal class="-mt-0.5 inline" size="sm"></IconLinkExternal>
               </p>
               <div class="flex-grow"></div>
@@ -96,7 +107,7 @@
                 class="min-w-24"
                 on:click={() => {
                   showIntegrationsNotice = false;
-                }}>Dismiss</Button
+                }}>{$_("app.spaces.knowledge.integrations.dismiss")}</Button
               >
             </div>
           </div>
