@@ -49,10 +49,16 @@
       }
     });
   });
+
+  let title = $derived(
+    data.currentSpace.personal
+      ? $_("app.spaces.chat.page.title.personal")
+      : $_("app.spaces.chat.page.title.space", { values: { spaceName: data.currentSpace.name } })
+  );
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
+  <title>{title}</title>
 </svelte:head>
 
 {#snippet defaultAssistantWelcomeMessage()}

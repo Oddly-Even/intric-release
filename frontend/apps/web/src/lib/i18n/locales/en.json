@@ -15,8 +15,8 @@
   "app.spaces.menu.services": "Services",
   "app.spaces.menu.members": "Members",
   "app.spaces.menu.settings": "Settings",
-  "app.spaces.chat.page.title.personal": "Personal",
-  "app.spaces.chat.page.title.space": "{spaceName}",
+  "app.spaces.chat.page.title.personal": "Intric.ai – Personal",
+  "app.spaces.chat.page.title.space": "Intric.ai – {spaceName}",
   "app.spaces.chat.page.navigation.personal.title": "Personal assistant",
   "app.spaces.chat.page.navigation.personal.tabTitle": "Personal",
   "app.spaces.chat.page.navigation.spaces.title": "Spaces",
@@ -327,5 +327,11 @@
   "app.login.loggingIn": "Logging in...",
   "app.login.login": "Login",
   "app.login.hideLoginFields": "Hide Login Fields",
-  "app.login.showLoginFields": "Show Login Fields"
+  "app.login.showLoginFields": "Show Login Fields",
+  "app.admin.insights.filter.settings": "Settings",
+  "app.admin.insights.filter.title": "Change filter settings",
+  "app.admin.insights.filter.timeframe": "Included timeframe",
+  "app.admin.insights.filter.includeFollowups": "Include follow-up questions",
+  "app.admin.insights.filter.cancel": "Cancel",
+  "app.admin.insights.filter.update": "Update"
 }

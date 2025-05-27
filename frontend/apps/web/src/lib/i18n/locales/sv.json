@@ -15,8 +15,8 @@
   "app.spaces.menu.services": "Tjänster",
   "app.spaces.menu.members": "Medlemmar",
   "app.spaces.menu.settings": "Inställningar",
-  "app.spaces.chat.page.title.personal": "Personlig",
-  "app.spaces.chat.page.title.space": "{spaceName}",
+  "app.spaces.chat.page.title.personal": "Intric.ai – Personligt",
+  "app.spaces.chat.page.title.space": "Intric.ai – {spaceName}",
   "app.spaces.chat.page.navigation.personal.title": "Personlig assistent",
   "app.spaces.chat.page.navigation.personal.tabTitle": "Personlig",
   "app.spaces.chat.page.navigation.spaces.title": "Dina utrymmen",
@@ -326,5 +326,11 @@
   "app.login.loggingIn": "Loggar in...",
   "app.login.login": "Logga in",
   "app.login.hideLoginFields": "Dölj inloggningsfält",
-  "app.login.showLoginFields": "Visa inloggningsfält"
+  "app.login.showLoginFields": "Visa inloggningsfält",
+  "app.admin.insights.filter.settings": "Inställningar",
+  "app.admin.insights.filter.title": "Ändra filterinställningar",
+  "app.admin.insights.filter.timeframe": "Inkluderad tidsperiod",
+  "app.admin.insights.filter.includeFollowups": "Inkludera uppföljningsfrågor",
+  "app.admin.insights.filter.cancel": "Avbryt",
+  "app.admin.insights.filter.update": "Uppdatera"
 }

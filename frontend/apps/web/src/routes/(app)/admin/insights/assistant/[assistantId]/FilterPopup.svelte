@@ -8,6 +8,7 @@
   import { IconFilter } from "@intric/icons/filter";
   import { Button, Dialog, Input } from "@intric/ui";
   import type { CalendarDate } from "@internationalized/date";
+  import { _ } from "svelte-i18n";
 
   export let includeFollowups: boolean;
   export let dateRange: { start: CalendarDate; end: CalendarDate };
@@ -34,30 +35,30 @@
   <Dialog.Trigger asFragment let:trigger>
     <Button variant="primary" is={trigger}>
       <IconFilter />
-      Settings</Button
+      {$_("app.admin.insights.filter.settings")}</Button
     >
   </Dialog.Trigger>
 
   <Dialog.Content width="medium" form>
-    <Dialog.Title>Change filter settings</Dialog.Title>
+    <Dialog.Title>{$_("app.admin.insights.filter.title")}</Dialog.Title>
 
     <Dialog.Section>
       <Input.DateRange
         bind:value={dateRange}
         class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
-        >Included timeframe</Input.DateRange
+        >{$_("app.admin.insights.filter.timeframe")}</Input.DateRange
       >
       <Input.Switch
         bind:value={includeFollowups}
         class="border-default hover:bg-hover-dimmer border-b px-4 py-4"
-        >Include follow-up questions</Input.Switch
+        >{$_("app.admin.insights.filter.includeFollowups")}</Input.Switch
       >
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("app.admin.insights.filter.cancel")}</Button>
 
-      <Button variant="primary" on:click={update}>Update</Button>
+      <Button variant="primary" on:click={update}>{$_("app.admin.insights.filter.update")}</Button>
     </Dialog.Controls>
   </Dialog.Content>
 </Dialog.Root>
