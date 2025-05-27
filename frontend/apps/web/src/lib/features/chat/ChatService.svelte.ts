@@ -15,6 +15,8 @@ import {
   IntricError,
   type ConversationTools
 } from "@intric/intric-js";
+import { _ } from "svelte-i18n";
+import { get } from "svelte/store";
 
 export type ChatPartner = GroupChat | Assistant;
 
@@ -202,7 +204,7 @@ export class ChatService {
           return;
         }
 
-        let message = "We encountered an error processing your request.";
+        let message = get(_)("app.spaces.chat.error.processing");
         if (error instanceof IntricError) {
           message += `\n\`\`\`\n${error.code}: "${error.getReadableMessage()}"\n\`\`\``;
         } else if (error instanceof Object && "message" in error && "name" in error) {

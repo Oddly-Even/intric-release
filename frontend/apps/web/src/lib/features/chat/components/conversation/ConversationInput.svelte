@@ -122,9 +122,9 @@
           is={trigger}
           on:click={() => abortController?.abort("User cancelled")}
           name="ask"
-          class="bg-secondary hover:bg-hover-stronger disabled:bg-tertiary disabled:text-secondary flex h-9 items-center justify-center !gap-1 rounded-lg !pr-1 !pl-2"
+          class="bg-secondary hover:bg-hover-stronger disabled:bg-tertiary disabled:text-secondary flex h-9 items-center justify-center !gap-1 rounded-lg !pl-2 !pr-1"
         >
-          Stop answer
+          {$_("app.spaces.chat.page.actions.stopAnswer")}
           <IconStopCircle />
         </Button>
       </Tooltip>
@@ -135,7 +135,7 @@
         type="submit"
         on:click={() => ask()}
         name="ask"
-        class="bg-secondary hover:bg-hover-stronger disabled:bg-tertiary disabled:text-secondary flex h-9 items-center justify-center !gap-1 rounded-lg !pr-1 !pl-2"
+        class="bg-secondary hover:bg-hover-stronger disabled:bg-tertiary disabled:text-secondary flex h-9 items-center justify-center !gap-1 rounded-lg !pl-2 !pr-1"
       >
         {$_("features.chat.components.conversationInput.send")}
         <IconEnter />
