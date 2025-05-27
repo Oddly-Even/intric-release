@@ -316,5 +316,16 @@
   "app.spaces.assistants.edit.insightsDescription": "Collect insights about this assistant's usage and allow space editors and admins to access the full history of user questions.",
   "app.spaces.assistants.edit.insightsPermission": "Only space admins can toggle insights.",
   "app.spaces.assistants.edit.enableInsights": "Enable insights",
-  "app.spaces.assistants.edit.disableInsights": "Disable insights"
+  "app.spaces.assistants.edit.disableInsights": "Disable insights",
+  "app.login.page.title": "Intric.ai – Login",
+  "app.login.success": "Successfully logged out!",
+  "app.login.sessionExpired": "Session expired. Please login again.",
+  "app.login.mobilityguardError": "The selected login method was not successful. Please use a different login method or try again later.",
+  "app.login.incorrectCredentials": "Incorrect credentials. Please provide a valid username and a valid password.",
+  "app.login.email": "Email",
+  "app.login.password": "Password",
+  "app.login.loggingIn": "Logging in...",
+  "app.login.login": "Login",
+  "app.login.hideLoginFields": "Hide Login Fields",
+  "app.login.showLoginFields": "Show Login Fields"
 }

@@ -315,5 +315,16 @@
   "app.spaces.assistants.edit.insightsDescription": "Samla in insikter om denna assistents användning och låt utrymmesredigerare och administratörer komma åt hela historiken över användarfrågor.",
   "app.spaces.assistants.edit.insightsPermission": "Endast utrymmesadministratörer kan växla insikter.",
   "app.spaces.assistants.edit.enableInsights": "Aktivera insikter",
-  "app.spaces.assistants.edit.disableInsights": "Inaktivera insikter"
+  "app.spaces.assistants.edit.disableInsights": "Inaktivera insikter",
+  "app.login.page.title": "Intric.ai – Inloggning",
+  "app.login.success": "Utloggning lyckades!",
+  "app.login.sessionExpired": "Sessionen har gått ut. Vänligen logga in igen.",
+  "app.login.mobilityguardError": "Den valda inloggningsmetoden var inte framgångsrik. Vänligen använd en annan inloggningsmetod eller försök igen senare.",
+  "app.login.incorrectCredentials": "Felaktiga uppgifter. Vänligen ange ett giltigt användarnamn och ett giltigt lösenord.",
+  "app.login.email": "E-post",
+  "app.login.password": "Lösenord",
+  "app.login.loggingIn": "Loggar in...",
+  "app.login.login": "Logga in",
+  "app.login.hideLoginFields": "Dölj inloggningsfält",
+  "app.login.showLoginFields": "Visa inloggningsfält"
 }
