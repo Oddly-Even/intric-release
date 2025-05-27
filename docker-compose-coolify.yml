@@ -70,6 +70,7 @@ services:
       - JWT_ALGORITHM=HS256
       - JWT_SECRET=${JWT_SECRET}
       - JWT_TOKEN_PREFIX=''
+      - URL_SIGNING_KEY=secretkey
       # Log
       - LOGLEVEL=DEBUG
     labels:
