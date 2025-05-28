@@ -1,5 +1,5 @@
 import { init, register } from 'svelte-i18n'
-import { PUBLIC_DEFAULT_LOCALE } from '$env/static/public'
+import { env } from '$env/dynamic/public'
 /**
  * Register available locales and initialize i18n
  */
@@ -11,5 +11,5 @@ register('sv', () => import('./locales/sv.json'))
 // The actual locale will be set in the layout load function
 init({
   fallbackLocale: 'en',
-  initialLocale: PUBLIC_DEFAULT_LOCALE || 'en'
+  initialLocale: env.PUBLIC_DEFAULT_LOCALE || 'en'
 })
