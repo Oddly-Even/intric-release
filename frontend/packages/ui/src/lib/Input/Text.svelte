@@ -1,5 +1,6 @@
 <script lang="ts">
   import { uid } from "uid";
+  import { _ } from "svelte-i18n";
   const id = uid(8);
 
   let containerClass = "";
@@ -26,7 +27,7 @@
           {label}
           {#if required}
             <span class="text-muted px-2 text-[0.9rem] font-normal" aria-hidden="true"
-              >(required)</span
+              >{$_("ui.input.required")}</span
             >
           {/if}
         </div>

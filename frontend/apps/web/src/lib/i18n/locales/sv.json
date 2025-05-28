@@ -353,5 +353,18 @@
   "app.spaces.assistants.dialog.move.knowledgeHint": "Tips: Att flytta assistentens anslutna samlingar och webbplatser kommer endast att fungera om destinationsutrymmet använder samma embedding-modell. Alla andra assistenter kommer att förlora tillgång till den flyttade kunskapen.",
   "app.spaces.assistants.dialog.move.cancel": "Avbryt",
   "app.spaces.assistants.dialog.move.moving": "Flyttar...",
-  "app.spaces.assistants.dialog.move.confirm": "Flytta assistent"
+  "app.spaces.assistants.dialog.move.confirm": "Flytta assistent",
+  "ui.input.required": "(obligatoriskt)",
+  "ui.input.files.dragAndDrop": "Dra och släpp filer eller mappar här",
+  "ui.input.files.or": "eller",
+  "ui.input.files.clickToBrowse": "Klicka för att bläddra",
+  "ui.input.files.dropHere": "Släpp dina filer här",
+  "ui.input.files.clickToSeeTypes": "Klicka",
+  "ui.input.files.here": "här",
+  "ui.input.files.toSeeTypes": "för att se en lista över filtyper som stöds",
+  "ui.select.placeholder": "Välj...",
+  "ui.select.emptyState": "Inga tillgängliga {resourceName}s",
+  "ui.dialog.close": "Stäng",
+  "ui.dialog.cancel": "Avbryt",
+  "ui.dialog.confirm": "Bekräfta"
 }

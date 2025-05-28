@@ -6,6 +6,7 @@
   import { IconTrash } from "@intric/icons/trash";
   import { IconUploadCloud } from "@intric/icons/upload-cloud";
   import { IconDropFile } from "@intric/icons/drop-file";
+  import { _ } from "svelte-i18n";
 
   /** Name of the file input field, defaults to `dropzoneInput` */
   export let name = "dropzoneInput";
@@ -169,23 +170,27 @@
       {#if !isDragging}
         <IconUploadCloud size="lg" />
         <div class="text-center" id="upload-notice">
-          Drag and Drop files or folders here <br />
-          or <span class="underline">Click to browse</span>.
+          {$_("ui.input.files.dragAndDrop")} <br />
+          {$_("ui.input.files.or")}
+          <span class="underline">{$_("ui.input.files.clickToBrowse")}</span>.
         </div>
       {:else}
         <IconDropFile size="lg" />
-        <div class="text-center">Drop your files here</div>
+        <div class="text-center">{$_("ui.input.files.dropHere")}</div>
       {/if}
       <div class="text-secondary pt-2 text-sm">
-        Click <button
+        {$_("ui.input.files.clickToSeeTypes")}
+        <button
           on:click={() => {
             alert(
               "Currently we support the following MIME types for uploading:\n" +
                 acceptedMimeTypes.join("\n")
             );
           }}
-          class="hover:bg-hover-default pointer-events-auto underline">here</button
-        > to see a list of supported filetypes.
+          class="hover:bg-hover-default pointer-events-auto underline"
+          >{$_("ui.input.files.here")}</button
+        >
+        {$_("ui.input.files.toSeeTypes")}.
       </div>
     </div>
   {/if}

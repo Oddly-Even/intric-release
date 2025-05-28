@@ -354,5 +354,18 @@
   "app.spaces.assistants.dialog.move.knowledgeHint": "Hint: Moving the assistant's connected collections and websites will only work if the destination space uses the same embedding model. All other assistants will lose access to the moved knowledge.",
   "app.spaces.assistants.dialog.move.cancel": "Cancel",
   "app.spaces.assistants.dialog.move.moving": "Moving...",
-  "app.spaces.assistants.dialog.move.confirm": "Move assistant"
+  "app.spaces.assistants.dialog.move.confirm": "Move assistant",
+  "ui.input.required": "(required)",
+  "ui.input.files.dragAndDrop": "Drag and Drop files or folders here",
+  "ui.input.files.or": "or",
+  "ui.input.files.clickToBrowse": "Click to browse",
+  "ui.input.files.dropHere": "Drop your files here",
+  "ui.input.files.clickToSeeTypes": "Click",
+  "ui.input.files.here": "here",
+  "ui.input.files.toSeeTypes": "to see a list of supported filetypes",
+  "ui.select.placeholder": "Select...",
+  "ui.select.emptyState": "No available {resourceName}s",
+  "ui.dialog.close": "Close",
+  "ui.dialog.cancel": "Cancel",
+  "ui.dialog.confirm": "Confirm"
 }
