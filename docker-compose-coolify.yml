@@ -15,7 +15,7 @@ services:
       - INTRIC_BACKEND_URL
       - JWT_SECRET=1234
       - BACKEND_SERVER_URL=${INTRIC_BACKEND_URL}
-      - DEFAULT_LOCALE=sv
+      - PUBLIC_DEFAULT_LOCALE=sv
 
     labels:
       - coolify.managed=true

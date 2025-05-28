@@ -7,6 +7,7 @@ import { authenticateUser, clearFrontendCookies } from "$lib/features/auth/auth.
 import { IntricError, type IntricErrorCode } from "@intric/intric-js";
 import { redirect, type Handle, type HandleFetch, type HandleServerError } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
+import { PUBLIC_DEFAULT_LOCALE } from "$env/static/public";
 import { getEnvironmentConfig } from "./lib/core/environment.server";
 
 function routeRequiresLogin(route: { id: string | null }): boolean {
@@ -15,6 +16,9 @@ function routeRequiresLogin(route: { id: string | null }): boolean {
 }
 
 const authHandle: Handle = async ({ event, resolve }) => {
+  // Setup i18n locale for SSR
+  locale.set(PUBLIC_DEFAULT_LOCALE);
+
   // Clear authentication cookies if the 'clear_cookies' URL parameter is present
   if (event.url.searchParams.get("clear_cookies")) {
     clearFrontendCookies(event);
@@ -44,9 +48,6 @@ const authHandle: Handle = async ({ event, resolve }) => {
   event.locals.access_token = tokens.access_token ?? null;
   event.locals.featureFlags = getFeatureFlags();
   event.locals.environment = getEnvironmentConfig();
-
-  // Setup i18n locale for SSR
-  locale.set(event.locals.environment.defaultLocale);
 
   return resolve(event);
 };
