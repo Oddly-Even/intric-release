@@ -12,7 +12,7 @@
   import { Tooltip } from "@intric/ui";
   import { getChatService } from "../../ChatService.svelte";
   import type { Snippet } from "svelte";
-
+  import { _ } from "svelte-i18n";
   type Props = {
     children?: Snippet;
   };
@@ -94,7 +94,9 @@
           class="flex flex-col items-center justify-center gap-4 *:m-0 [&_p]:text-center"
           source={"description" in chat.partner && chat.partner.description
             ? chat.partner.description
-            : ` Hi, I'm _${chat.partner.name}_!\nAsk me anything to get started.`}
+            : $_("app.spaces.chat.page.tabs.chat.welcome.assistant", {
+                values: { name: chat.partner.name }
+              })}
         ></Markdown>
       </div>
     </div>

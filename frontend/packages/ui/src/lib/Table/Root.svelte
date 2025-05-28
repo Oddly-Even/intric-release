@@ -16,6 +16,7 @@
   import Group from "./Group.svelte";
   import EmptyState from "./EmptyState.svelte";
   import { cva } from "class-variance-authority";
+  import { _ } from "svelte-i18n";
 
   export let displayAs: "cards" | "list" = "list";
   const displayType = writable<"cards" | "list">(displayAs);
@@ -87,9 +88,9 @@
     {#if filter}
       <Input.Text
         bind:value={$filterValue}
-        label="Filter"
+        label={$_("ui.table.filter")}
         class="flex-grow"
-        placeholder={`Filter ${resourceName}s...`}
+        placeholder={$_("ui.table.filterPlaceholder", { values: { resourceName } })}
         hiddenLabel={true}
         inputClass="!px-4"
       ></Input.Text>
@@ -105,7 +106,7 @@
         padding="icon-leading"
       >
         <IconList />
-        List
+        {$_("ui.table.list")}
       </Button>
       {#if showCardSwitch}
         <Button
@@ -117,7 +118,7 @@
           data-state={$displayType === "cards" ? "active" : ""}
         >
           <IconSquares />
-          Cards
+          {$_("ui.table.cards")}
         </Button>
       {/if}
     </div>

@@ -17,6 +17,7 @@
   import PublishingSetting from "$lib/features/publishing/components/PublishingSetting.svelte";
   import { page } from "$app/state";
   import { getChatQueryParams } from "$lib/features/chat/getChatQueryParams.js";
+  import { _ } from "svelte-i18n";
 
   export let data;
 
@@ -42,7 +43,7 @@
   beforeNavigate((navigate) => {
     if (
       $currentChanges.hasUnsavedChanges &&
-      !confirm("You have unsaved changes. Do you want to discard all changes?")
+      !confirm($_("app.spaces.assistants.edit.discardChanges"))
     ) {
       navigate.cancel();
       return;
@@ -63,7 +64,13 @@
 
 <svelte:head>
   <title
-    >Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name} – {$resource.name}</title
+    >{$_("app.spaces.page.title.space", {
+      values: {
+        spaceName: data.currentSpace.personal
+          ? $_("app.navigation.personal")
+          : data.currentSpace.name
+      }
+    })} – {$resource.name}</title
   >
 </svelte:head>
 
@@ -74,7 +81,7 @@
         title: $resource.name,
         href: `/spaces/${$currentSpace.routeId}/chat/?${getChatQueryParams({ chatPartner: data.assistant, tab: "chat" })}`
       }}
-      title="Edit"
+      title={$_("app.spaces.assistants.edit.title")}
     ></Page.Title>
 
     <Page.Flex>
@@ -85,7 +92,7 @@
           on:click={() => {
             cancelUploadsAndClearQueue();
             discardChanges();
-          }}>Discard all changes</Button
+          }}>{$_("app.spaces.assistants.edit.discardAll")}</Button
         >
 
         <Button
@@ -98,23 +105,30 @@
             setTimeout(() => {
               showSavesChangedNotice = false;
             }, 5000);
-          }}>{$isSaving ? "Saving..." : "Save changes"}</Button
+          }}
+          >{$isSaving
+            ? $_("app.spaces.assistants.edit.saving")
+            : $_("app.spaces.assistants.edit.save")}</Button
         >
       {:else}
         {#if showSavesChangedNotice}
-          <p class="text-positive-stronger px-4" transition:fade>All changes saved!</p>
+          <p class="text-positive-stronger px-4" transition:fade>
+            {$_("app.spaces.assistants.edit.saved")}
+          </p>
         {/if}
-        <Button variant="primary" class="w-32" href={previousRoute}>Done</Button>
+        <Button variant="primary" class="w-32" href={previousRoute}
+          >{$_("app.spaces.assistants.edit.done")}</Button
+        >
       {/if}
     </Page.Flex>
   </Page.Header>
 
   <Page.Main>
     <Settings.Page>
-      <Settings.Group title="General">
+      <Settings.Group title={$_("app.spaces.assistants.edit.general")}>
         <Settings.Row
-          title="Name"
-          description="Give this assistant a name that will be displayed to its users."
+          title={$_("app.spaces.assistants.edit.name")}
+          description={$_("app.spaces.assistants.edit.nameDescription")}
           hasChanges={$currentChanges.diff.name !== undefined}
           revertFn={() => {
             discardChanges("name");
@@ -130,8 +144,8 @@
         </Settings.Row>
 
         <Settings.Row
-          title="Description"
-          description="A brief introducion to this assistant that will be shown when starting a new session."
+          title={$_("app.spaces.assistants.edit.description")}
+          description={$_("app.spaces.assistants.edit.descriptionDescription")}
           hasChanges={$currentChanges.diff.description !== undefined}
           revertFn={() => {
             discardChanges("description");
@@ -139,7 +153,9 @@
           let:aria
         >
           <textarea
-            placeholder={`Hi, I'm ${$update.name}!\nAsk me anything to get started.`}
+            placeholder={$_("app.spaces.assistants.edit.descriptionPlaceholder", {
+              values: { name: $update.name }
+            })}
             {...aria}
             bind:value={$update.description}
             class="border-default bg-primary ring-default placeholder:text-muted min-h-24 rounded-lg border px-3 py-2 shadow focus-within:ring-2 hover:ring-2 focus-visible:ring-2"
@@ -147,10 +163,10 @@
         </Settings.Row>
       </Settings.Group>
 
-      <Settings.Group title="Instructions">
+      <Settings.Group title={$_("app.spaces.assistants.edit.instructions")}>
         <Settings.Row
-          title="Prompt"
-          description="Describe how this assistant should behave and how it will answer questions."
+          title={$_("app.spaces.assistants.edit.prompt")}
+          description={$_("app.spaces.assistants.edit.promptDescription")}
           hasChanges={$currentChanges.diff.prompt !== undefined}
           revertFn={() => {
             discardChanges("prompt");
@@ -160,14 +176,18 @@
         >
           <div slot="toolbar" class="text-secondary">
             <PromptVersionDialog
-              title="Prompt history for {$resource.name}"
+              title={$_("app.spaces.assistants.edit.promptHistory", {
+                values: { name: $resource.name }
+              })}
               loadPromptVersionHistory={() => {
                 return data.intric.assistants.listPrompts({ id: data.assistant.id });
               }}
               onPromptSelected={(prompt) => {
                 const restoredDate = dayjs(prompt.created_at).format("YYYY-MM-DD HH:mm");
                 $update.prompt.text = prompt.text;
-                $update.prompt.description = `Restored prompt from ${restoredDate}`;
+                $update.prompt.description = $_("app.spaces.assistants.edit.promptRestored", {
+                  values: { date: restoredDate }
+                });
               }}
             ></PromptVersionDialog>
           </div>
@@ -183,8 +203,8 @@
         </Settings.Row>
 
         <Settings.Row
-          title="Attachments"
-          description="Attach further instructions, for example guidelines or important information. The assistant will always see everything included as an attachment."
+          title={$_("app.spaces.assistants.edit.attachments")}
+          description={$_("app.spaces.assistants.edit.attachmentsDescription")}
           hasChanges={$currentChanges.diff.attachments !== undefined}
           revertFn={() => {
             cancelUploadsAndClearQueue();
@@ -196,8 +216,8 @@
         </Settings.Row>
 
         <Settings.Row
-          title="Knowledge"
-          description="Select additional knowledge sources that this assistant will be able to search for relevant answers."
+          title={$_("app.spaces.assistants.edit.knowledge")}
+          description={$_("app.spaces.assistants.edit.knowledgeDescription")}
           hasChanges={$currentChanges.diff.groups !== undefined ||
             $currentChanges.diff.websites !== undefined ||
             $currentChanges.diff.integration_knowledge_list !== undefined}
@@ -215,10 +235,10 @@
         </Settings.Row>
       </Settings.Group>
 
-      <Settings.Group title="AI Settings">
+      <Settings.Group title={$_("app.spaces.assistants.edit.aiSettings")}>
         <Settings.Row
-          title="Completion model"
-          description="This model will be used to process the assistant's input and generate a response."
+          title={$_("app.spaces.assistants.edit.completionModel")}
+          description={$_("app.spaces.assistants.edit.completionModelDescription")}
           hasChanges={$currentChanges.diff.completion_model !== undefined}
           revertFn={() => {
             discardChanges("completion_model");
@@ -233,8 +253,8 @@
         </Settings.Row>
 
         <Settings.Row
-          title="Model behaviour"
-          description="Select a preset for how this model should behave, or configure its parameters manually."
+          title={$_("app.spaces.assistants.edit.modelBehaviour")}
+          description={$_("app.spaces.assistants.edit.modelBehaviourDescription")}
           hasChanges={$currentChanges.diff.completion_model_kwargs !== undefined}
           revertFn={() => {
             discardChanges("completion_model_kwargs");
@@ -247,11 +267,11 @@
       </Settings.Group>
 
       {#if data.assistant.permissions?.some((permission) => permission === "insight_toggle" || permission === "publish")}
-        <Settings.Group title="Publishing">
+        <Settings.Group title={$_("app.spaces.assistants.edit.publishing")}>
           {#if data.assistant.permissions?.includes("publish")}
             <Settings.Row
-              title="Status"
-              description="Publishing your assistant will make it available to all users of this space, including viewers."
+              title={$_("app.spaces.assistants.edit.status")}
+              description={$_("app.spaces.assistants.edit.statusDescription")}
             >
               <PublishingSetting
                 endpoints={data.intric.assistants}
@@ -266,20 +286,20 @@
             revertFn={() => {
               discardChanges("insight_enabled");
             }}
-            title="Insights"
-            description="Collect insights about this assistant's usage and allow space editors and admins to access the full history of user questions."
+            title={$_("app.spaces.assistants.edit.insights")}
+            description={$_("app.spaces.assistants.edit.insightsDescription")}
           >
             <div class="border-default flex h-14 border-b py-2">
               <Tooltip
                 text={data.assistant.permissions?.includes("insight_toggle")
                   ? undefined
-                  : "Only space admins can toggle insights."}
+                  : $_("app.spaces.assistants.edit.insightsPermission")}
                 class="w-full"
               >
                 <Input.RadioSwitch
                   bind:value={$update.insight_enabled}
-                  labelTrue="Enable insights"
-                  labelFalse="Disable insights"
+                  labelTrue={$_("app.spaces.assistants.edit.enableInsights")}
+                  labelFalse={$_("app.spaces.assistants.edit.disableInsights")}
                   disabled={!data.assistant.permissions?.includes("insight_toggle")}
                 ></Input.RadioSwitch>
               </Tooltip>

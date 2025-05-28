@@ -6,6 +6,7 @@
   import { Button } from "@intric/ui";
   import { createDropdownMenu } from "@melt-ui/svelte";
   import { fly, fade } from "svelte/transition";
+  import { _ } from "svelte-i18n";
 
   const {
     elements: { menu, item, trigger, overlay, arrow },
@@ -47,37 +48,37 @@
     class="items border-stronger bg-primary absolute z-[50] flex min-w-[15rem] -translate-y-[0.75rem] flex-col rounded-sm border-b p-3 shadow-md"
   >
     <p
-      class="border-default text-secondary border-b px-6 pt-1 pb-2.5 font-mono text-[0.85rem] font-medium tracking-[0.015rem]"
+      class="border-default text-secondary border-b px-6 pb-2.5 pt-1 font-mono text-[0.85rem] font-medium tracking-[0.015rem]"
     >
-      Settings
+      {$_("app.account.menu.title")}
     </p>
     <Button
       unstyled
       is={[$item]}
       href="/account"
       padding="icon-leading"
-      class="group border-default text-primary hover:bg-accent-dimmer hover:text-accent-stronger relative flex h-[3.5rem] w-full items-center justify-start gap-3 border-b pr-4 pl-5 last-of-type:border-b-0"
+      class="border-default text-primary hover:bg-accent-dimmer hover:text-accent-stronger group relative flex h-[3.5rem] w-full items-center justify-start gap-3 border-b pl-5 pr-4 last-of-type:border-b-0"
     >
       <IconAssistant />
-      My account</Button
+      {$_("app.account.menu.account")}</Button
     ><Button
       is={[$item]}
       unstyled
       href="/account/api-keys"
       padding="icon-leading"
-      class="group border-default text-primary hover:bg-accent-dimmer hover:text-accent-stronger relative flex h-[3.5rem] w-full items-center justify-start gap-3 border-b pr-4 pl-5 last-of-type:border-b-0"
+      class="border-default text-primary hover:bg-accent-dimmer hover:text-accent-stronger group relative flex h-[3.5rem] w-full items-center justify-start gap-3 border-b pl-5 pr-4 last-of-type:border-b-0"
     >
       <IconKey />
-      My API keys</Button
+      {$_("app.account.menu.apiKeys")}</Button
     >
     <Button
       variant="destructive"
       is={[$item]}
       href="/logout"
-      class="mt-3 flex !justify-center !gap-2 rounded-lg !py-2 focus:ring-offset-4 focus:outline-offset-4"
+      class="mt-3 flex !justify-center !gap-2 rounded-lg !py-2 focus:outline-offset-4 focus:ring-offset-4"
     >
       <IconLogout />
-      Logout</Button
+      {$_("app.account.menu.logout")}</Button
     >
 
     <div {...$arrow} use:arrow class="border-stronger !z-10"></div>

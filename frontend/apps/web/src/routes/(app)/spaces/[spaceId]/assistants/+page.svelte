@@ -7,6 +7,7 @@
   import { initTemplateController } from "$lib/features/templates/TemplateController";
   import { createAssistantTemplateAdapter } from "$lib/features/templates/TemplateAdapter";
   import CreateNew from "./CreateNew.svelte";
+  import { _ } from "svelte-i18n";
 
   export let data;
 
@@ -29,12 +30,16 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {$currentSpace.personal ? "Personal" : $currentSpace.name} – Assistants</title>
+  <title
+    >Intric.ai – {$currentSpace.personal
+      ? $_("app.spaces.page.title.personal")
+      : $currentSpace.name} – {$_("app.spaces.assistants.title")}</title
+  >
 </svelte:head>
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Assistants"></Page.Title>
+    <Page.Title title={$_("app.spaces.assistants.title")}></Page.Title>
     <!--
       We made the decision to not look at assistants and group chats as individual permissions for now,
       meaning if we ever intend to change that, we would need that distinction here

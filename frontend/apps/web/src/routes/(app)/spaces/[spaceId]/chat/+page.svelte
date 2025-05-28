@@ -16,6 +16,7 @@
   import { page } from "$app/state";
   import { writable } from "svelte/store";
   import { untrack } from "svelte";
+  import { _ } from "svelte-i18n";
 
   const { data } = $props();
 
@@ -48,19 +49,28 @@
       }
     });
   });
+
+  let title = $derived(
+    data.currentSpace.personal
+      ? $_("app.spaces.chat.page.title.personal")
+      : $_("app.spaces.chat.page.title.space", { values: { spaceName: data.currentSpace.name } })
+  );
 </script>
 
 <svelte:head>
-  <title>Intric.ai – {data.currentSpace.personal ? "Personal" : data.currentSpace.name}</title>
+  <title>{title}</title>
 </svelte:head>
 
 {#snippet defaultAssistantWelcomeMessage()}
   <div class="max-w-[640px]">
     <div class="relative">
-      <h3 class="b-1 text-2xl font-extrabold">Hi, {$userInfo.firstName}!</h3>
-      <p class="text-secondary max-w-[50ch] pt-2 pr-20">
-        Welcome to intric. I'm your personal assistant and ready to help. Ask me a question to get
-        started.
+      <h3 class="b-1 text-2xl font-extrabold">
+        {$_("app.spaces.chat.page.tabs.chat.welcome.title", {
+          values: { firstName: $userInfo.firstName }
+        })}
+      </h3>
+      <p class="text-secondary max-w-[50ch] pr-20 pt-2">
+        {$_("app.spaces.chat.page.tabs.chat.welcome.message")}
       </p>
     </div>
   </div>
@@ -69,7 +79,8 @@
 <Page.Root tabController={currentTab}>
   <Page.Header>
     {#if chat.partner.type === "default-assistant"}
-      <Page.Title truncate={true} title="Personal assistant"></Page.Title>
+      <Page.Title truncate={true} title={$_("app.spaces.chat.page.navigation.personal.title")}
+      ></Page.Title>
     {:else}
       <Page.Title truncate={true} parent={{ href: `/spaces/${$currentSpace.routeId}/assistants` }}>
         <AssistantSwitcher></AssistantSwitcher>
@@ -77,10 +88,14 @@
     {/if}
 
     <Page.Tabbar>
-      <Page.TabTrigger tab="chat">Chat</Page.TabTrigger>
-      <Page.TabTrigger tab="history">History</Page.TabTrigger>
+      <Page.TabTrigger tab="chat">{$_("app.spaces.chat.page.tabs.chat.title")}</Page.TabTrigger>
+      <Page.TabTrigger tab="history"
+        >{$_("app.spaces.chat.page.tabs.history.title")}</Page.TabTrigger
+      >
       {#if chat.partner.permissions?.includes("insight_view")}
-        <Page.TabTrigger tab="insights">Insights</Page.TabTrigger>
+        <Page.TabTrigger tab="insights"
+          >{$_("app.spaces.chat.page.tabs.insights.title")}</Page.TabTrigger
+        >
       {/if}
     </Page.Tabbar>
 
@@ -89,7 +104,7 @@
         <DefaultAssistantModelSwitcher></DefaultAssistantModelSwitcher>
       {:else if chat.partner.permissions?.includes("edit")}
         <Button href="/spaces/{$currentSpace.routeId}/{chat.partner.type}s/{chat.partner.id}/edit"
-          >Edit</Button
+          >{$_("app.spaces.chat.page.actions.edit")}</Button
         >
       {/if}
       <Button
@@ -106,7 +121,7 @@
           );
         }}
         class="!line-clamp-1"
-        >New conversation
+        >{$_("app.spaces.chat.page.actions.newConversation")}
       </Button>
     </Page.Flex>
   </Page.Header>
@@ -152,22 +167,29 @@
         }}
       />
 
-      <div class="text-secondary flex-col pt-8 pb-12">
+      <div class="text-secondary flex-col pb-12 pt-8">
         <div class="flex flex-col items-center justify-center gap-2">
           {#if chat.hasMoreConversations}
             <Button
               variant="primary-outlined"
               on:click={() => chat.loadMoreConversations()}
-              aria-label="Load more conversations"
+              aria-label={$_("app.spaces.chat.page.actions.loadMore")}
             >
-              Load more conversations</Button
+              {$_("app.spaces.chat.page.actions.loadMore")}</Button
             >
             <p role="status" aria-live="polite">
-              Loaded {chat.loadedConversations.length}/{chat.totalConversations} conversations
+              {$_("app.spaces.chat.page.actions.conversationsLoaded", {
+                values: {
+                  loaded: chat.loadedConversations.length,
+                  total: chat.totalConversations
+                }
+              })}
             </p>
           {:else if chat.totalConversations > 0}
             <p role="status" aria-live="polite">
-              Loaded all {chat.totalConversations} conversations.
+              {$_("app.spaces.chat.page.actions.allConversationsLoaded", {
+                values: { total: chat.totalConversations }
+              })}
             </p>
           {/if}
         </div>
@@ -181,7 +203,7 @@
         {/if}
       {:else}
         <div class="absolute inset-0 flex items-center justify-center">
-          No insights available for this chat.
+          {$_("app.spaces.chat.page.actions.noInsights")}
         </div>
       {/if}
     </Page.Tab>

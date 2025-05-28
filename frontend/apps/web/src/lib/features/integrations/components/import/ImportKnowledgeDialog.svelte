@@ -6,6 +6,7 @@
   import ImportBackdrop from "./ImportBackdrop.svelte";
   import IntegrationVendorIcon from "../IntegrationVendorIcon.svelte";
   import { integrationData } from "../../IntegrationData";
+  import { _ } from "svelte-i18n";
 
   const availableIntegrations = getAvailableIntegrations();
 
@@ -44,22 +45,25 @@
 
 <Dialog.Root openController={showSelectDialog}>
   <Dialog.Trigger asFragment let:trigger>
-    <Button variant="primary" is={trigger}>Import knowledge</Button>
+    <Button variant="primary" is={trigger}>{$_("app.spaces.knowledge.integrations.import")}</Button>
   </Dialog.Trigger>
 
   <Dialog.Content width="dynamic">
-    <Dialog.Section class="relative mt-2 -mb-0.5">
-      <div class="absolute top-0 right-0 h-52 w-72 overflow-hidden">
+    <Dialog.Section class="relative -mb-0.5 mt-2">
+      <div class="absolute right-0 top-0 h-52 w-72 overflow-hidden">
         <ImportBackdrop></ImportBackdrop>
       </div>
-      <div class=" border-default flex w-full flex-col px-10 pt-12 pb-10">
-        <h3 class="px-4 pb-1 text-2xl font-extrabold">Import knowledge</h3>
-        <p class="text-secondary max-w-[60ch] pr-48 pl-4">
-          Import knowledge from third-party platforms into intric. To use integrations, configure
-          them in your <a href="/account/integrations" class="underline">personal account</a>.
+      <div class=" border-default flex w-full flex-col px-10 pb-10 pt-12">
+        <h3 class="px-4 pb-1 text-2xl font-extrabold">
+          {$_("app.spaces.knowledge.integrations.import")}
+        </h3>
+        <p class="text-secondary max-w-[60ch] pl-4 pr-48">
+          {$_("app.spaces.knowledge.integrations.description")}
+          <a href="/account/integrations" class="underline"
+            >{$_("app.spaces.knowledge.integrations.personalAccount")}</a
+          >.
         </p>
-        <!-- <div class="h-8"></div> -->
-        <div class=" border-dimmer mt-14 mb-6 border-t"></div>
+        <div class=" border-dimmer mb-6 mt-14 border-t"></div>
 
         <div class="flex flex-col gap-2">
           {#each availableIntegrations as integration (integration.id)}
@@ -71,7 +75,9 @@
               <Tooltip
                 text={integration.connected
                   ? undefined
-                  : `Enable ${integration.name} in your account settings to select this option`}
+                  : $_("app.spaces.knowledge.integrations.enableInSettings", {
+                      values: { name: integration.name }
+                    })}
                 class="cursor-not-allowed opacity-70 *:pointer-events-none"
               >
                 {@render integrationSelector(integration)}
@@ -83,9 +89,9 @@
     </Dialog.Section>
 
     <Dialog.Controls let:close>
-      <Button is={close}>Cancel</Button>
+      <Button is={close}>{$_("app.spaces.knowledge.integrations.cancel")}</Button>
       <Button variant="primary" onclick={goImport} disabled={selectedIntegration === null}
-        >Continue</Button
+        >{$_("app.spaces.knowledge.integrations.continue")}</Button
       >
     </Dialog.Controls>
   </Dialog.Content>

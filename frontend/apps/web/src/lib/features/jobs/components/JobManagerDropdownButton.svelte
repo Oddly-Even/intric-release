@@ -6,6 +6,7 @@
   import { fly, fade } from "svelte/transition";
   import JobManagerDropdownPanel from "./JobManagerDropdownPanel.svelte";
   import { getJobManager } from "../JobManager";
+  import { _ } from "svelte-i18n";
 
   const {
     state: { currentlyRunningJobs, showJobManagerPanel }
@@ -56,9 +57,9 @@
     class="items border-strongest bg-primary absolute z-[50] flex min-w-[22rem] -translate-y-[0.75rem] flex-col rounded-sm border-b p-3 shadow-md"
   >
     <p
-      class="border-default text-secondary mb-2 border-b px-6 pt-1 pb-2.5 font-mono text-[0.85rem] font-medium tracking-[0.015rem]"
+      class="border-default text-secondary mb-2 border-b px-6 pb-2.5 pt-1 font-mono text-[0.85rem] font-medium tracking-[0.015rem]"
     >
-      Notifications and Jobs
+      {$_("features.jobs.dropdown.notificationsAndJobs")}
     </p>
     <JobManagerDropdownPanel></JobManagerDropdownPanel>
 

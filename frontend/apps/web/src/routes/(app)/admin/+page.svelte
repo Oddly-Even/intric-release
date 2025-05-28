@@ -9,6 +9,7 @@
   import { getAppContext } from "$lib/core/AppContext.js";
   import StorageOverviewBar from "./usage/storage/StorageOverviewBar.svelte";
   import TokenOverviewBar from "./usage/tokens/TokenOverviewBar.svelte";
+  import { _ } from "svelte-i18n";
 
   const { tenant } = getAppContext();
   export let data;
@@ -20,11 +21,11 @@
 
 <Page.Root>
   <Page.Header>
-    <Page.Title title="Organisation"></Page.Title>
+    <Page.Title title={$_("app.admin.organisation.title")}></Page.Title>
   </Page.Header>
   <Page.Main>
     <Settings.Page>
-      <Settings.Group title="Usage">
+      <Settings.Group title={$_("app.admin.usage.title")}>
         <StorageOverviewBar storageStats={data.storageStats}></StorageOverviewBar>
         <TokenOverviewBar tokenStats={data.tokenStats}></TokenOverviewBar>
       </Settings.Group>

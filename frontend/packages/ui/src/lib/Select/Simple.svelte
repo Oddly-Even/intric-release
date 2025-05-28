@@ -1,6 +1,7 @@
 <script lang="ts" generics="T extends unknown">
   import { writable } from "svelte/store";
   import { Item, Label, Options, Root, Trigger } from "./index.js";
+  import { _ } from "svelte-i18n";
 
   export let options: Array<{ value: T | null | undefined; label: string }>;
   export let value: T | null | undefined;
@@ -30,13 +31,14 @@
 
 <Root customStore={store} class={cls} {required} {fitViewport}>
   <Label><slot /></Label>
-  <Trigger placeholder="Select..."></Trigger>
+  <Trigger placeholder={$_("ui.select.placeholder")}></Trigger>
   <Options>
     {#each options as option (option.value)}
       <Item value={option.value} label={option.label}></Item>
     {/each}
     {#if !options.length}
-      <Item disabled label="No available {resourceName}s" value={null}></Item>
+      <Item disabled label={$_("ui.select.emptyState", { values: { resourceName } })} value={null}
+      ></Item>
     {/if}
   </Options>
 </Root>

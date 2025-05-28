@@ -15,6 +15,7 @@
   import { page } from "$app/stores";
   import { Navigation } from "$lib/components/layout";
   import { getSpacesManager } from "$lib/features/spaces/SpacesManager";
+  import { _ } from "svelte-i18n";
   // TODO
   const {
     state: { currentSpace }
@@ -30,7 +31,7 @@
       href="/spaces/{$currentSpace.routeId}/chat?tab=chat"
       isActive={section === "chat" && !chatPartnerIsDefined}
       icon={IconSpeechBubble}
-      label="Chat"
+      label={$_("app.spaces.menu.chat")}
     />
     <div class="border-default my-2 border-b-[0.5px]"></div>
   {/if}
@@ -39,7 +40,7 @@
     href="/spaces/{$currentSpace.routeId}/overview"
     isActive={section === "overview"}
     icon={IconOverview}
-    label="Overview"
+    label={$_("app.spaces.menu.overview")}
   />
 
   {#if $currentSpace.hasPermission("read", "assistant")}
@@ -47,7 +48,7 @@
       href="/spaces/{$currentSpace.routeId}/assistants"
       isActive={section === "assistants" || (section === "chat" && chatPartnerIsDefined)}
       icon={IconSpeechBubble}
-      label="Assistants"
+      label={$_("app.spaces.menu.assistants")}
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "app")}
@@ -55,7 +56,7 @@
       href="/spaces/{$currentSpace.routeId}/apps"
       isActive={section === "apps"}
       icon={IconApp}
-      label="Apps"
+      label={$_("app.spaces.menu.apps")}
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "website") || $currentSpace.hasPermission("read", "collection")}
@@ -63,7 +64,7 @@
       href="/spaces/{$currentSpace.routeId}/knowledge"
       isActive={section === "knowledge"}
       icon={IconKnowledge}
-      label="Knowledge"
+      label={$_("app.spaces.menu.knowledge")}
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "service")}<div
@@ -73,7 +74,7 @@
       href="/spaces/{$currentSpace.routeId}/services"
       isActive={section === "services"}
       icon={IconServices}
-      label="Services"
+      label={$_("app.spaces.menu.services")}
     />
   {/if}
   {#if $currentSpace.hasPermission("read", "member")}
@@ -82,7 +83,7 @@
       href="/spaces/{$currentSpace.routeId}/members"
       isActive={section === "members"}
       icon={IconAssistants}
-      label="Members"
+      label={$_("app.spaces.menu.members")}
     />
   {/if}
   {#if $currentSpace.hasPermission("edit", "space")}
@@ -90,7 +91,7 @@
       href="/spaces/{$currentSpace.routeId}/settings"
       isActive={section === "settings"}
       icon={IconCog}
-      label="Settings"
+      label={$_("app.spaces.menu.settings")}
     />
   {/if}
 </Navigation.Menu>

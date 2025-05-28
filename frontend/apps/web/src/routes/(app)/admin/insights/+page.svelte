@@ -10,6 +10,7 @@
   import { IconQuestionMark } from "@intric/icons/question-mark";
   import { IconLoadingSpinner } from "@intric/icons/loading-spinner";
   import { Page, Settings } from "$lib/components/layout";
+  import { _ } from "svelte-i18n";
 
   import InteractiveGraph from "./InteractiveGraph.svelte";
   import TenantAssistantTable from "./TenantAssistantTable.svelte";
@@ -21,26 +22,30 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Admin – Insights</title>
+  <title>{$_("app.admin.insights.page.title")}</title>
 </svelte:head>
 
 <Page.Root tabController={selectedTab}>
   <Page.Header>
-    <Page.Title title="Insights"></Page.Title>
+    <Page.Title title={$_("app.admin.insights.page.header.title")}></Page.Title>
     <Page.Tabbar>
-      <Page.TabTrigger tab="overview">Usage</Page.TabTrigger>
-      <Page.TabTrigger tab="assistants">Assistants</Page.TabTrigger>
+      <Page.TabTrigger tab="overview"
+        >{$_("app.admin.insights.page.header.tabs.overview")}</Page.TabTrigger
+      >
+      <Page.TabTrigger tab="assistants"
+        >{$_("app.admin.insights.page.header.tabs.assistants")}</Page.TabTrigger
+      >
     </Page.Tabbar>
   </Page.Header>
   <Page.Main>
     <Page.Tab id="overview">
       {#if $selectedTab === "overview"}
         <Settings.Page>
-          <Settings.Group title="Statistics">
+          <Settings.Group title={$_("app.admin.insights.overview.statistics.title")}>
             <Settings.Row
               fullWidth
-              title="Assistant usage"
-              description="Discover how people are interacting with your organsisation's assistants."
+              title={$_("app.admin.insights.overview.statistics.assistantUsage.title")}
+              description={$_("app.admin.insights.overview.statistics.assistantUsage.description")}
             >
               <div class="h-[600px]">
                 <div
@@ -50,7 +55,7 @@
                     <div class="flex h-full w-full items-center justify-center">
                       <div class="flex flex-col items-center justify-center gap-2 pt-3">
                         <IconLoadingSpinner class="animate-spin" />
-                        Loading data...
+                        {$_("app.admin.insights.overview.statistics.loading")}
                       </div>
                     </div>
                   {:then loadedData}
@@ -61,7 +66,7 @@
                       <div class="border-stronger flex h-1/3 flex-col justify-between border-b p-6">
                         <div class="flex gap-2">
                           <IconAssistants />
-                          Assistants created
+                          {$_("app.admin.insights.overview.statistics.metrics.assistantsCreated")}
                         </div>
                         <span class="self-end text-[2.75rem] font-medium"
                           >{loadedData.assistants.length}</span
@@ -71,7 +76,9 @@
                       <div class="border-stronger flex h-1/3 flex-col justify-between border-b p-6">
                         <div class="flex gap-2">
                           <IconSession />
-                          Conversations started
+                          {$_(
+                            "app.admin.insights.overview.statistics.metrics.conversationsStarted"
+                          )}
                         </div>
                         <span class="self-end text-[2.75rem] font-medium"
                           >{loadedData.sessions.length}</span
@@ -81,7 +88,7 @@
                       <div class="border-stronger flex h-1/3 flex-col justify-between p-6">
                         <div class="flex gap-2">
                           <IconQuestionMark />
-                          Questions asked
+                          {$_("app.admin.insights.overview.statistics.metrics.questionsAsked")}
                         </div>
                         <span class="self-end text-[2.75rem] font-medium"
                           >{loadedData.questions.length}</span

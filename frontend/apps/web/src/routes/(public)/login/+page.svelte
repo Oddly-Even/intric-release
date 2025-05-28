@@ -6,6 +6,7 @@
   import { browser } from "$app/environment";
   import { LoadingScreen } from "$lib/components/layout";
   import IntricWordMark from "$lib/assets/IntricWordMark.svelte";
+  import { _ } from "svelte-i18n";
 
   const { data } = $props();
 
@@ -22,7 +23,7 @@
 </script>
 
 <svelte:head>
-  <title>Intric.ai – Login</title>
+  <title>{$_("app.login.page.title")}</title>
 </svelte:head>
 
 {#if data.zitadelLink}
@@ -40,20 +41,19 @@
           <div
             class="bg-positive-dimmer text-positive-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            Successfully logged out!
+            {$_("app.login.success")}
           </div>{/if}
         {#if message === "expired"}
           <div
             class="bg-warning-dimmer text-warning-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            Session expired. Please login again.
+            {$_("app.login.sessionExpired")}
           </div>{/if}
         {#if message === "mobilityguard_login_error"}
           <div
             class="bg-negative-dimmer text-negative-default mb-2 flex flex-col gap-3 p-4 shadow-lg"
           >
-            The selected login method was not successful. Please use a different login method or try
-            again later.
+            {$_("app.login.mobilityguardError")}
           </div>{/if}
       </div>
 
@@ -79,55 +79,57 @@
 
         {#if loginFailed}
           <div class="label-negative bg-label-dimmer text-label-stronger rounded-lg p-4">
-            Incorrect credentials. Please provide a valid username and a valid password.
+            {$_("app.login.incorrectCredentials")}
           </div>
         {/if}
 
         {#if showUsernameAndPassword || !data.mobilityguardLink}
           <Input.Text
-            label="Email"
+            label={$_("app.login.email")}
             value=""
             name="email"
             autocomplete="username"
             type="email"
             required
             hiddenLabel={true}
-            placeholder="Email"
+            placeholder={$_("app.login.email")}
           ></Input.Text>
 
           <Input.Text
-            label="Password"
+            label={$_("app.login.password")}
             value=""
             name="password"
             autocomplete="current-password"
             type="password"
             required
             hiddenLabel={true}
-            placeholder="Password"
+            placeholder={$_("app.login.password")}
           ></Input.Text>
 
           <Button type="submit" disabled={isAwaitingLoginResponse} variant="primary">
             {#if isAwaitingLoginResponse}
-              Logging in...
+              {$_("app.login.loggingIn")}
             {:else}
-              Login
+              {$_("app.login.login")}
             {/if}
           </Button>
         {:else}
-          <Button variant="primary" href={data.mobilityguardLink}>Login</Button>
+          <Button variant="primary" href={data.mobilityguardLink}>{$_("app.login.login")}</Button>
         {/if}
       </form>
     </div>
     <div class="absolute bottom-10 mt-12 flex justify-center">
       {#if showUsernameAndPassword && data.mobilityguardLink}
-        <Button variant="outlined" class="text-secondary" href="/login?">Hide Login Fields</Button>
+        <Button variant="outlined" class="text-secondary" href="/login?"
+          >{$_("app.login.hideLoginFields")}</Button
+        >
       {:else if data.mobilityguardLink}
         <Button
           variant="outlined"
           class="text-secondary"
           href="/login?showUsernameAndPassword=true"
         >
-          Show Login Fields
+          {$_("app.login.showLoginFields")}
         </Button>
       {/if}
     </div>

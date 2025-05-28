@@ -10,6 +10,7 @@
   import { Chart, Button } from "@intric/ui";
   import type { AnalyticsData } from "@intric/intric-js";
   import { getConfig, prepareData } from "./prepareData";
+  import { _ } from "svelte-i18n";
 
   export let data: AnalyticsData;
   export let timeframe: { start: string; end: string };
@@ -33,7 +34,7 @@
       }}
     >
       <IconSession />
-      New Conversations</Button
+      {$_("app.admin.insights.overview.graph.filters.newConversations")}</Button
     >
     <Button
       displayActiveState
@@ -43,7 +44,7 @@
       }}
     >
       <IconQuestionMark />
-      New Questions</Button
+      {$_("app.admin.insights.overview.graph.filters.newQuestions")}</Button
     >
     <div class="flex-grow"></div>
     <Button
@@ -51,24 +52,24 @@
       data-state={dataset === datasets.byDate ? "active" : "incative"}
       on:click={() => {
         dataset = datasets.byDate;
-      }}>By Date</Button
+      }}>{$_("app.admin.insights.overview.graph.timeframes.byDate")}</Button
     >
     <Button
       displayActiveState
       data-state={dataset === datasets.byWeekday ? "active" : "incative"}
       on:click={() => {
         dataset = datasets.byWeekday;
-      }}>By Weekday</Button
+      }}>{$_("app.admin.insights.overview.graph.timeframes.byWeekday")}</Button
     >
     <Button
       displayActiveState
       data-state={dataset === datasets.byHour ? "active" : "incative"}
       on:click={() => {
         dataset = datasets.byHour;
-      }}>By Hour</Button
+      }}>{$_("app.admin.insights.overview.graph.timeframes.byHour")}</Button
     >
   </div>
-  <div class="h-full w-full px-6 pt-2 pb-4">
+  <div class="h-full w-full px-6 pb-4 pt-2">
     <Chart.Root {config}></Chart.Root>
   </div>
 </div>

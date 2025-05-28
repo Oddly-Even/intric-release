@@ -1,13 +1,14 @@
 <script lang="ts">
   import { cva } from "class-variance-authority";
   import { uid } from "uid";
+  import { _ } from "svelte-i18n";
 
   const name = "switch_" + uid(8);
 
   export let value: boolean;
   export let disabled = false;
-  export let labelTrue = "Enabled";
-  export let labelFalse = "Disabled";
+  export let labelTrue = $_("ui.input.radioSwitch.true");
+  export let labelFalse = $_("ui.input.radioSwitch.false");
   export let sideEffect: ((params: { current: boolean; next: boolean }) => void) | undefined =
     undefined;
 
