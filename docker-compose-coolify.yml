@@ -27,7 +27,7 @@ services:
 
   storybook:
     build:
-      context: ./frontend/packages/ui
+      context: ./frontend
       dockerfile: Dockerfile.storybook
     ports:
       - "8080:8080"
