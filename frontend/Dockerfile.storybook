@@ -12,5 +12,5 @@ WORKDIR /app
 COPY --from=builder /app/packages/ui/storybook-static ./storybook-static
 
 RUN npm install -g http-server
-EXPOSE 8080
-CMD ["http-server", "storybook-static"]
+EXPOSE 3001
+CMD ["http-server", "storybook-static", "-p", "3001"]

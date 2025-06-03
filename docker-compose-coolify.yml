@@ -30,7 +30,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.storybook
     ports:
-      - "8080:8080"
+      - "3001:3001"
 
   backend:
     build:
