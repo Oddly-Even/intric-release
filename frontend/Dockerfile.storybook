@@ -1,0 +1,16 @@
+FROM node:20-bullseye-slim AS builder
+
+WORKDIR /app
+COPY . .
+RUN npm install -g pnpm@9.13.2
+RUN pnpm install
+RUN pnpm --filter=ui run build-storybook
+
+FROM node:20-bullseye-slim AS runner
+
+WORKDIR /app
+COPY --from=builder /app/packages/ui/storybook-static ./storybook-static
+
+RUN npm install -g http-server
+EXPOSE 8080
+CMD ["http-server", "storybook-static"]
