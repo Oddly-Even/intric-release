@@ -25,28 +25,30 @@
 
 <Story name="Default">
   {#snippet template(args)}
-    <div class="flex w-full gap-[1px]">
-      <div
-        class="border-positive-stronger bg-positive-default text-on-fill hover:bg-positive-stronger flex w-full cursor-default items-center justify-center rounded-l-lg border"
-      >
-        Enabled
+    <div class="grid grid-cols-3">
+      <div class="flex gap-[1px]">
+        <div
+          class="border-positive-stronger bg-positive-default text-on-fill hover:bg-positive-stronger flex w-full cursor-default items-center justify-center rounded-l-lg border"
+        >
+          Dropdown
+        </div>
+        <Dropdown.Root gutter={2} arrowSize={0} placement="bottom-end">
+          <Dropdown.Trigger asFragment let:trigger>
+            <Button
+              padding="icon"
+              variant="positive"
+              is={trigger}
+              class="!rounded-l-none !rounded-r-lg"><IconChevronDown></IconChevronDown></Button
+            >
+          </Dropdown.Trigger>
+          <Dropdown.Menu let:item>
+            <Button is={item} onclick={() => {}} variant="destructive">
+              <IconCancel></IconCancel>
+              Abort</Button
+            >
+          </Dropdown.Menu>
+        </Dropdown.Root>
       </div>
-      <Dropdown.Root gutter={2} arrowSize={0} placement="bottom-end">
-        <Dropdown.Trigger asFragment let:trigger>
-          <Button
-            padding="icon"
-            variant="positive"
-            is={trigger}
-            class="!rounded-l-none !rounded-r-lg"><IconChevronDown></IconChevronDown></Button
-          >
-        </Dropdown.Trigger>
-        <Dropdown.Menu let:item>
-          <Button is={item} onclick={() => {}} variant="destructive">
-            <IconCancel></IconCancel>
-            Disable integration</Button
-          >
-        </Dropdown.Menu>
-      </Dropdown.Root>
     </div>
   {/snippet}
 </Story>
