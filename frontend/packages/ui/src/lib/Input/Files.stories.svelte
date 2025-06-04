@@ -4,13 +4,13 @@
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
-    title: "UI/Input/DateRange",
+    title: "UI/Input/Files",
     tags: ["autodocs"]
   });
 </script>
 
 <Story name="Default">
   {#snippet template(args)}
-    <Input.DateRange {...args}>Select date range</Input.DateRange>
+    <Input.Files {...args} />
   {/snippet}
 </Story>
