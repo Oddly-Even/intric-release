@@ -1,9 +1,20 @@
 FROM node:20-bullseye-slim AS builder
 
 WORKDIR /app
-COPY . .
+
+# Copy package files first for better caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/ui/package.json ./packages/ui/
+
+# Install pnpm and dependencies
 RUN npm install -g pnpm@9.13.2
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
+
+# Copy source code after dependencies are installed
+COPY . .
+
+# Clean any existing build artifacts and rebuild
+RUN rm -rf packages/ui/storybook-static
 RUN pnpm --filter=ui run build-storybook
 
 FROM node:20-bullseye-slim AS runner

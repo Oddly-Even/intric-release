@@ -21,7 +21,9 @@ const mockTranslations = {
   'ui.input.files.dropHere': 'Drop your files here',
   'ui.input.files.clickToSeeTypes': 'Click',
   'ui.input.files.here': 'here',
-  'ui.input.files.toSeeTypes': 'to see a list of supported filetypes'
+  'ui.input.files.toSeeTypes': 'to see a list of supported filetypes',
+  'ui.input.radioSwitch.true': 'On',
+  'ui.input.radioSwitch.false': 'Off'
 };
 
 // Add the mock translations and initialize
